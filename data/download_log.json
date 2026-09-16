@@ -1,0 +1,36 @@
+{
+  "last_attempt": "2026-09-16",
+  "sources": {
+    "nt_mobile_coverage_source.txt": {
+      "status": "ok",
+      "url": "https://data.nt.gov.au/dataset/?license_id=cc-by&tags=Mobile+Coverage"
+    },
+    "accc_mobile_infrastructure_source.txt": {
+      "status": "unavailable",
+      "url": "https://www.accc.gov.au/by-industry/telecommunications-and-internet/mobile-services-regulation/mobile-infrastructure-report/mobile-infrastructure-report-2025",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    "bom_cyclone_source.txt": {
+      "status": "ok",
+      "url": "https://www.bom.gov.au/cyclone/tropical-cyclone-knowledge-centre/databases/"
+    },
+    "first_nations_map_source.txt": {
+      "status": "ok",
+      "url": "https://www.infrastructure.gov.au/media-communications/first-nations-digital-inclusion"
+    },
+    "abs_census_source.txt": {
+      "status": "ok",
+      "url": "https://www.abs.gov.au/census/find-census-data/datapacks"
+    },
+    "nt_remote-small-cell-coverage-nt.xlsx": {
+      "status": "ok",
+      "url": "https://data.nt.gov.au/dataset/50131071-605e-4d32-a75e-0aeb8e98c640/resource/a12336fa-2538-4a4e-bef5-efb5937258e3/download/remote-small-cell-coverage-nt.xlsx",
+      "type": "resource"
+    },
+    "nt_remote-communities-mobile-coverage.xlsx": {
+      "status": "ok",
+      "url": "https://data.nt.gov.au/dataset/84fd8432-de2d-407c-977d-3f851adfac75/resource/88a6306f-293e-4048-a5e5-0d6b65e3e589/download/remote-communities-mobile-coverage.xlsx",
+      "type": "resource"
+    }
+  }
+}

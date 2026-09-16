@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="en-AU" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en-AU"  > <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+      <meta name="csrf_field_name" content="_csrf_token" />
+      <meta name="_csrf_token" content="IjRmYTVkZGI4MTdiMzE0YTU0NDg2ZmFmNmE4NzZmNWJkYzQwN2Y3Y2Ei.aqnr2A.2gUZ7UnnPq0rp0-0hoh50WVj2kI" />
+
+      <meta name="generator" content="ckan 2.11.6" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset - NTG Open Data Portal</title>
+
+    
+    
+    <link rel="shortcut icon" href="/favicon.png" />
+    
+    
+        
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZZNKNC9KS"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+
+     
+         gtag('set', 'linker');
+
+         gtag('js', new Date());
+
+         gtag('config', 'G-0ZZNKNC9KS', {
+             anonymize_ip: true,
+             linker: {
+                 domains: []
+             }
+         });
+     
+
+     
+     
+
+    </script>
+
+
+    
+
+  
+  
+  
+      
+      
+      
+    
+  
+
+  
+
+  
+  
+
+  
+
+
+
+    
+    <link href="/webassets/base/51d427fe_main.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-scheming/728ec589_scheming_css.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-activity/8dd77216_activity.css" rel="stylesheet"/>
+<link href="/webassets/ntg_theme/d6d97841_ntg_theme.css" rel="stylesheet"/>
+<link href="/webassets/ntg_theme/dba239d8_style.css" rel="stylesheet"/>
+<link href="/webassets/vendor/f3b8236b_select2.css" rel="stylesheet"/>
+<link href="/webassets/vendor/53df638c_fontawesome.css" rel="stylesheet"/>
+    
+    
+
+  </head>
+
+  
+  <body data-site-root="https://data.nt.gov.au/" data-locale-root="https://data.nt.gov.au/" >
+
+    
+    
+        
+    
+
+    
+    <div class="visually-hidden-focusable"><a href="#content">Skip to main content</a></div>
+  
+
+  
+    
+
+
+
+
+
+  
+    
+  
+
+
+  <header class="masthead">
+    
+      
+    
+
+
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <hgroup class="nt-header--logo navbar-brand">
+          <a href="https://nt.gov.au/">
+            <img src="/img/ntg-primary-reverse.png" alt="NT.GOV.AU logo" />
+          </a>
+          <span class="nt-header--logo--text">
+            <a href="/">
+              <span>Open Data Portal</span>
+            </a>
+          </span>
+        </hgroup>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation-toggle"
+          aria-controls="main-navigation-toggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="fa fa-bars text-white"></span>
+        </button>
+
+        <div class="main-navbar collapse navbar-collapse" id="main-navigation-toggle">
+          
+            <ul class="nav ms-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a href="/dataset/">Datasets</a>
+              </li>
+              <li class="nav-item">
+                <a href="/organization/">Organisations</a>
+              </li>
+              <li class="nav-item">
+                <a href="mailto:opendata@nt.gov.au?Subject=Request for a dataset&body=Dataset description:%0A%0AIntended use (eg: research, analysis etc.):%0A%0AProblem statement (if known):%0A%0AContact details if we have any additional questions:%0A%0A">Request data</a>
+              </li>
+
+              
+
+              <li class="nav-item">
+                <a href="/about">About</a>
+              </li>
+            </ul>
+          
+
+          
+            
+              <form class="section site-search simple-input" action="/dataset/" method="get">
+                <div class="field">
+                  <label for="field-sitewide-search">Search Datasets</label>
+                  <input id="field-sitewide-search" type="text" class="form-control" name="q" placeholder="Search" />
+                  <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+              </form>
+            
+          
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  
+    <div class="main">
+      <div id="content" class="container">
+        
+          
+            <div class="flash-messages">
+              
+                
+              
+            </div>
+          
+
+          
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+              
+                
+                  <ol class="breadcrumb">
+                    
+<li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    
+  <li class="active"><a href="/dataset/">Datasets</a></li>
+
+                  </ol>
+                
+              
+            </div>
+          
+
+          <div class="row wrapper">
+            
+            
+            
+
+            
+              <aside class="secondary col-md-3">
+                
+                
+  <div class="filters">
+    <div>
+      
+        
+
+    
+    
+	
+	    
+		<section class="module module-narrow module-shallow">
+		    
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    Organisations
+			</h2>
+		    
+		    
+			
+			    
+				<nav aria-label="Organisations">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;organization=department-of-corporate-and-information-services" title="Corporate and Digital Development">
+						    <span class="item-label">Corporate and...</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							
+						</a>
+					    </li>
+					
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    
+					
+				    
+				</p>
+			    
+			
+		    
+		</section>
+	    
+	
+    
+
+      
+        
+
+    
+    
+	
+	    
+		<section class="module module-narrow module-shallow">
+		    
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    Groups
+			</h2>
+		    
+		    
+			
+			    
+				<nav aria-label="Groups">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;groups=community" title="">
+						    <span class="item-label">Community support and care</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							
+						</a>
+					    </li>
+					
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    
+					
+				    
+				</p>
+			    
+			
+		    
+		</section>
+	    
+	
+    
+
+      
+        
+
+    
+    
+	
+	    
+		<section class="module module-narrow module-shallow">
+		    
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    Tags
+			</h2>
+		    
+		    
+			
+			    
+				<nav aria-label="Tags">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item  active">
+						<a href="/dataset/?license_id=cc-by" title="">
+						    <span class="item-label">Mobile Coverage</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>
+						</a>
+					    </li>
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;tags=Remote+Communites" title="">
+						    <span class="item-label">Remote Communites</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							
+						</a>
+					    </li>
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;tags=GPS+Position+for+Remote+Communities" title="GPS Position for Remote Communities">
+						    <span class="item-label">GPS Position for...</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">1</span>
+
+							
+						</a>
+					    </li>
+					
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    
+					
+				    
+				</p>
+			    
+			
+		    
+		</section>
+	    
+	
+    
+
+      
+        
+
+    
+    
+	
+	    
+		<section class="module module-narrow module-shallow">
+		    
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    Formats
+			</h2>
+		    
+		    
+			
+			    
+				<nav aria-label="Formats">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;res_format=XLSX" title="">
+						    <span class="item-label">XLSX</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							
+						</a>
+					    </li>
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item ">
+						<a href="/dataset/?license_id=cc-by&amp;tags=Mobile+Coverage&amp;res_format=PDF" title="">
+						    <span class="item-label">PDF</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">1</span>
+
+							
+						</a>
+					    </li>
+					
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    
+					
+				    
+				</p>
+			    
+			
+		    
+		</section>
+	    
+	
+    
+
+      
+        
+
+    
+    
+	
+	    
+		<section class="module module-narrow module-shallow">
+		    
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    Licenses
+			</h2>
+		    
+		    
+			
+			    
+				<nav aria-label="Licenses">
+				    <ul class="list-unstyled nav nav-simple nav-facet">
+					
+					    
+					    
+					    
+					    
+					    <li class="nav-item  active">
+						<a href="/dataset/?tags=Mobile+Coverage" title="Creative Commons Attribution">
+						    <span class="item-label">Creative Commons...</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">2</span>
+
+							<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>
+						</a>
+					    </li>
+					
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    
+					
+				    
+				</p>
+			    
+			
+		    
+		</section>
+	    
+	
+    
+
+      
+    </div>
+    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
+  </div>
+
+              </aside>
+            
+
+            
+              <div class="primary col-md-9 col-xs-12" role="main">
+                
+                
+  <section class="module">
+    <div class="module-content">
+      
+        
+      
+      
+
+
+
+
+
+
+
+
+
+
+<form id="dataset-search-form" class="search-form" method="get" data-module="select-switch">
+
+  
+    <div class="input-group search-input-group">
+      <input aria-label="Search datasets..." id="field-giant-search" type="text" class="form-control input-lg" name="q" value="" autocomplete="off" placeholder="Search datasets...">
+      
+  <button class="btn btn-primary btn-lg" type="submit" value="search" aria-label="Submit">
+    <i class="fa fa-search"></i>
+  </button>
+
+    </div>
+  
+
+  
+    <span>
+
+
+
+
+
+
+<input type="hidden" name="license_id" value="cc-by" />
+
+
+
+
+
+<input type="hidden" name="tags" value="Mobile Coverage" />
+
+
+
+</span>
+  
+
+  
+    
+      <div class="form-group control-order-by">
+        <label for="field-order-by">Order by</label>
+        <select id="field-order-by" name="sort" class="form-control form-select">
+          
+            
+              <option value="score desc, metadata_modified desc" selected="selected">Relevance</option>
+            
+          
+            
+              <option value="title_string asc">Name Ascending</option>
+            
+          
+            
+              <option value="title_string desc">Name Descending</option>
+            
+          
+            
+              <option value="metadata_modified desc">Last Modified</option>
+            
+          
+            
+              <option value="views_recent desc">Popular</option>
+            
+          
+        </select>
+        
+        <button class="btn btn-default js-hide" type="submit">Go</button>
+        
+      </div>
+    
+  
+
+  
+    <h1>
+    
+      
+
+  
+  
+  
+  
+
+2 datasets found
+    
+    </h1>
+  
+
+  
+    
+      <p class="filter-list">
+        
+          
+          <span class="facet">Licenses:</span>
+          
+            <span class="filtered pill">Creative Commons Attribution
+              <a href="/dataset/?tags=Mobile+Coverage" class="remove" title="Remove"><i class="fa fa-times"></i></a>
+            </span>
+          
+        
+          
+          <span class="facet">Tags:</span>
+          
+            <span class="filtered pill">Mobile Coverage
+              <a href="/dataset/?license_id=cc-by" class="remove" title="Remove"><i class="fa fa-times"></i></a>
+            </span>
+          
+        
+      </p>
+      <a class="show-filters btn btn-default">Filter Results</a>
+    
+  
+
+</form>
+
+
+
+
+
+      
+        
+
+  
+    <ul class="dataset-list list-unstyled">
+    	
+	      
+	        
+
+
+
+
+  <li class="dataset-item">
+    
+    
+    
+      <div class="dataset-content">
+        
+          <h2 class="dataset-heading">
+            
+              
+            
+            
+    <a href="/dataset/mobile-phone-coverage-in-remote-areas-of-the-nt" title="Mobile Phone Coverage in Remote Areas of the NT 2022">
+      Mobile Phone Coverage in Remote Areas of the NT 2022
+    </a>
+            
+            
+
+              
+            
+
+
+
+          </h2>
+        
+        
+          
+            <div>Northern Territory remote areas with mobile network coverage. Data includes coverage in Aboriginal communities, remote villages, tourism locations and highway locations....</div>
+          
+        
+      </div>
+      
+        
+          
+            <ul class="dataset-resources list-unstyled">
+              
+                
+                <li>
+                  <a href="/dataset/mobile-phone-coverage-in-remote-areas-of-the-nt" class="badge badge-default" data-format="xlsx">XLSX</a>
+                </li>
+                
+              
+            </ul>
+          
+        
+      
+    
+    
+
+  </li>
+
+	      
+	        
+
+
+
+
+  <li class="dataset-item">
+    
+    
+    
+      <div class="dataset-content">
+        
+          <h2 class="dataset-heading">
+            
+              
+            
+            
+    <a href="/dataset/remote-communities-with-mobile-coverage" title="Remote Communities with 3G/4G Mobile Coverage 2021">
+      Remote Communities with 3G/4G Mobile Coverage 2021
+    </a>
+            
+            
+
+              
+            
+
+
+
+          </h2>
+        
+        
+          
+            <div>Northern Territory communities with 3G/4G mobile network coverage. Cities and towns excluded from dataset Darwin, Palmerston, Tennant Creek, Katherine, Alice Springs and Nhulunbuy.</div>
+          
+        
+      </div>
+      
+        
+          
+            <ul class="dataset-resources list-unstyled">
+              
+                
+                <li>
+                  <a href="/dataset/remote-communities-with-mobile-coverage" class="badge badge-default" data-format="xlsx">XLSX</a>
+                </li>
+                
+                <li>
+                  <a href="/dataset/remote-communities-with-mobile-coverage" class="badge badge-default" data-format="pdf">PDF</a>
+                </li>
+                
+              
+            </ul>
+          
+        
+      
+    
+    
+
+  </li>
+
+	      
+	    
+    </ul>
+  
+
+      
+    </div>
+
+    
+      
+    
+  </section>
+
+  
+
+              </div>
+            
+          </div>
+        
+      </div>
+    </div>
+  
+    <footer class="site-footer">
+  <div class="container">
+
+    <a href="https://boundlesspossible.nt.gov.au" class="footer-logo">
+      <img width="360" src="https://nt.gov.au/__data/assets/file/0011/578450/ntg-bp-logo-lockup-mono.svg"
+           alt="NTG logo">
+    </a>
+
+    <nav class="menu-footer">
+      <ul class="list-unstyled">
+        <li>
+          <a href="https://nt.gov.au/page/copyright-disclaimer-and-privacy">Copyright, disclaimer and privacy</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/law/rights/freedom-of-information">Freedom of information</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/page/interpreter-services"> Interpreter services</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/page/accessibility">Accessibility</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/page/sitemap">Site map</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/contacts">Contacts</a>
+        </li>
+        <li>
+          <a href="https://nt.gov.au/contacts/external-northern-territory-government-staff-systems">NTG staff systems</a>
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="copyright">
+    <div class="container">
+      &copy; 2026 Northern Territory Government of Australia
+    </div>
+  </div>
+</footer>
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+        
+        
+        <div class="js-hide" data-module="google-analytics"
+             data-module-googleanalytics_resource_prefix="/downloads/">
+        </div>
+    
+
+
+  
+
+  
+
+
+    
+    
+    
+    <script src="/webassets/vendor/240e5086_jquery.js" type="text/javascript"></script>
+<script src="/webassets/vendor/71bc2bbc_vendor.js" type="text/javascript"></script>
+<script src="/webassets/vendor/6d1ad7e6_bootstrap.js" type="text/javascript"></script>
+<script src="/webassets/vendor/529a0eb7_htmx.js" type="text/javascript"></script>
+<script src="/webassets/base/ebc2f0b9_main.js" type="text/javascript"></script>
+<script src="/webassets/ntg_theme/18b87892_scripts.js" type="text/javascript"></script>
+<script src="/webassets/webassets-external/7373c496d73ecb3849251a6037cc4e74_clone-dataset.js" type="text/javascript"></script>
+<script src="/webassets/base/78ac888d_ckan.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-googleanalytics/event_tracking.js?71ae8997" type="text/javascript"></script>
+<script src="/webassets/activity/0fdb5ee0_activity.js" type="text/javascript"></script>
+<script src="/webassets/tracking/8b59a308_tracking.js" type="text/javascript"></script>
+  </body>
+</html>

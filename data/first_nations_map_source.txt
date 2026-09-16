@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8" />
+<script async src="/sites/default/files/google_analytics/gtag.js?tle93p"></script>
+<script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments)};gtag("js", new Date());gtag("set", "developer_id.dMDhkMT", true);gtag("config", "G-XBESXZTWTT", {"groups":"default","page_placeholder":"PLACEHOLDER_page_location"});gtag('config', 'G-0XT7NFV9ZS', {'name': 'govcms'}); gtag('govcms.send', 'pageview', {'anonymizeIp': true})</script>
+<meta name="description" content="The Australian Government is committed to achieving Target 17 of the National Agreement on Closing the Gap, which aims for equal levels of digital inclusion for Aboriginal and Torres Strait Islander people by 2026. This Target underpins Outcome 17, which focuses on First Nations Australians being able to access the information and services they need to make informed choices about their own lives and communities." />
+<link rel="canonical" href="https://www.infrastructure.gov.au/media-communications/first-nations-digital-inclusion" />
+<meta property="og:site_name" content="Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts" />
+<meta property="og:url" content="https://www.infrastructure.gov.au/media-communications/first-nations-digital-inclusion" />
+<meta property="og:title" content="First Nations Digital Inclusion" />
+<meta property="og:description" content="The Australian Government is committed to achieving Target 17 of the National Agreement on Closing the Gap, which aims for equal levels of digital inclusion for Aboriginal and Torres Strait Islander people by 2026. This Target underpins Outcome 17, which focuses on First Nations Australians being able to access the information and services they need to make informed choices about their own lives and communities." />
+<meta name="dcterms.title" content="First Nations Digital Inclusion" />
+<meta name="dcterms.creator" content="Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts" />
+<meta name="dcterms.description" content="The Australian Government is committed to achieving Target 17 of the National Agreement on Closing the Gap, which aims for equal levels of digital inclusion for Aboriginal and Torres Strait Islander people by 2026. This Target underpins Outcome 17, which focuses on First Nations Australians being able to access the information and services they need to make informed choices about their own lives and communities." />
+<meta name="dcterms.publisher" content="Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts" />
+<meta name="dcterms.date" content="2026-08-10" />
+<meta name="dcterms.modified" content="2026-08-10" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:description" content="The Australian Government is committed to achieving Target 17 of the National Agreement on Closing the Gap, which aims for equal levels of digital inclusion for Aboriginal and Torres Strait Islander people by 2026. This Target underpins Outcome 17, which focuses on First Nations Australians being able to access the information and services they need to make informed choices about their own lives and communities." />
+<meta name="twitter:title" content="First Nations Digital Inclusion" />
+<meta name="Generator" content="Drupal 11 (http://drupal.org) + GovCMS (http://govcms.gov.au)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<link rel="icon" href="/themes/custom/custom/ditrdc/favicon.ico" type="image/vnd.microsoft.icon" />
+
+    <meta name="format-detection" content="telephone=no" />
+    <title>First Nations Digital Inclusion | Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts</title>
+    <link rel="stylesheet" media="all" href="/sites/default/files/css/css_Tztb6GatGYs6WVEtmBYm3SVy5fRdabvQi-ipzlnTc5E.css?delta=0&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOwjAMBD-UNk-q7NgqEU5c2Q7Q34O4VAoSlz3szC6qhofBsSGYVc1oDFRsNEw4s10UQRaPU2rff_jmA-PGjfNFCvU_3nRYtAe_YoBksnGArFezfIy7J6phVOahnx7cMoJzelR-ev7m2pSG8Bv9nlry" />
+<link rel="stylesheet" media="all" href="/sites/default/files/css/css_dTo8YU-3AT4970WJm_xIMc3kmRlV5Md2YSvMqEKEqKE.css?delta=1&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOwjAMBD-UNk-q7NgqEU5c2Q7Q34O4VAoSlz3szC6qhofBsSGYVc1oDFRsNEw4s10UQRaPU2rff_jmA-PGjfNFCvU_3nRYtAe_YoBksnGArFezfIy7J6phVOahnx7cMoJzelR-ev7m2pSG8Bv9nlry" />
+<link rel="stylesheet" media="all" href="//cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" media="all" href="/sites/default/files/css/css_IDqoFKOVSo78Kc94ikAybY5vIviWBvAEcFgSG8EGGbY.css?delta=3&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOwjAMBD-UNk-q7NgqEU5c2Q7Q34O4VAoSlz3szC6qhofBsSGYVc1oDFRsNEw4s10UQRaPU2rff_jmA-PGjfNFCvU_3nRYtAe_YoBksnGArFezfIy7J6phVOahnx7cMoJzelR-ev7m2pSG8Bv9nlry" />
+<link rel="stylesheet" media="print" href="/sites/default/files/css/css_BuZ9_2y8S7ERR_5rOY3m1coeVokZS8uXS2EMaUfCpIY.css?delta=4&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOwjAMBD-UNk-q7NgqEU5c2Q7Q34O4VAoSlz3szC6qhofBsSGYVc1oDFRsNEw4s10UQRaPU2rff_jmA-PGjfNFCvU_3nRYtAe_YoBksnGArFezfIy7J6phVOahnx7cMoJzelR-ev7m2pSG8Bv9nlry" />
+<link rel="stylesheet" media="all" href="/sites/default/files/css/css_PU5wPb_fnn_L3prUFBS3haZXI9QnxwKqAQIV56bzTzA.css?delta=5&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOwjAMBD-UNk-q7NgqEU5c2Q7Q34O4VAoSlz3szC6qhofBsSGYVc1oDFRsNEw4s10UQRaPU2rff_jmA-PGjfNFCvU_3nRYtAe_YoBksnGArFezfIy7J6phVOahnx7cMoJzelR-ev7m2pSG8Bv9nlry" />
+
+    <script src="/sites/default/files/js/js_Zlnv4jOj6iYNlkOqEUpHRel396AGXo-AKOcOkTuDTg4.js?scope=header&amp;delta=0&amp;language=en&amp;theme=ditrdc&amp;include=eJx9jEEOgCAMBD-E8iTSAkG0UtOWRH-vF2PCwevM7CKzqQkcAUGksi_ECDSpXVRbcTj4oB1tyXv2n4mp_XTDYeRm-bQO5JP0A2j-yPQUm7pUTVJ8h6u6wlwoB2hAl9WofgQ3-ORPNA"></script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5H5XQBX9');</script>
+<!-- End Google Tag Manager -->
+    <script async src="//cdn1.readspeaker.com/script/5274/webReader/webReader.js?pids=wr" type="text/javascript" id="rs_req_Init"></script>
+  </head>
+  <body class="layout-one-sidebar layout-sidebar-second page-node-41664 path-node node--type-page">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5H5XQBX9"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <a href="#main-content" class="visually-hidden focusable skip-link">
+      Skip to main content
+    </a>
+    
+      <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+    <div id="page-wrapper" class="media-communications first-nations-digital-inclusion   ">
+  <div id="page-normal">
+      <div class="notification">
+    <div class="container-fluid">
+        <section class="row region region-header-top">
+    <div style="width: 100%">
+  <div></div>
+
+</div>
+
+  </section>
+
+    </div>
+</div>
+
+<header id="header" class="header-hero" role="banner" aria-label="Site header">
+    <div class="container">
+        <div class="row w-100 header-row">
+            <div class="col-sm-10 col-md-6 col-lg-4">
+                <a class="header__logo" href="/">
+                    <img src="/themes/custom/custom/ditrdc/logo.svg" class="img-logo" alt="Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts, logo of">
+                </a>
+            </div>
+            <div class="col-sm-7">
+                <nav role="navigation" aria-labelledby="block-headermenu-menu" id="block-headermenu" class="contextual-region settings-tray-editable block block-menu navigation menu--header-menu" data-drupal-settingstray="editable">
+            
+  <h2 class="visually-hidden" id="block-headermenu-menu">Header menu</h2>
+  <div data-contextual-id="block:block=headermenu:has_overrides=0&amp;langcode=en|menu:menu=header-menu:langcode=en|settings_tray::langcode=en" data-contextual-token="ETMFdu8UHJK0tuClkwuTPtfYzUOS5er907XqmsnYvGE" data-drupal-ajax-container=""></div>
+
+        
+              <ul id="block-headermenu" class="clearfix nav">
+                    <li class="nav-item">
+                <a href="https://minister.infrastructure.gov.au/" class="nav-link nav-link-https--ministerinfrastructuregovau-">Ministers</a>
+              </li>
+                <li class="nav-item">
+                <a href="/about-us" class="nav-link nav-link--about-us" data-drupal-link-system-path="node/33072">About us</a>
+              </li>
+                <li class="nav-item">
+                <a href="/department/media" class="nav-link nav-link--department-media" data-drupal-link-system-path="node/26515">Media centre</a>
+              </li>
+                <li class="nav-item">
+                <a href="/contact-us" class="nav-link nav-link--contact-us" data-drupal-link-system-path="node/384">Contact us</a>
+              </li>
+        </ul>
+  
+
+
+  </nav>
+
+
+            </div>
+
+          <!-- BEGIN: Header search form -->
+            <div class="header-site-search-content-wrapper col-md-1">
+                <div class="header-search-form">
+                                                                                <form action="/search" method="get" id="header-search-form" accept-charset="UTF-8" data-drupal-form-fields="edit-keys">
+                        <div id="remote-search" class="input-wrap">
+                            <div class="form-item form-item-keys form-type-textfield form-group">
+                                <input placeholder="Search" autocomplete="off"
+                                       data-drupal-selector="edit-keys"
+                                       class="typeahead form-control form-text" type="text" id="edit-keys" name="keys"
+                                       value="" size="60" maxlength="128"/>
+                            </div>
+                        </div>
+                        <button type="submit">
+                            <i class="fa-regular fa-magnifying-glass"></i>
+                            <span class="sr-only">Search</span>
+                        </button>
+                    </form>
+                </div>
+                <a class="search-trigger" role="button" aria-controls="header-search-form"
+                   aria-expanded="false" aria-label="search" tabindex="0">
+                    <svg class="svg-inline--fa fa-magnifying-glass fa-w-16 fa-2x"
+                         aria-hidden="true" data-prefix="fa-regular"
+                         data-icon="magnifying-glass" role="img"
+                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                         data-fa-i2svg="">
+                        <path fill="currentColor"
+                              d="M508.5 468.9L387.1 347.5c-2.3-2.3-5.3-3.5-8.5-3.5h-13.2c31.5-36.5 50.6-84 50.6-136C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c52 0 99.5-19.1 136-50.6v13.2c0 3.2 1.3 6.2 3.5 8.5l121.4 121.4c4.7 4.7 12.3 4.7 17 0l22.6-22.6c4.7-4.7 4.7-12.3 0-17zM208 368c-88.4 0-160-71.6-160-160S119.6 48 208 48s160 71.6 160 160-71.6 160-160 160z"></path>
+                    </svg>
+                </a>
+            </div>
+
+
+                        <button id="mobile-menu-button" class="hamburger hamburger--spin" type="button" aria-hidden="true" hidden aria-controls="mobile-menu">
+                <span class="mobile-wrapper">
+                  <span class="label font-label">
+                    <span class="sr-only">Mobile</span>MENU
+                </span>
+                  <span class="hamburger-box">
+                    <span class="hamburger-inner"></span>
+                  </span>
+                </span>
+            </button>
+        </div>
+        <div class="row w-100 d-flex align-items-center">
+            <nav role="navigation" aria-labelledby="block-ditrdcnavigation-menu" id="block-ditrdcnavigation" class="contextual-region settings-tray-editable block block-menu navigation menu--ditrdc-navigation" data-drupal-settingstray="editable">
+            
+  <h2 class="visually-hidden" id="block-ditrdcnavigation-menu">DITRDC navigation</h2>
+  <div data-contextual-id="block:block=ditrdcnavigation:has_overrides=0&amp;langcode=en|settings_tray::langcode=en|menu:menu=ditrdc-navigation:langcode=en" data-contextual-token="H-YvHOMba2A-ZM03gj86flf32E7L0ldu2ygcAd2m6yA" data-drupal-ajax-container=""></div>
+
+        
+        <ul class="clearfix nav navbar-nav">
+                                    <li class="nav-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/32240">Infrastructure, transport &amp; vehicles</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Infrastructure, transport &amp; vehicles</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles/aviation" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/30769">Aviation</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Aviation</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/aviation-white-paper" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/35064">Aviation White Paper</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Aviation White Paper</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/aviation-white-paper/aviation-white-paper-how-be-involved" data-drupal-link-system-path="node/36244">Aviation White Paper - How to be involved</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/aviation-white-paper/aviation-white-paper-terms-reference-submissions" data-drupal-link-system-path="node/36245">Aviation White Paper - Terms of Reference Submissions</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/aviation-white-paper/terms-of-reference" data-drupal-link-system-path="node/35680">Aviation White Paper - Terms of Reference</a>
+                            </li>
+            </ul>
+        
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/aviation-green-paper" data-drupal-link-system-path="node/36549">Aviation Green Paper</a>
+                            </li>
+                                <li class="dropdown-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/30755">Air traffic management</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Air traffic management</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management/flight-priorities-review" data-drupal-link-system-path="node/30768">2016 Aeronautical Information Publication Flight Priorities Review</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management/plan" data-drupal-link-system-path="node/30756">Australia&#039;s Air Traffic Management Plan</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management/policy-approach-baro-vnav-implementation" data-drupal-link-system-path="node/30766">Australia&#039;s Policy Approach to Baro-VNAV Implementation</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management/apg" data-drupal-link-system-path="node/30765">Aviation Policy Group (APG)</a>
+                            </li>
+                                <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/air-traffic-management/sbas-test-bed" data-drupal-link-system-path="node/30767">Satellite-Based Augmentation System (SBAS) test-bed</a>
+                            </li>
+            </ul>
+        
+                            </li>
+                                <li class="dropdown-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/airports" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/30924">Airports</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Airports</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/airports/demand-management-sydney-airport" data-drupal-link-system-path="node/40326">Demand Management at Sydney Airport</a>
+                            </li>
+                                <li class="dropdown-item menu-item--expanded dropdown">
+                                                    <a href="/infrastructure-transport-vehicles/aviation/airports/airport-building-controls" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-drupal-link-system-path="node/30926">Airport Building Control</a>
+                    <button class="js-submenu-expand visually-hidden focusable">Expand <em>Airport Building Control</em> sub menu</button>
+                                <ul class="dropdown-menu js-submenu">
+                                        <li class="dropdown-item">
+                                                    <a href="/
