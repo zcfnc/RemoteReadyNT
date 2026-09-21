@@ -1,5 +1,215 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#081827"><title>RemoteReady NT | Communications Resilience</title><style>
-:root{--ink:#122536;--muted:#617480;--navy:#081827;--teal:#22b6a4;--red:#e66e61;--orange:#f2a052;--line:#dbe5e9;--bg:#f3f6f8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px Inter,system-ui,sans-serif}.shell{display:flex;min-height:100vh}.side{width:235px;background:var(--navy);color:#dcebef;padding:27px 17px;display:flex;flex-direction:column}.brand{display:flex;gap:10px;align-items:center;margin:0 10px 44px}.mark{width:34px;height:34px;border-radius:10px;background:var(--teal);color:var(--navy);display:grid;place-items:center;font-size:24px;font-weight:900}.brand b{display:block}.brand small{display:block;color:#91aeb8;font-size:10px;margin-top:3px}.nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#a6bec7;padding:13px 12px;border-radius:8px;font-size:14px;cursor:pointer}.nav button.active,.nav button:hover{background:#17364a;color:#fff;box-shadow:inset 3px 0 var(--teal)}.side-foot{margin-top:auto;border-top:1px solid #284452;padding:17px 10px;color:#8098a1;font-size:10px;line-height:1.6}.main{flex:1;padding:35px 45px;max-width:1600px;margin:auto}.top{display:flex;justify-content:space-between;align-items:start;margin-bottom:22px}.eyebrow{font-size:10px;letter-spacing:1.4px;color:#788d97;font-weight:800;margin:0 0 6px}.top h1{font-size:29px;margin:0 0 4px;letter-spacing:-1px}.sub{margin:0;color:var(--muted);font-size:14px}.profile{background:var(--navy);color:#fff;padding:9px 12px;border-radius:8px;font-weight:800}.scenario{background:#102b3d;color:#fff;border-radius:11px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 25px #15364d18;margin-bottom:17px}.scenario strong{display:block;font-size:14px}.scenario small{color:#a8c0c8;font-size:12px}.scopy{display:flex;gap:12px;align-items:center}.alert-icon{border:1px solid #5c8393;border-radius:50%;width:27px;height:27px;display:grid;place-items:center;color:#ffc275;font-weight:900}.seg{background:#07151f;padding:3px;border-radius:8px}.seg button{border:0;background:none;color:#9fb7c0;padding:8px 12px;border-radius:6px;cursor:pointer}.seg button.active{background:white;color:var(--navy);font-weight:800}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:17px}.card{background:white;border:1px solid var(--line);border-radius:11px;padding:15px 17px;box-shadow:0 8px 20px #19394b0a}.stat span{font-size:12px;color:var(--muted)}.stat b{display:block;font-size:29px;margin:6px 0 1px}.stat small{font-size:11px;color:#8a9ba3}.stat.alert b{color:var(--red)}.stat.good b{color:#198f82}.work{display:grid;grid-template-columns:1.55fr .8fr;gap:15px;margin-bottom:15px}.head{display:flex;justify-content:space-between;padding:17px 19px 12px}.head h2{font-size:15px;margin:0 0 4px}.head p{font-size:12px;color:var(--muted);margin:0}.map{height:405px;background:#e4efeb;position:relative;overflow:hidden;border-radius:0 0 11px 11px;background-image:linear-gradient(#c3d8d11f 1px,transparent 1px),linear-gradient(90deg,#c3d8d11f 1px,transparent 1px);background-size:42px 42px}.outline{position:absolute;inset:32px 14% 25px 17%;background:#cce2da;clip-path:polygon(15% 0,68% 6%,87% 22%,100% 39%,92% 54%,80% 62%,84% 79%,64% 90%,48% 82%,30% 100%,15% 79%,17% 62%,4% 45%,12% 25%)}.label{position:absolute;color:#6a8780;font-size:9px;font-weight:800;letter-spacing:1px}.darwin{top:38px;left:29%}.alice{bottom:83px;left:37%}.north{position:absolute;right:20px;top:15px;color:#66877d;font-weight:900}.legend{position:absolute;right:17px;top:17px;background:#ffffffd8;padding:8px;border-radius:6px;font-size:11px;color:var(--muted);z-index:2}.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px 0 7px}.high{background:var(--red)}.medium{background:var(--orange)}.low{background:var(--teal)}.marker{position:absolute;transform:translate(-50%,-50%);border:3px solid white;width:15px;height:15px;border-radius:50%;box-shadow:0 2px 8px #0004;cursor:pointer}.marker.high{background:var(--red)}.marker.medium{background:var(--orange)}.marker.low{background:var(--teal)}.marker.selected{outline:2px solid #183f51;outline-offset:4px}.caption{position:absolute;bottom:11px;left:14px;background:#ffffffc9;color:#65827b;font-size:10px;padding:6px 8px;border-radius:5px}.detail{padding:19px}.detail-top{display:flex;justify-content:space-between}.detail h2{font-size:23px;margin:2px 0}.detail p{color:var(--muted);font-size:12px;margin:0}.pill{font-size:10px;font-weight:900;padding:6px 7px;border-radius:5px}.pill.high{background:#fde8e5;color:#b7473d}.pill.medium{background:#fff0df;color:#a26124}.pill.low{background:#d9f5f0;color:#177e72}.score{display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding:19px 0 16px;margin-bottom:15px}.ring{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--red) 38%,#eaf0f1 0);position:relative;flex:none}.ring:after{content:"";position:absolute;inset:8px;background:white;border-radius:50%}.ring b,.ring span{z-index:1;position:relative}.ring b{font-size:23px}.ring span{font-size:10px;color:var(--muted)}.score strong{font-size:13px}.score p{font-size:11px;line-height:1.4;margin-top:4px}.block{margin-bottom:15px}.block h3{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#78909a;margin:0 0 6px}.block p{font-size:13px;line-height:1.45;color:var(--ink)}.chips{display:flex;gap:6px;flex-wrap:wrap}.chips span{background:#f0f4f5;padding:5px 7px;border-radius:5px;font-size:11px}.recommend{background:#eaf9f5;border-left:3px solid var(--teal);padding:10px 11px;font-size:12px}.recommend b{display:block}.recommend p{color:var(--ink);font-size:12px;margin-top:3px}.foot{border-top:1px solid var(--line);margin-top:14px;padding-top:11px;color:#7c9099;font-size:11px;display:grid;gap:4px}.bottom{display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.queue{padding:0 19px 14px}.row{display:grid;grid-template-columns:27px 1fr 80px 88px;gap:7px;align-items:center;border-top:1px solid #edf1f2;padding:10px 0;font-size:11px}.row:first-child{border-top:0}.row b{font-size:12px}.row em{font-style:normal;color:var(--muted)}.row .r{font-weight:800;text-align:right}.offline{padding-bottom:15px}.badge{font-size:9px;letter-spacing:1px;color:#147d72;background:#e2f6f2;padding:6px;border-radius:4px;font-weight:900}.progress{padding:3px 19px 8px}.progress div{display:flex;justify-content:space-between;font-size:12px}.progress strong{color:#168d82}.track{height:6px;background:#e5eeee;border-radius:5px;margin-top:8px}.track i{display:block;width:83%;height:100%;background:var(--teal);border-radius:5px}.offline-list{padding:0 19px}.offline-list>div{border-top:1px solid #edf1f2;padding:10px 0;display:flex;gap:9px}.offline-list span{background:#e2f6f2;color:#168d82;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-weight:900}.offline-list small{display:block;color:var(--muted);font-size:10px;margin-top:3px}footer{font-size:10px;color:#83959d;display:flex;justify-content:space-between;padding-top:17px}@media(max-width:1000px){.side{width:200px}.main{padding:25px}.work{grid-template-columns:1fr}.bottom{grid-template-columns:1fr}}@media(max-width:680px){.shell{display:block}.side{width:100%;padding:15px}.brand{margin:0}.nav,.side-foot{display:none}.main{padding:18px 13px}.stats{grid-template-columns:1fr 1fr}.scenario{display:block}.seg{margin-top:13px;overflow:auto;white-space:nowrap}.work,.bottom{display:block}.detail{margin-top:13px}.offline{margin-top:13px}footer{display:block;line-height:1.6}}
-</style></head><body><div class="shell"><aside class="side"><div class="brand"><div class="mark">⌁</div><div><b>RemoteReady</b><small>NT communications resilience</small></div></div><nav class="nav"><button class="active">◈ &nbsp;Resilience overview</button><button>⌁ &nbsp;Coverage confidence</button><button>⌖ &nbsp;Deployment planner</button><button>⇩ &nbsp;Offline packs</button></nav><div class="side-foot">● Data snapshot<br><small>16 Sep 2026 · 09:40 ACST</small><br><br>Prototype for CDU IT Code Fair 2026<br>Estimates are not emergency advice.</div></aside><main class="main"><header class="top"><div><p class="eyebrow">REMOTE CONNECTIVITY / NORTHERN TERRITORY</p><h1>Resilience overview</h1><p class="sub">See where a cyclone or infrastructure failure could interrupt essential services.</p></div><div class="profile">RR &nbsp; Analyst</div></header><section class="scenario"><div class="scopy"><span class="alert-icon">!</span><div><strong id="st">Normal operating conditions</strong><small id="ss">Baseline coverage and critical-facility exposure across selected remote communities.</small></div></div><div class="seg"><button class="mode active" data-mode="normal">Normal</button><button class="mode" data-mode="cyclone">Cyclone warning</button><button class="mode" data-mode="outage">Tower outage</button></div></section><section class="stats"><div class="card stat"><span>Communities assessed</span><b>24</b><small>6 shown in MVP view</small></div><div class="card stat alert"><span>High-risk communities</span><b id="high">3</b><small>under selected scenario</small></div><div class="card stat"><span>People potentially affected</span><b id="affected">4,157</b><small>population exposure estimate</small></div><div class="card stat good"><span>Response cache ready</span><b>83%</b><small>offline packs synced</small></div></section><section class="work"><div class="card mapcard"><div class="head"><div><h2>Connectivity resilience map</h2><p>Click a community to inspect its risk drivers.</p></div><div class="legend"><i class="high"></i>High <i class="medium"></i>Medium <i class="low"></i>Low</div></div><div class="map"><div class="outline"></div><span class="label darwin">DARWIN</span><span class="label alice">ALICE SPRINGS</span><span class="north">N</span><div id="markers"></div><span class="caption">Risk blends coverage, redundancy, hazard exposure and critical-facility access.</span></div></div><aside class="card detail"><div class="detail-top"><div><span class="eyebrow">SELECTED COMMUNITY</span><h2 id="name">Borroloola</h2><p id="region">Gulf · 871 residents</p></div><span class="pill high" id="pill">HIGH RISK</span></div><div class="score"><div class="ring" id="ring"><b id="score">38</b><span>/100</span></div><div><strong>Resilience score</strong><p>Lower scores indicate greater vulnerability when connectivity degrades.</p></div></div><div class="block"><h3>Why this matters</h3><p id="reason">Single primary coverage path and high cyclone exposure.</p></div><div class="block"><h3>Critical facilities</h3><div class="chips" id="facilities"></div></div><div class="recommend"><b>✦ Recommended action</b><p id="action">Pre-position satellite terminal and backup power.</p></div><div class="foot"><span id="confidence">Data confidence: Medium</span><span id="pack">Offline pack: Ready · 18 MB</span></div></aside></section><section class="bottom"><article class="card"><div class="head"><div><h2>Priority deployment queue</h2><p>Indicative actions if one response cache is available.</p></div><button style="border:0;background:none;color:#168d82;font-weight:800">View all →</button></div><div class="queue" id="queue"></div></article><article class="card offline"><div class="head"><div><h2>Offline readiness</h2><p>Information available after the network drops.</p></div><span class="badge">LOCAL FIRST</span></div><div class="progress"><div><span>Community packs synced</span><strong>83%</strong></div><div class="track"><i></i></div></div><div class="offline-list"><div><span>✓</span><div><b>Maps and facility points</b><small>Last sync 09:38 ACST</small></div></div><div><span>✓</span><div><b>Emergency contacts</b><small>Last sync 09:38 ACST</small></div></div><div><span>↻</span><div><b>Wadeye pack</b><small>Queued for next connection</small></div></div></div></article></section><footer><span>Sources: NT mobile coverage · ACCC infrastructure · BoM · ABS · First Nations Connectivity Mapping Tool</span><span>Prototype data · <button id="assumptions" style="border:0;background:none;color:#168d82;font-size:10px">View assumptions</button></span></footer></main></div><script>
-let data=[],selected='borroloola',mode='normal';const modes={normal:['Normal operating conditions','Baseline coverage and critical-facility exposure across selected remote communities.'],cyclone:['Cyclone warning scenario','Exposure increases where hazard, access constraints and low redundancy overlap.'],outage:['Tower outage scenario','A primary tower is unavailable; scores reflect the nearest usable alternative.']};fetch('../data/communities.json').then(r=>r.json()).then(d=>{data=d;render()});function cls(r){return r==='High'?'high':r==='Medium'?'medium':'low'}function render(){const c=data.find(x=>x.id===selected)||data[0];document.querySelector('#st').textContent=modes[mode][0];document.querySelector('#ss').textContent=modes[mode][1];document.querySelector('#high').textContent=data.filter(x=>x.risk==='High').length+(mode==='cyclone'?1:0);document.querySelector('#affected').textContent=(data.filter(x=>x.risk==='High').reduce((a,x)=>a+x.population,0)+(mode==='cyclone'?1200:0)).toLocaleString();const holder=document.querySelector('#markers');holder.innerHTML='';data.forEach(x=>{const m=document.createElement('button');m.className='marker '+cls(x.risk)+(x.id===selected?' selected':'');m.title=x.name;m.setAttribute('aria-label','View '+x.name);m.style.left=(((x.lng-127)/11)*70+17)+'%';m.style.top=((1-(x.lat+26)/14)*73+8)+'%';m.onclick=()=>{selected=x.id;render()};holder.appendChild(m)});document.querySelector('#name').textContent=c.name;document.querySelector('#region').textContent=c.region+' · '+c.population.toLocaleString()+' residents';const p=document.querySelector('#pill');p.textContent=c.risk.toUpperCase()+' RISK';p.className='pill '+cls(c.risk);document.querySelector('#score').textContent=c.resilience;document.querySelector('#ring').style.background='conic-gradient('+(c.risk==='High'?'#e66e61':c.risk==='Medium'?'#f2a052':'#22b6a4')+' '+c.resilience+'%,#eaf0f1 0)';document.querySelector('#reason').textContent=c.reason;document.querySelector('#action').textContent=c.action;document.querySelector('#confidence').textContent='Data confidence: '+c.confidence;document.querySelector('#pack').textContent='Offline pack: '+c.offlinePack;document.querySelector('#facilities').innerHTML=c.facilities.map(f=>'<span>'+f+'</span>').join('');document.querySelector('#queue').innerHTML=[...data].sort((a,b)=>a.resilience-b.resilience).slice(0,4).map((x,i)=>'<div class="row"><span>0'+(i+1)+'</span><div><b>'+x.name+'</b><br><em>'+x.action+'</em></div><em>Score '+x.resilience+'</em><span class="r '+cls(x.risk)+'">'+x.risk+' priority</span></div>').join('')}document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.mode;render()});document.querySelector('#assumptions').onclick=()=>alert('MVP assumptions: resilience combines coverage category, population exposure, redundancy, hazard exposure and critical-facility access. Replace demo values with dated source extracts before submission.');
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07334e">
+  <meta name="description" content="RemoteReady NT — communications resilience, cyclone readiness and offline preparation for remote Northern Territory communities.">
+  <title>RemoteReady NT | Communications resilience</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2307334e'/%3E%3Cpath d='M8 23V9h7c4 0 6 2 6 5 0 2-1 4-3 5l5 4h-5l-4-4h-2v4H8zm4-8h3c1 0 2-1 2-2s-1-2-2-2h-3v4z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#dashboard" data-nav="dashboard" aria-label="RemoteReady NT dashboard">
+      <span class="brand-mark" aria-hidden="true">RR</span>
+      <span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary navigation">
+      <button class="nav-button active" type="button" data-view="dashboard">Dashboard</button>
+      <button class="nav-button" type="button" data-view="preparedness">Preparedness</button>
+      <button class="nav-button" type="button" data-view="sources">Data sources</button>
+    </nav>
+    <div class="system-state">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      <span><strong>Data current as of</strong><small id="header-updated">Loading public data…</small></span>
+    </div>
+    <button class="header-help" id="help-btn" type="button" aria-label="About this prototype">?</button>
+  </header>
+
+  <main>
+    <section class="view active" id="view-dashboard" data-view-panel="dashboard">
+      <div class="warning-strip" id="warning-strip" role="status">
+        <span class="warning-icon" aria-hidden="true">!</span>
+        <span class="warning-label"><strong id="warning-level">Critical incident</strong><small id="warning-title">Berrimah mobile site unavailable</small></span>
+        <p id="warning-copy">Connectivity is degraded for nearby communities and essential facilities.</p>
+        <time id="warning-time">Scenario · updated 09:40 ACST</time>
+        <button type="button" id="incident-view">View incident</button>
+      </div>
+
+      <div class="dashboard-metrics" aria-label="Current situation summary">
+        <span><strong id="metric-risk">5</strong> high-risk communities</span>
+        <span><strong id="metric-connectivity">—</strong> connectivity sites</span>
+        <span><strong id="metric-facilities">—</strong> essential facilities</span>
+        <span class="summary-note">Prototype scenario · public data + indicative model</span>
+      </div>
+
+      <div class="map-workspace">
+        <div id="map" aria-label="Interactive Northern Territory communications resilience map"></div>
+
+        <aside class="map-panel" id="map-panel" aria-label="Map controls">
+          <div class="panel-heading">
+            <div><span class="eyebrow">Operational map</span><h2>Find and filter</h2></div>
+            <button type="button" id="panel-toggle" aria-label="Collapse map panel">‹</button>
+          </div>
+          <div class="search-box">
+            <label for="place-search">Search communities, sites or facilities</label>
+            <div><span aria-hidden="true">⌕</span><input id="place-search" type="search" autocomplete="off" placeholder="Search Berrimah"><button id="search-button" type="button" aria-label="Search">→</button></div>
+            <div class="search-shortcuts"><span>Priority</span><button type="button" data-quick-search="Berrimah">Berrimah</button><button type="button" data-quick-search="Wadeye">Wadeye</button></div>
+            <ul id="search-results" class="search-results"></ul>
+          </div>
+          <div class="panel-subhead"><strong>Map layers</strong><small>Show only what supports the decision</small></div>
+          <div class="panel-scroll" id="layers-tab">
+            <section class="layer-section open">
+              <button class="layer-section-title" type="button"><span>Current situation</span><span>⌃</span></button>
+              <div class="layer-options">
+                <label><input type="checkbox" data-layer="cyclone"><span class="layer-swatch cyclone"></span><span>Cyclone scenario</span></label>
+                <label><input type="checkbox" data-layer="uncertainty"><span class="layer-swatch uncertainty"></span><span>Forecast uncertainty</span></label>
+              </div>
+            </section>
+            <section class="layer-section open">
+              <button class="layer-section-title" type="button"><span>Connectivity</span><span>⌃</span></button>
+              <div class="layer-options">
+                <label><input type="checkbox" data-layer="communities" checked><span class="layer-swatch community"></span><span>Remote communities</span><b id="count-communities">—</b></label>
+                <label><input type="checkbox" data-layer="smallcells"><span class="layer-swatch smallcell"></span><span>Mobile small cells</span><b id="count-smallcells">—</b></label>
+              </div>
+            </section>
+            <section class="layer-section">
+              <button class="layer-section-title" type="button"><span>Essential services</span><span>⌄</span></button>
+              <div class="layer-options">
+                <label><input type="checkbox" data-layer="health"><span class="layer-swatch health">+</span><span>Clinics and hospitals</span><b id="count-health">—</b></label>
+                <label><input type="checkbox" data-layer="schools"><span class="layer-swatch school"></span><span>Schools</span><b id="count-schools">—</b></label>
+                <label><input type="checkbox" data-layer="communityservices"><span class="layer-swatch service"></span><span>Community centres and shelters</span><b id="count-services">—</b></label>
+              </div>
+            </section>
+          </div>
+          <footer class="panel-footer"><button type="button" id="reset-map">Reset map</button><span>Indicative model</span></footer>
+        </aside>
+
+        <div class="map-tools" aria-label="Map tools">
+          <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+          <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+          <button type="button" id="home-map" aria-label="Reset map extent">⌂</button>
+          <button type="button" id="locate-map" aria-label="Show my location">◎</button>
+          <button type="button" id="fullscreen-map" aria-label="View map fullscreen">⛶</button>
+        </div>
+
+        <div class="scenario-switcher" aria-label="Scenario selector">
+          <span>Explore scenario</span>
+          <div><button class="scenario" type="button" data-scenario="normal"><i>●</i> Normal</button><button class="scenario" type="button" data-scenario="cyclone"><i>◒</i> Cyclone</button><button class="scenario active" type="button" data-scenario="outage"><i>!</i> Tower outage</button></div>
+        </div>
+
+        <aside class="priority-card" id="priority-card" aria-label="Next deployment priority">
+          <div class="priority-heading"><span>Next deployment</span><strong class="priority-severity"><i></i> Critical</strong></div>
+          <h2 id="metric-priority">Berrimah</h2>
+          <p id="metric-action">Mobile site outage · restore backhaul and backup power</p>
+          <div class="priority-impact"><span><strong>14</strong> communities</span><span><strong>6</strong> facilities</span><span><strong>2h 30m</strong> response ETA</span></div>
+          <button type="button" id="view-priority">View response plan <span>→</span></button>
+        </aside>
+
+        <div class="forecast-timeline" id="forecast-timeline" hidden>
+          <button class="timeline-play" type="button" id="timeline-play" aria-label="Play cyclone timeline">▶</button>
+          <div class="timeline-heading"><span>Cyclone scenario</span><strong id="timeline-current">Thu 18:00 · current</strong></div>
+          <div class="timeline-control"><input id="timeline-range" type="range" min="0" max="4" value="2" step="1" aria-label="Cyclone forecast time"><div><span>Thu 06</span><span>Thu 12</span><span>Thu 18</span><span>Fri 06</span><span>Fri 18</span></div></div>
+        </div>
+
+        <div class="map-status-legend" aria-label="Map status legend"><span><i class="normal"></i>Normal</span><span><i class="degraded"></i>Degraded</span><span><i class="offline"></i>Offline</span><span><i class="critical"></i>Critical</span></div>
+
+        <aside class="detail-drawer closed" id="detail-drawer" aria-live="polite" aria-hidden="true">
+          <button class="drawer-close" type="button" id="drawer-close" aria-label="Close details">×</button>
+          <span class="eyebrow" id="detail-kicker">COMMUNITY PROFILE</span>
+          <h2 id="detail-name">Select a map location</h2>
+          <p class="detail-region" id="detail-region">Choose a community, connectivity site or facility.</p>
+          <div id="detail-body" class="detail-empty"><span aria-hidden="true">⌖</span><p>Click a marker to inspect service, provider and resilience information.</p></div>
+        </aside>
+
+        <div class="map-attribution">© OpenStreetMap contributors · <button type="button" data-view="sources">Data sources</button></div>
+      </div>
+    </section>
+
+    <section class="view preparedness-view" id="view-preparedness" data-view-panel="preparedness" hidden>
+      <header class="section-hero">
+        <div><span class="eyebrow">OFFLINE READINESS</span><h1>Prepare before coverage disappears</h1><p>Save the information your community needs, confirm backup communications and test the plan while the network is available.</p></div>
+        <div class="readiness-score"><span id="readiness-percent">0%</span><small>prepared</small></div>
+      </header>
+      <div class="preparedness-grid">
+        <section class="checklist-card">
+          <div class="card-heading"><div><span class="eyebrow">COMMUNITY CHECKLIST</span><h2>Eight checks before an outage</h2></div><strong id="checklist-count">0 of 8</strong></div>
+          <div class="progress"><span id="readiness-progress"></span></div>
+          <div id="preparedness-checklist" class="checklist">
+            <label><input type="checkbox" data-check="map"><span><strong>Download the local map and community pack</strong><small>Keep locations and emergency information available offline.</small></span></label>
+            <label><input type="checkbox" data-check="contacts"><span><strong>Confirm emergency contacts</strong><small>Print or save clinic, police, council and provider contacts.</small></span></label>
+            <label><input type="checkbox" data-check="power"><span><strong>Test backup power</strong><small>Check generator fuel, batteries and charging cables.</small></span></label>
+            <label><input type="checkbox" data-check="satellite"><span><strong>Test satellite or radio backup</strong><small>Complete a test call and record where equipment is stored.</small></span></label>
+            <label><input type="checkbox" data-check="meeting"><span><strong>Confirm the community meeting point</strong><small>Make sure the location is accessible during wet weather.</small></span></label>
+            <label><input type="checkbox" data-check="transport"><span><strong>Review road and air access</strong><small>Identify alternatives if the normal route is closed.</small></span></label>
+            <label><input type="checkbox" data-check="medication"><span><strong>Prepare essential health information</strong><small>Store medicine, patient transport and clinic procedures safely.</small></span></label>
+            <label><input type="checkbox" data-check="drill"><span><strong>Run a no-signal drill</strong><small>Practice the plan without mobile data or internet access.</small></span></label>
+          </div>
+        </section>
+
+        <aside class="offline-column">
+          <section class="offline-card">
+            <div class="offline-status"><span class="offline-icon">↓</span><span><small>THIS DEVICE</small><strong id="offline-status">Online · pack not saved</strong></span></div>
+            <h2>NT emergency data pack</h2>
+            <p>Store community connectivity, essential service locations, the scenario guide and this checklist on this device.</p>
+            <ul><li>Community and small-cell locations</li><li>Essential service locations</li><li>Preparedness checklist</li><li>Data source notes</li></ul>
+            <button class="primary-action" type="button" id="save-offline-pack">Save for offline use</button>
+            <small id="offline-note">The basemap needs a connection; saved operational data remains available.</small>
+          </section>
+          <section class="field-tools">
+            <span class="eyebrow">FIELD TOOLS</span><h2>Fast access when conditions change</h2>
+            <div class="tool-grid">
+              <button type="button" id="locate-me"><span>⌖</span><strong>My location</strong><small>Show GPS position</small></button>
+              <button type="button" data-jump-view="dashboard"><span>◉</span><strong>Risk map</strong><small>Open dashboard</small></button>
+              <button type="button" id="copy-summary"><span>▤</span><strong>Situation note</strong><small>Copy local summary</small></button>
+              <button type="button" data-jump-view="sources"><span>↻</span><strong>Data status</strong><small>Check freshness</small></button>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view sources-view" id="view-sources" data-view-panel="sources" hidden>
+      <header class="section-hero compact">
+        <div><span class="eyebrow">TRANSPARENT BY DESIGN</span><h1>Data sources and freshness</h1><p>Every map layer identifies where it came from, when it was refreshed and how it is used in this prototype.</p></div>
+        <button class="secondary-action" type="button" id="download-source-log">Download source log</button>
+      </header>
+      <div class="source-summary">
+        <article><small>LAST REFRESH ATTEMPT</small><strong id="source-date">—</strong></article>
+        <article><small>CONNECTIVITY LOCATIONS</small><strong id="source-connectivity">—</strong></article>
+        <article><small>ESSENTIAL FACILITIES</small><strong id="source-facilities">—</strong></article>
+        <article><small>SOURCE STATUS</small><strong id="source-status">Loading</strong></article>
+      </div>
+      <section class="source-section">
+        <div class="source-section-heading"><div><span class="eyebrow">CATALOGUE</span><h2>Imported and reference datasets</h2></div><p>“Available” means the source responded during the latest refresh; it does not certify the data as current.</p></div>
+        <div class="source-grid" id="source-grid"></div>
+      </section>
+      <section class="method-card">
+        <div><span class="eyebrow">METHOD</span><h2>What is measured and what is modelled</h2></div>
+        <div class="method-columns"><p><strong>Measured or published</strong>Community coordinates, provider, backhaul, small-cell sites and mapped facilities are imported from the listed public sources.</p><p><strong>Prototype modelling</strong>Resilience scores, scenario impacts, deployment priorities and cyclone forecast geometry demonstrate the decision workflow and are clearly labelled indicative.</p><p><strong>Safety boundary</strong>This prototype is not an operational warning service. Users must confirm emergency information with the relevant authority.</p></div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="active" type="button" data-view="dashboard"><span>⌖</span>Map</button>
+    <button type="button" data-view="preparedness"><span>✓</span>Prepare</button>
+    <button type="button" data-view="sources"><span>▤</span>Sources</button>
+  </nav>
+
+  <dialog id="help-dialog">
+    <div class="dialog-heading"><div><span class="eyebrow">ABOUT</span><h2>RemoteReady NT</h2></div><button type="button" id="help-close" aria-label="Close">×</button></div>
+    <p>RemoteReady NT combines public connectivity and facility locations with an indicative resilience model to help remote communities prepare for communications disruption.</p>
+    <h3>Design references</h3>
+    <ul><li>First Nations Connectivity Mapping Tool — layer organisation and location search.</li><li>Queensland disaster dashboards — warning hierarchy, situation summaries and resource visibility.</li><li>Bureau of Meteorology cyclone maps — observed versus forecast movement and uncertainty.</li><li>Saftera — offline preparation, saved device data and mobile field tools.</li></ul>
+    <p class="safety-note"><strong>Prototype only.</strong> Do not use this application as the sole source of emergency or navigation information.</p>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

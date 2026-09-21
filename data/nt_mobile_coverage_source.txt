@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
       <meta name="csrf_field_name" content="_csrf_token" />
-      <meta name="_csrf_token" content="IjRmYTVkZGI4MTdiMzE0YTU0NDg2ZmFmNmE4NzZmNWJkYzQwN2Y3Y2Ei.aqnr2A.2gUZ7UnnPq0rp0-0hoh50WVj2kI" />
+      <meta name="_csrf_token" content="IjQ4MzI2MzVkMmIyMTA2ZjVlZjY2MTZkMTNkZTlmYTk2MWM2M2NiODci.aq0gdA.AakIRgCP5kJZnPFCVcx8Yfermng" />
 
       <meta name="generator" content="ckan 2.11.6" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="utf-8" />
-<script async src="/sites/default/files/google_analytics/gtag.js?tle93p"></script>
+<script async src="/sites/default/files/google_analytics/gtag.js?tlhyfp"></script>
 <script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments)};gtag("js", new Date());gtag("set", "developer_id.dMDhkMT", true);gtag("config", "G-XBESXZTWTT", {"groups":"default","page_placeholder":"PLACEHOLDER_page_location"});gtag('config', 'G-0XT7NFV9ZS', {'name': 'govcms'}); gtag('govcms.send', 'pageview', {'anonymizeIp': true})</script>
 <meta name="description" content="The Australian Government is committed to achieving Target 17 of the National Agreement on Closing the Gap, which aims for equal levels of digital inclusion for Aboriginal and Torres Strait Islander people by 2026. This Target underpins Outcome 17, which focuses on First Nations Australians being able to access the information and services they need to make informed choices about their own lives and communities." />
 <link rel="canonical" href="https://www.infrastructure.gov.au/media-communications/first-nations-digital-inclusion" />
