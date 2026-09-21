@@ -30,6 +30,8 @@ RemoteReady NT 是为 CDU IT Code Fair 2026 Data Innovation Challenge 制作的�
 
 ### 2.1 Dashboard
 
+**主要参考：** [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore)、[Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) 和 [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone)。地图检索与图层组织以 First Nations Connectivity Mapping Tool 为主；告警与态势摘要以 Queensland Disaster Dashboard 为主；气旋轨迹、时间变化和不确定性表达以 BoM 为主。
+
 - Leaflet 交互式北领地地图。
 - 社区、移动小基站、诊所/医院、学校、社区中心和避难设施图层。
 - Normal、Cyclone、Tower outage 三种演示情景。
@@ -42,6 +44,8 @@ RemoteReady NT 是为 CDU IT Code Fair 2026 Data Innovation Challenge 制作的�
 
 ### 2.2 Preparedness
 
+**主要参考：** [Saftera](https://saftera.com/)。准备清单、设备离线状态、离线资料包、快速现场工具和移动端底部导航都围绕“断网前准备、断网后仍可使用”的产品思路设计。
+
 - 八项离线准备清单。
 - 完成状态保存在浏览器 `localStorage`。
 - 离线数据包缓存入口。
@@ -50,10 +54,81 @@ RemoteReady NT 是为 CDU IT Code Fair 2026 Data Innovation Challenge 制作的�
 
 ### 2.3 Data sources
 
+**主要参考：** [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) 的数据图层语境，以及 [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) 的更新时间和信息状态表达。该页也加入了 RemoteReady NT 自己的比赛要求：公开数据、建模结果和安全边界必须能够被评委审查。
+
 - 显示数据来源、刷新日期、记录数量和来源可用状态。
 - 区分公开发布数据与原型建模数据。
 - 可下载最近一次数据更新日志。
 - 公开来源链接可直接访问。
+
+### 2.4 页面各部分与参考网站对照
+
+以下对照表是后续开发的设计依据。这里的“参考”是指借鉴信息架构、交互模式和视觉层级，不是复制对方的商标、文案、图片或源代码。RemoteReady NT 必须保留自己的品牌和北领地应用语境。
+
+#### 全局框架
+
+| RemoteReady NT 部分 | 主要参考网站 | 具体参考内容 | 后续开发要求 |
+| --- | --- | --- | --- |
+| 顶部品牌栏 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 政府应急产品式的紧凑页头、状态信息和清晰入口 | 顶部只保留品牌、三个主导航、数据更新时间和帮助入口，避免再次堆叠重复标题 |
+| Dashboard / Preparedness / Data sources 导航 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 把地图态势、准备资源和信息来源分成明确任务入口 | 页面切换必须有选中态、键盘操作和移动端对应入口 |
+| 移动端底部导航 | [Saftera](https://saftera.com/) | 移动优先、拇指可达的核心功能导航 | 只放 Map、Prepare、Sources 三项，不把桌面端所有控制都塞入底栏 |
+| 全局数据更新时间 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 在显眼位置告诉用户数据何时更新 | 必须读取真实更新日志；不能用固定时间冒充实时数据 |
+| 帮助弹窗和安全声明 | [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone) | 官方信息边界、预测不确定性和权威来源意识 | 明确说明这是比赛原型，紧急信息需向官方机构确认 |
+
+#### Dashboard：态势和地图
+
+| RemoteReady NT 部分 | 主要参考网站 | 具体参考内容 | 后续开发要求 |
+| --- | --- | --- | --- |
+| 顶部事故警告条 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 告警等级、事件名称、更新时间和行动入口的层级 | 颜色只表达严重程度；警告必须同时有文字和图标，不能只依赖颜色 |
+| 态势数字摘要 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 用少量关键数字快速描述当前影响 | 只显示支持决策的指标，并标出 Prototype scenario，避免造成实时误解 |
+| 地图作为主工作区 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 地图优先的页面结构、地理数据浏览方式 | 地图始终是 Dashboard 最大的视觉区域，侧栏不能压缩主要观察范围 |
+| 地点搜索 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 按社区和地点检索地图对象 | 搜索结果需要区分社区、通信设施和公共设施，并能定位及打开详情 |
+| Map layers 侧栏 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 按 Connectivity、Community、Public facilities 组织图层 | 保持 Current situation、Connectivity、Essential services 三组，不采用无层级的长列表 |
+| 社区和小基站图层 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 偏远社区通信覆盖与设施的空间呈现 | 每个点应显示来源、类型、服务商和更新日期；缺失字段应明确显示 Unknown |
+| 诊所、学校、社区中心和避难设施 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 通信条件与社区公共设施在同一地图中的关联 | 后续应支持按设施类型筛选，并说明数据完整性而非暗示“全部设施” |
+| Normal / Cyclone / Tower outage 情景 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 不同事件状态下统一更新警告、地图和资源信息 | 一个情景切换必须驱动所有相关组件，不能只改变地图颜色 |
+| 气旋轨迹 | [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone) | 已观测位置、预测路径和时间节点 | 真实接入前必须标记为 indicative；未来要区分 observed 与 forecast |
+| Forecast uncertainty 区域 | [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone) | 预测锥或影响范围表达，以及预测并非精确路线的含义 | 不确定区域不能画成确定受灾边界；需要图例和简短解释 |
+| 气旋时间轴 | [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone) | 随预测时次查看位置和影响变化 | 每个时间点应同步更新轨迹、影响设施、文字状态和时间标签 |
+| 地图状态图例 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | Normal、Degraded、Offline、Critical 等状态语义 | 图例和地图点必须使用同一套颜色、符号及文字，不随页面任意变化 |
+| 地图对象详情抽屉 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 点击地点后查看地点属性和服务信息 | 详情内应展示来源和更新时间；未来加入“在数据来源中查看”入口 |
+| Next deployment 优先卡 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) 的行动导向信息组织，同时是 RemoteReady NT 自有创新 | 把态势信息收敛成下一项响应行动 | 不能只给结论；必须通过 Why this priority 展示评分、证据、假设和置信度 |
+| Why this priority 决策内容 | RemoteReady NT 自有设计，信息透明度参考 [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 解释受影响社区、关键设施、通信状态和响应时间如何形成优先级 | P0 阶段将模型公式、数据来源和缺失数据影响完整展示出来 |
+
+#### Preparedness：断网准备
+
+| RemoteReady NT 部分 | 主要参考网站 | 具体参考内容 | 后续开发要求 |
+| --- | --- | --- | --- |
+| Preparedness 页面整体 | [Saftera](https://saftera.com/) | 把应急准备设计为简单、可执行、适合手机使用的任务流程 | 页面重点应是“现在做什么”，避免大段说明淹没操作 |
+| Readiness score | [Saftera](https://saftera.com/) | 将准备完成度可视化，让用户知道还剩多少任务 | 分数只表示清单完成度，不能包装成官方社区安全评级 |
+| 八项准备清单 | [Saftera](https://saftera.com/) | 勾选式准备步骤和本地保留进度 | 后续应让清单可按社区定制，并邀请本地应急机构或社区共同验证内容 |
+| This device 网络/缓存状态 | [Saftera](https://saftera.com/) | 明确告诉用户设备当前在线、离线及资料是否已保存 | 状态必须来自浏览器真实网络和缓存结果，不能只有视觉切换 |
+| NT emergency data pack | [Saftera](https://saftera.com/) | 在失去网络前把关键内容保存到设备 | 显示包内包含什么、保存时间、大小和更新按钮；说明底图的离线限制 |
+| Field tools | [Saftera](https://saftera.com/) | 移动现场中的少步骤快速操作 | 保留定位、风险地图、情景摘要和数据状态四个核心入口，按钮必须适合触控 |
+| Situation note | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) 的态势摘要 + [Saftera](https://saftera.com/) 的移动分享方式 | 把当前事件、时间和建议行动复制为简短文本 | 后续支持纯文本离线分享，但不得自动发送给外部人员 |
+
+#### Data sources：透明度和数据治理
+
+| RemoteReady NT 部分 | 主要参考网站 | 具体参考内容 | 后续开发要求 |
+| --- | --- | --- | --- |
+| Data sources 页面整体 | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 地图图层需要可追溯的数据语境 | 每个地图图层都应能追溯到来源，而不是只在页尾放笼统说明 |
+| Last refresh / 记录数量 / Source status | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 数据新鲜度和系统状态一眼可见 | 区分“最后尝试刷新”和“数据实际发布日期”；来源失败不能显示为最新 |
+| Imported and reference datasets | [First Nations Connectivity Mapping Tool](https://www.regionaldatahub.gov.au/explore) | 按数据集解释地图内容与出处 | 数据卡需要包含发布者、用途、访问链接、刷新结果和许可证信息 |
+| Available / Unavailable 状态 | [Queensland Disaster Dashboard](https://dashboard.trc.qld.gov.au/) | 服务或信息源状态的清晰反馈 | Available 只代表刷新时可访问，不代表数据完整、正确或最新 |
+| Measured vs modelled 方法卡 | [BoM Tropical Cyclone Map](https://www.bom.gov.au/weather-and-climate/specialised-forecasts-and-observations/tropical-cyclone) 的观测/预测区分 + RemoteReady NT 比赛透明度要求 | 将已发布事实、预测信息和原型推断分开 | 任何分数、影响区和部署优先级都必须明确标为 modelled / indicative |
+| Download source log | RemoteReady NT 自有数据审计功能 | 让评委和开发者检查自动下载结果 | 日志中保留抓取时间、URL、状态、记录数和错误原因，但不得包含令牌或本机敏感路径 |
+
+#### 参考优先级
+
+当不同参考网站的风格发生冲突时，按下列规则决定：
+
+1. **地图数据组织首先参考 First Nations Connectivity Mapping Tool。**
+2. **告警、态势摘要、更新时间和资源状态首先参考 Queensland Disaster Dashboard。**
+3. **气旋路径、时间和不确定性首先参考 BoM Tropical Cyclone Map。**
+4. **离线准备、清单和移动端操作首先参考 Saftera。**
+5. **优先部署解释、数据审计和 NT 本地化属于 RemoteReady NT 自有产品方向。**
+
+后续开发每新增一个组件，都应在 Pull Request 中说明它对应上述哪一个参考模式；如果没有参考，则标记为 RemoteReady NT 自有设计并写明用户问题和设计理由。
 
 ## 3. 技术架构
 
@@ -480,4 +555,3 @@ Priority score =
 - 新成员能够运行数据更新脚本并读懂失败日志。
 - 新成员知道比赛前 P0 工作的负责人和截止日期。
 - 仓库中没有密码、令牌或未经授权的敏感数据。
-
