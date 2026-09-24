@@ -103,9 +103,10 @@
 
         <aside class="priority-card" id="priority-card" aria-label="Next deployment priority">
           <div class="priority-heading"><span>Next deployment</span><strong class="priority-severity"><i></i> Critical</strong></div>
-          <h2 id="metric-priority">Berrimah</h2>
-          <p id="metric-action">Mobile site outage · restore backhaul and backup power</p>
-          <div class="priority-impact"><span><strong>14</strong> communities</span><span><strong>6</strong> facilities</span><span><strong>2h 30m</strong> response ETA</span></div>
+          <h2 id="metric-priority">Calculating priority…</h2>
+          <p id="metric-action">Modelled outage candidate comparison</p>
+          <div class="priority-impact"><span><strong>—</strong> score / 100</span><span><strong>—</strong> ranked candidates</span><span><strong>—</strong> confidence</span></div>
+          <ol class="priority-top-three" id="priority-top-three" aria-label="Top three indicative outage priorities" hidden></ol>
           <button type="button" id="view-priority">View response plan <span>→</span></button>
         </aside>
 
@@ -210,6 +211,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="priority-scoring.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

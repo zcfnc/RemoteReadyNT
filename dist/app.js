@@ -9,6 +9,8 @@ const app = {
   connectivity: [],
   facilities: [],
   sourceLog: null,
+  outageScenario: null,
+  priorityResults: [],
   layers: {},
   markersById: new Map(),
   selectedId: null,
@@ -34,9 +36,9 @@ const scenarioText = {
     priority: 'Ngukurr', action: 'Stage a portable cell and generator', affected: '8', facilities: '4', eta: '4h 10m'
   },
   outage: {
-    level: 'Critical incident', title: 'Berrimah mobile site unavailable',
-    copy: 'Connectivity is degraded for nearby communities and essential facilities.',
-    priority: 'Berrimah', action: 'Mobile site outage · restore backhaul and backup power', affected: '14', facilities: '6', eta: '2h 30m'
+    level: 'Modelled outage', title: 'Regional communications candidate comparison',
+    copy: 'Prototype inputs rank candidate communities for interim communications support.',
+    priority: 'Calculating priority…', action: 'Modelled outage candidate comparison', affected: '—', facilities: '—', eta: '—'
   }
 };
 
@@ -124,13 +126,19 @@ function buildScenarioLayers() {
     .bindTooltip('Indicative Berrimah outage impact area · scenario')
     .addTo(app.layers.outage);
   L.marker([-12.435, 130.922], {icon: markerIcon('community', 'critical', '!'), zIndexOffset: 1100})
-    .bindTooltip('Berrimah · critical priority (scenario)', {direction: 'top'})
-    .on('click', showPriorityPlan)
+    .bindTooltip('Berrimah · modelled incident marker', {direction: 'top'})
+    .on('click', () => showPriorityPlan())
     .addTo(app.layers.outage);
 }
 
 function markerStatus(feature) {
   const name = feature.properties.name;
+  const priority = priorityResultForFeature(feature);
+  if (app.scenario === 'outage' && priority) {
+    if (priority.rank === 1) return 'critical';
+    if (priority.rank <= 3) return 'priority-medium';
+    return 'priority-watch';
+  }
   if (app.scenario === 'outage' && ['Wurrumiyanga', 'Milingimbi', 'Maningrida'].includes(name)) return 'degraded';
   if (app.scenario === 'cyclone') {
     if (feature.properties.risk === 'High') return 'degraded';
@@ -139,12 +147,23 @@ function markerStatus(feature) {
   return 'normal';
 }
 
+function priorityResultForFeature(feature) {
+  if (!feature || feature.properties.kind !== 'community') return null;
+  return app.priorityResults.find(result => result.communityId === feature.properties.id) || null;
+}
+
 function updateMarkerStyles() {
   app.connectivity.forEach(feature => {
     const p = feature.properties;
     const marker = app.markersById.get(`${p.kind}:${p.id}`);
     if (!marker) return;
     marker.setIcon(p.kind === 'community' ? markerIcon('community', markerStatus(feature)) : markerIcon('site'));
+    const priority = priorityResultForFeature(feature);
+    if (p.kind === 'community' && app.scenario === 'outage' && priority) {
+      marker.setTooltipContent(`${escapeHtml(p.name)} · rank #${priority.rank} · ${priority.totalScore.toFixed(1)} / 100 · indicative prototype score`);
+    } else {
+      marker.setTooltipContent(`${escapeHtml(p.name)} · ${escapeHtml(p.provider)}`);
+    }
   });
 }
 
@@ -200,6 +219,8 @@ function addFacilities(features) {
 
 function selectFeature(feature, moveMap = false) {
   if (feature.properties.kind === 'scenario-site') return showPriorityPlan(true);
+  const priority = app.scenario === 'outage' ? priorityResultForFeature(feature) : null;
+  if (priority) return showPriorityPlan(priority, moveMap);
   const properties = feature.properties;
   app.selectedId = `${properties.kind}:${properties.id}`;
   if (moveMap) {
@@ -242,33 +263,87 @@ function selectFeature(feature, moveMap = false) {
   $('[data-save-pack]', $('#detail-body')).addEventListener('click', saveOfflinePack);
 }
 
-function showPriorityPlan(moveMap = true) {
-  if (moveMap) app.map.flyTo([-12.435, 130.922], 10, {duration: .55});
+function getPriorityCommunity(result) {
+  return app.connectivity.find(feature => feature.properties.kind === 'community' && feature.properties.id === result.communityId);
+}
+
+function formatScoreInput(value) {
+  if (value == null || value === '') return 'Missing';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'Missing';
+  return String(value);
+}
+
+function renderScoreBreakdown(item) {
+  const isPenalty = item.id === 'confidencePenalty';
+  const score = `${item.score < 0 ? '−' : ''}${Math.abs(item.score).toFixed(1)}`;
+  const maximum = isPenalty ? `maximum deduction −${item.maximum}` : `weight / ${item.maximum}`;
+  const penaltyRule = isPenalty ? `<div><dt>Penalty rule</dt><dd>${escapeHtml(item.input.value)} = −${Math.abs(item.score).toFixed(1)} points</dd></div>` : '';
+  return `
+    <article class="score-breakdown-item ${isPenalty ? 'penalty' : ''}">
+      <header><h3>${escapeHtml(item.label)}</h3><strong>${score}<small>${escapeHtml(maximum)}</small></strong></header>
+      <dl>
+        <div><dt>Input</dt><dd>${escapeHtml(formatScoreInput(item.input.value))}</dd></div>
+        <div><dt>Rule</dt><dd>${escapeHtml(item.explanation)}</dd></div>
+        ${penaltyRule}
+        <div><dt>Source</dt><dd>${escapeHtml(item.input.source)}</dd></div>
+        <div><dt>Updated</dt><dd>${escapeHtml(item.input.updated_at)}</dd></div>
+        <div><dt>Status</dt><dd><span class="data-status ${escapeHtml(item.input.status)}">${escapeHtml(item.input.status)}</span></dd></div>
+        <div><dt>Confidence</dt><dd>${escapeHtml(item.input.confidence)}</dd></div>
+      </dl>
+    </article>`;
+}
+
+function showPriorityPlan(resultOrMoveMap = app.priorityResults[0], moveMap = true) {
+  const result = typeof resultOrMoveMap === 'boolean' ? app.priorityResults[0] : resultOrMoveMap;
+  if (typeof resultOrMoveMap === 'boolean') moveMap = resultOrMoveMap;
+  if (!result) return toast('Priority model results are still loading');
+  const community = getPriorityCommunity(result);
+  if (moveMap && community) {
+    const [lng, lat] = community.geometry.coordinates;
+    app.map.flyTo([lat, lng], 9, {duration: .55});
+  }
   $('#detail-drawer').classList.remove('closed');
   $('#detail-drawer').setAttribute('aria-hidden', 'false');
   $('#detail-kicker').textContent = 'Why this priority?';
-  $('#detail-name').textContent = 'Berrimah';
-  $('#detail-region').textContent = 'Greater Darwin · modelled tower-outage scenario';
+  $('#detail-name').textContent = result.name;
+  $('#detail-region').textContent = `Rank #${result.rank} of ${app.priorityResults.length} · Prototype model · modelled scenario inputs`;
+  const breakdown = result.scoreBreakdown.map(renderScoreBreakdown).join('');
+  const assumptions = result.assumptions.map(item => `<li>${escapeHtml(item)}</li>`).join('');
   $('#detail-body').className = '';
   $('#detail-body').innerHTML = `
-    <div class="decision-intro"><strong>Critical deployment priority</strong><span>Highest combined impact across affected population, essential services and restoration time.</span></div>
-    <div class="decision-grid">
-      <div><small>Impact</small><strong>14 communities</strong></div>
-      <div><small>Essential services</small><strong>6 facilities</strong></div>
-      <div><small>Backhaul</small><strong>Offline</strong></div>
-      <div><small>Backup power</small><strong>Low</strong></div>
-    </div>
-    <div class="detail-block"><h3>Infrastructure</h3><p>The scenario assumes primary mobile backhaul is unavailable and battery reserve is approaching its operational threshold. Two alternate sites are available but do not cover the full impact area.</p></div>
-    <div class="detail-block"><h3>Why Berrimah first?</h3><p>It has the largest modelled service dependency, supports the response corridor into Darwin and offers the shortest restoration path for the greatest number of critical services.</p></div>
-    <div class="detail-block detail-action"><h3>Recommended action</h3><p>Dispatch a field team with a portable satellite terminal, backhaul kit and generator. Verify site safety before energising equipment.</p></div>
+    <div class="decision-intro"><strong>Indicative Priority Score: ${result.totalScore.toFixed(1)} / 100</strong><span>Overall confidence: ${escapeHtml(result.confidence)}. ${escapeHtml(result.explanation)}</span></div>
+    <section class="score-breakdown" aria-label="Priority score breakdown"><h3>Score breakdown</h3>${breakdown}</section>
+    <div class="detail-block"><h3>Modelled assumptions</h3><p>These scenario inputs are competition prototype assumptions, not live incident reports or verified operator data.</p><ul>${assumptions}</ul></div>
+    <div class="detail-block"><h3>Data limitations</h3><ul><li>Resilience is only a prototype proxy for backup communications or power capacity.</li><li>OpenStreetMap facility locations do not confirm opening status, capacity or communications dependency.</li><li>Missing inputs receive zero points or contribute to the confidence penalty.</li><li>This ranking cannot replace decisions by communities, government or communications providers.</li></ul></div>
+    <div class="detail-block"><h3>Model method</h3><p>Priority Score = Population impact + Essential service dependency + Outage severity + Backup capacity shortage + Access/restoration difficulty − Confidence penalty.</p><p>${escapeHtml((app.outageScenario && app.outageScenario.title) || 'Modelled regional communications outage')} · ${escapeHtml((app.outageScenario && app.outageScenario.scenario_id) || 'v1')}</p></div>
+    <div class="detail-block detail-action"><h3>Recommended action</h3><p>Verify local conditions, then stage interim communications support while restoration requirements are assessed. This prototype does not create an operational dispatch.</p></div>
     <button class="drawer-button" id="dispatch-team" type="button">Dispatch response team</button>
     <button class="drawer-button secondary" id="copy-response" type="button">Copy response brief</button>`;
   $('#dispatch-team').addEventListener('click', () => toast('Prototype action recorded · team dispatch is not connected to an operational system'));
   $('#copy-response').addEventListener('click', async () => {
-    const text = 'RemoteReady NT scenario brief: Berrimah is the critical deployment priority. Dispatch portable satellite backhaul and backup power. ETA 2h 30m.';
+    const text = `RemoteReady NT prototype brief: ${result.name} ranks #${result.rank} with an indicative priority score of ${result.totalScore.toFixed(1)} / 100. Verify local conditions before deploying interim communications support.`;
     try { await navigator.clipboard.writeText(text); toast('Response brief copied'); }
     catch { toast('Copy is not available in this browser'); }
   });
+}
+
+function renderPriorityTopThree(results, visible) {
+  const list = $('#priority-top-three');
+  list.hidden = !visible;
+  if (!visible) {
+    list.innerHTML = '';
+    return;
+  }
+  if (!results.length) {
+    list.innerHTML = '<li><span>Priority model results are unavailable.</span></li>';
+    return;
+  }
+  list.innerHTML = results.slice(0, 3).map(result => `
+    <li><button type="button" data-priority-community="${escapeHtml(result.communityId)}" class="${result.rank === 1 ? 'top-priority' : ''}"><b>#${result.rank}</b><span>${escapeHtml(result.name)}</span><small>${result.totalScore.toFixed(1)} / 100</small></button></li>`).join('');
+  $$('[data-priority-community]', list).forEach(button => button.addEventListener('click', () => {
+    const result = app.priorityResults.find(item => item.communityId === button.dataset.priorityCommunity);
+    if (result) showPriorityPlan(result, true);
+  }));
 }
 
 function setLayer(name, visible) {
@@ -284,16 +359,24 @@ function setScenario(name) {
   $('#warning-level').textContent = info.level;
   $('#warning-title').textContent = info.title;
   $('#warning-copy').textContent = info.copy;
-  $('#metric-priority').textContent = info.priority;
-  $('#metric-action').textContent = info.action;
-  $('#metric-risk').textContent = name === 'normal' ? '3' : name === 'cyclone' ? '4' : '5';
+  const priority = name === 'outage' ? app.priorityResults[0] : null;
+  $('#metric-priority').textContent = priority ? priority.name : info.priority;
+  $('#metric-action').textContent = priority ? `Indicative score ${priority.totalScore.toFixed(1)} / 100 · ${priority.confidence} confidence` : info.action;
+  $('#metric-risk').textContent = name === 'normal' ? '3' : name === 'cyclone' ? '4' : String(app.priorityResults.length || 0);
   $('#warning-strip').className = `warning-strip ${name}`;
   $('#priority-card').className = `priority-card ${name}`;
   $('.priority-severity').innerHTML = name === 'normal' ? '<i></i> Planned' : name === 'cyclone' ? '<i></i> High' : '<i></i> Critical';
   const impact = $$('.priority-impact span');
-  impact[0].innerHTML = `<strong>${info.affected}</strong> communities`;
-  impact[1].innerHTML = `<strong>${info.facilities}</strong> facilities`;
-  impact[2].innerHTML = `<strong>${info.eta}</strong> response ETA`;
+  if (priority) {
+    impact[0].innerHTML = `<strong>${priority.totalScore.toFixed(1)}</strong> score / 100`;
+    impact[1].innerHTML = `<strong>${app.priorityResults.length}</strong> ranked candidates`;
+    impact[2].innerHTML = `<strong>${escapeHtml(priority.confidence)}</strong> confidence`;
+  } else {
+    impact[0].innerHTML = `<strong>${info.affected}</strong> communities`;
+    impact[1].innerHTML = `<strong>${info.facilities}</strong> facilities`;
+    impact[2].innerHTML = `<strong>${info.eta}</strong> response ETA`;
+  }
+  renderPriorityTopThree(app.priorityResults, name === 'outage');
   $$('.scenario').forEach(button => button.classList.toggle('active', button.dataset.scenario === name));
   const cyclone = name === 'cyclone';
   setLayer('cyclone', cyclone);
@@ -309,7 +392,13 @@ function setScenario(name) {
 function focusScenarioView() {
   if (!app.map || $('#view-dashboard').hidden) return;
   if (app.scenario === 'cyclone') app.map.fitBounds([[-14.9, 132.7], [-10.7, 137.7]], {padding: [55, 55]});
-  else if (app.scenario === 'outage') app.map.flyTo([-12.435, 130.922], 9, {duration: .6});
+  else if (app.scenario === 'outage') {
+    const community = app.priorityResults[0] && getPriorityCommunity(app.priorityResults[0]);
+    if (community) {
+      const [lng, lat] = community.geometry.coordinates;
+      app.map.flyTo([lat, lng], 8, {duration: .6});
+    } else app.map.flyTo([-12.435, 130.922], 9, {duration: .6});
+  }
   else app.map.fitBounds(NT_BOUNDS, {padding: [18, 18]});
 }
 
@@ -537,14 +626,21 @@ function initDialogs() {
 }
 
 async function loadData() {
-  const [connectivity, facilities, sourceLog] = await Promise.all([
+  const [connectivity, facilities, sourceLog, outageScenario] = await Promise.all([
     fetch('data/connectivity.geojson').then(response => { if (!response.ok) throw new Error('connectivity'); return response.json(); }),
     fetch('data/facilities.geojson').then(response => { if (!response.ok) throw new Error('facilities'); return response.json(); }),
     fetch('data/download_log.json').then(response => { if (!response.ok) throw new Error('source log'); return response.json(); }),
+    fetch('data/outage-scenario.json').then(response => { if (!response.ok) throw new Error('outage scenario'); return response.json(); }),
   ]);
   addConnectivity(connectivity.features || []);
   addFacilities(facilities.features || []);
   renderSources(sourceLog);
+  app.outageScenario = outageScenario;
+  app.priorityResults = RemoteReadyPriorityScoring.calculatePriorityResults(
+    (connectivity.features || []).filter(feature => feature.properties.kind === 'community'),
+    outageScenario
+  );
+  if (!app.priorityResults.length) throw new Error('priority results');
   setScenario('outage');
   $('#detail-drawer').classList.add('closed');
   $('#detail-drawer').setAttribute('aria-hidden', 'true');
