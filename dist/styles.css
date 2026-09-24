@@ -135,3 +135,497 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
   .detail-drawer{left:8px;right:8px;bottom:8px;width:auto;height:58%;top:auto}.detail-drawer.closed{transform:translateY(calc(100% + 20px))}.map-attribution{display:none}
   .score-breakdown-item{padding:8px}.score-breakdown-item dl>div{grid-template-columns:68px minmax(0,1fr)}
 }
+
+/* Phase 0–3: action-first dashboard hierarchy */
+.dashboard-metrics{
+  min-height:40px;
+}
+.metric-connectivity{
+  display:none;
+}
+.dashboard-metrics .summary-note{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.dashboard-metrics .summary-note b{
+  display:inline-block;
+  padding:3px 6px;
+  border-radius:3px;
+  background:#fff0d6;
+  color:#89510c;
+  font-size:.61rem;
+  letter-spacing:.02em;
+}
+
+.map-panel{
+  width:300px;
+  overflow:hidden;
+  z-index:540;
+}
+.map-panel.collapsed{
+  transform:translateX(calc(-100% - 20px));
+}
+.map-explore-toggle{
+  position:absolute;
+  z-index:541;
+  top:14px;
+  left:14px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:38px;
+  padding:0 12px;
+  border:1px solid #bfcfd6;
+  border-radius:6px;
+  background:#fff;
+  color:var(--navy);
+  box-shadow:0 4px 14px rgba(5,34,50,.14);
+  font-size:.72rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.map-explore-toggle span{
+  font-size:1rem;
+  line-height:1;
+}
+.map-panel:not(.collapsed) + .map-explore-toggle{
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+}
+.panel-heading button{
+  width:30px;
+  height:30px;
+  border:1px solid #6f95a7;
+  border-radius:4px;
+  background:transparent;
+  color:#fff;
+  font-size:1.2rem;
+  line-height:1;
+  cursor:pointer;
+}
+
+.priority-card{
+  z-index:470;
+  width:350px;
+  border-top:4px solid var(--status-critical);
+}
+.priority-heading{
+  padding:14px 16px 8px;
+}
+.priority-heading>span{
+  letter-spacing:.07em;
+  font-size:.61rem;
+}
+.priority-card h2{
+  padding:0 16px;
+  font-size:1.72rem;
+  letter-spacing:-.02em;
+}
+.priority-card>p{
+  margin:6px 16px 14px;
+}
+.priority-impact span{
+  padding:11px 10px;
+}
+.priority-actions{
+  display:flex;
+  align-items:stretch;
+  border-top:1px solid #e0e8eb;
+}
+.priority-actions button{
+  min-height:43px;
+  border:0;
+  font:inherit;
+  font-size:.72rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.priority-actions .why-priority{
+  flex:1;
+  padding:0 13px;
+  background:#fff;
+  color:var(--navy);
+  text-align:left;
+}
+.priority-actions #view-priority{
+  flex:1.35;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  background:var(--navy);
+  color:#fff;
+}
+.priority-actions .why-priority:hover,
+.priority-actions .why-priority:focus-visible{
+  background:#edf4f7;
+}
+.priority-actions #view-priority:hover,
+.priority-actions #view-priority:focus-visible{
+  background:var(--navy-2);
+}
+.priority-card.normal{
+  border-top-color:var(--status-normal);
+}
+.priority-card.cyclone{
+  border-top-color:var(--status-degraded);
+}
+
+.scenario-switcher{
+  z-index:460;
+}
+.map-status-legend{
+  opacity:.82;
+}
+
+@media(max-width:1050px){
+  .priority-card{width:310px}
+}
+
+@media(max-width:760px){
+  .dashboard-metrics .summary-note{display:none}
+  .map-panel{width:278px}
+  .map-panel.collapsed{transform:translateX(calc(-100% - 16px))}
+  .map-explore-toggle{top:8px;left:8px;min-height:36px;padding:0 10px}
+  .priority-card{top:96px;width:min(286px,calc(100% - 16px));border-top-width:3px}
+  .priority-card h2{font-size:1.28rem}
+  .priority-actions button{min-height:42px;font-size:.67rem}
+  .priority-actions .why-priority{padding:0 10px}
+  .priority-actions #view-priority{padding:0 10px}
+}
+
+/* Phase 4–5: make the map explain the recommendation and separate action from evidence. */
+.decision-label-marker{
+  display:block;
+  width:max-content;
+  max-width:160px;
+  transform:translate(12px,-22px);
+  padding:4px 7px;
+  border:1px solid #fff;
+  border-radius:4px;
+  box-shadow:0 2px 8px rgba(5,34,50,.2);
+  color:#fff;
+  font-size:.61rem;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+.decision-label-marker.incident{background:var(--status-critical)}
+.decision-label-marker.priority{background:var(--navy)}
+.priority-card .priority-impact span:nth-child(2){background:#fffaf2}
+.priority-card .priority-impact span:nth-child(2) strong{color:#9a5b10}
+.response-steps{
+  margin:8px 0 0;
+  padding-left:19px;
+}
+.response-steps li{
+  margin:7px 0;
+  color:#435b67;
+  font-size:.71rem;
+  line-height:1.45;
+}
+
+@media(max-width:760px){
+  .decision-label-marker{max-width:126px;transform:translate(10px,-20px);font-size:.56rem}
+}
+
+/* Phase 6: scenario state is explicit and never presented as a live official alert. */
+.scenario-switcher>span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.scenario-switcher #scenario-data-tag,
+.timeline-heading b{
+  display:inline-block;
+  padding:2px 5px;
+  border-radius:3px;
+  background:#fff0d6;
+  color:#89510c;
+  font-size:.56rem;
+  font-weight:900;
+  letter-spacing:.02em;
+  line-height:1.2;
+}
+#view-dashboard[data-scenario="cyclone"] .scenario-switcher #scenario-data-tag,
+.timeline-heading b{
+  background:#e6f0f7;
+  color:#235c79;
+}
+#view-dashboard[data-scenario="normal"] .scenario-switcher #scenario-data-tag{
+  background:#e3f2e9;
+  color:#276542;
+}
+
+@media(max-width:760px){
+  .scenario-switcher #scenario-data-tag{display:none}
+}
+
+/* Phase 7: mobile presents one decision drawer at a time. */
+.mobile-card-close,
+.mobile-action-toggle{
+  display:none;
+}
+
+@media(max-width:760px){
+  .priority-card{
+    z-index:540;
+    top:auto;
+    right:8px;
+    bottom:8px;
+    left:8px;
+    width:auto !important;
+    max-height:calc(100% - 90px);
+    overflow:auto;
+    transition:opacity .18s ease, transform .18s ease, visibility .18s ease;
+  }
+  .priority-card.mobile-collapsed{
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(18px);
+  }
+  .mobile-card-close{
+    display:grid;
+    place-items:center;
+    width:28px;
+    height:28px;
+    margin-left:7px;
+    border:1px solid #d1dde1;
+    border-radius:4px;
+    background:#fff;
+    color:var(--navy);
+    font-size:1.1rem;
+    line-height:1;
+    cursor:pointer;
+  }
+  .priority-heading .priority-severity{margin-left:auto}
+  .mobile-action-toggle{
+    position:absolute;
+    z-index:531;
+    top:96px;
+    right:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-height:44px;
+    padding:0 12px;
+    border:1px solid #9d3332;
+    border-radius:6px;
+    background:#fff;
+    color:#8d2828;
+    box-shadow:0 4px 14px rgba(5,34,50,.16);
+    font-size:.72rem;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .mobile-action-toggle span{
+    display:grid;
+    place-items:center;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:var(--status-critical);
+    color:#fff;
+    font-size:.64rem;
+  }
+  .priority-card:not(.mobile-collapsed) + .mobile-action-toggle{
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+  }
+  .priority-card:not(.mobile-collapsed) ~ .forecast-timeline{
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+  }
+  .detail-drawer{z-index:560}
+}
+
+/* Unified desktop decision rail: scenario stays visible while the context panel replaces the action card. */
+@media(min-width:761px){
+  .scenario-switcher,
+  .priority-card,
+  .detail-drawer{
+    right:64px;
+    width:350px;
+  }
+  .scenario-switcher{
+    z-index:480;
+    padding:10px 16px;
+  }
+  .scenario-switcher>span{
+    margin-left:0;
+  }
+  .scenario-switcher>div{
+    width:100%;
+  }
+  .scenario-switcher button{
+    flex:1;
+    padding-left:6px;
+    padding-right:6px;
+  }
+  .priority-card{
+    top:86px;
+    z-index:470;
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+  .priority-card.context-replaced{
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+  }
+  .detail-drawer{
+    top:86px;
+    bottom:14px;
+    z-index:470;
+    border:1px solid #d5e0e4;
+    border-radius:8px;
+    box-shadow:0 10px 30px rgba(5,34,50,.22);
+  }
+  .detail-drawer.closed{
+    transform:translateX(390px);
+  }
+}
+
+.drawer-back{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  margin:0 0 13px;
+  padding:0 9px;
+  border:1px solid #b9cbd2;
+  border-radius:4px;
+  background:#fff;
+  color:var(--navy);
+  font-size:.68rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.drawer-back:hover,
+.drawer-back:focus-visible{
+  background:#edf4f7;
+}
+
+@media(min-width:761px) and (max-width:1050px){
+  .scenario-switcher,
+  .priority-card,
+  .detail-drawer{width:310px}
+}
+
+@media(max-width:760px){
+  .drawer-back{min-height:40px;margin-bottom:10px}
+}
+
+/* Disaster colour semantics: risk severity, data provenance and deployment priority are separate systems. */
+.data-status.modelled{
+  background:#eeeaf6;
+  color:#5d4b7b;
+  border:1px dashed #82719e;
+}
+.data-status.published{
+  background:#edf2f4;
+  color:#3f5965;
+  border:1px solid #b9cbd2;
+}
+.data-status.forecast{
+  background:#e6f0f7;
+  color:#235c79;
+  border:1px dashed #5685a0;
+}
+.data-status.not-confirmed{
+  background:#f1f3f4;
+  color:#56636b;
+  border:1px dashed #89959b;
+}
+.priority-context{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:0 16px 13px;
+  color:#5c707b;
+  font-size:.64rem;
+  font-weight:700;
+}
+.priority-context .data-status{
+  font-size:.57rem;
+  text-transform:none;
+}
+.priority-card.outage{
+  border-top-color:var(--navy);
+}
+.priority-card.outage .priority-severity{
+  color:var(--navy);
+}
+.priority-card.outage .priority-severity i{
+  background:var(--navy);
+  box-shadow:0 0 0 4px #dceaf0;
+}
+.priority-card.model-unavailable{
+  border-top-color:#637d8a;
+}
+.priority-card.model-unavailable .priority-severity,
+.priority-card.model-unavailable .priority-context{
+  color:#56636b;
+}
+.priority-card.model-unavailable .priority-severity i{
+  background:#56636b;
+  box-shadow:0 0 0 4px rgba(86,99,107,.12);
+}
+.priority-top-three .top-priority{
+  background:#edf4f7;
+}
+.priority-top-three .top-priority b{
+  color:var(--navy);
+}
+.community-marker.priority-top{
+  display:grid;
+  place-items:center;
+  width:21px;
+  height:21px;
+  background:var(--navy)!important;
+  color:#fff;
+  opacity:1;
+  box-shadow:0 0 0 4px #fff,0 0 0 7px #0d526f66,0 3px 9px #071f2e66;
+}
+.community-marker.priority-top::after{
+  content:'1';
+  font-size:.68rem;
+  font-weight:900;
+}
+.community-marker.degraded::after{
+  content:'⌁';
+  font-size:.78rem;
+  font-weight:900;
+}
+.community-marker.offline::after{
+  content:'×';
+  font-size:.9rem;
+  font-weight:900;
+}
+.cyclone-marker{
+  background:#176f98;
+}
+.cyclone-marker.active{
+  box-shadow:0 0 0 6px #176f9833;
+}
+.source-card{
+  border-left-color:#637d8a;
+}
+.source-state{
+  color:#3f5965;
+}
+.source-card.unavailable .source-state{
+  color:#7b5c25;
+}
+.detail-block h3 .data-status{
+  margin-left:4px;
+  vertical-align:middle;
+  font-size:.55rem;
+}
+.timeline-control input{
+  accent-color:#176f98;
+}

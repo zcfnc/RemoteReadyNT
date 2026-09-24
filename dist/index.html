@@ -41,18 +41,18 @@
 
       <div class="dashboard-metrics" aria-label="Current situation summary">
         <span><strong id="metric-risk">5</strong> high-risk communities</span>
-        <span><strong id="metric-connectivity">—</strong> connectivity sites</span>
         <span><strong id="metric-facilities">—</strong> essential facilities</span>
-        <span class="summary-note">Prototype scenario · public data + indicative model</span>
+        <span class="metric-connectivity" aria-hidden="true"><strong id="metric-connectivity">—</strong> connectivity sites</span>
+        <span class="summary-note"><b>Indicative model</b> · public data + scenario inputs</span>
       </div>
 
       <div class="map-workspace">
         <div id="map" aria-label="Interactive Northern Territory communications resilience map"></div>
 
-        <aside class="map-panel" id="map-panel" aria-label="Map controls">
+        <aside class="map-panel collapsed" id="map-panel" aria-label="Map exploration controls">
           <div class="panel-heading">
-            <div><span class="eyebrow">Operational map</span><h2>Find and filter</h2></div>
-            <button type="button" id="panel-toggle" aria-label="Collapse map panel">‹</button>
+            <div><span class="eyebrow">MAP EXPLORATION</span><h2>Explore map</h2></div>
+            <button type="button" id="panel-toggle" aria-label="Close map exploration">×</button>
           </div>
           <div class="search-box">
             <label for="place-search">Search communities, sites or facilities</label>
@@ -87,6 +87,7 @@
           </div>
           <footer class="panel-footer"><button type="button" id="reset-map">Reset map</button><span>Indicative model</span></footer>
         </aside>
+        <button class="map-explore-toggle" id="explore-map" type="button" aria-expanded="false" aria-controls="map-panel"><span aria-hidden="true">⌕</span> Explore map</button>
 
         <div class="map-tools" aria-label="Map tools">
           <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
@@ -97,28 +98,31 @@
         </div>
 
         <div class="scenario-switcher" aria-label="Scenario selector">
-          <span>Explore scenario</span>
+          <span>Explore prototype scenario <b id="scenario-data-tag">Indicative</b></span>
           <div><button class="scenario" type="button" data-scenario="normal"><i>●</i> Normal</button><button class="scenario" type="button" data-scenario="cyclone"><i>◒</i> Cyclone</button><button class="scenario active" type="button" data-scenario="outage"><i>!</i> Tower outage</button></div>
         </div>
 
-        <aside class="priority-card" id="priority-card" aria-label="Next deployment priority">
-          <div class="priority-heading"><span>Next deployment</span><strong class="priority-severity"><i></i> Critical</strong></div>
+        <aside class="priority-card mobile-collapsed" id="priority-card" aria-label="Recommended next action">
+          <div class="priority-heading"><span id="priority-kicker">RECOMMENDED NEXT ACTION</span><strong class="priority-severity"><i></i> Critical</strong><button class="mobile-card-close" type="button" id="mobile-action-close" aria-label="Close next action">×</button></div>
           <h2 id="metric-priority">Calculating priority…</h2>
           <p id="metric-action">Modelled outage candidate comparison</p>
+          <div class="priority-context"><span class="data-status modelled" id="priority-data-status">Indicative model</span><span id="priority-boundary">Verify before deployment</span></div>
           <div class="priority-impact"><span><strong>—</strong> score / 100</span><span><strong>—</strong> ranked candidates</span><span><strong>—</strong> confidence</span></div>
           <ol class="priority-top-three" id="priority-top-three" aria-label="Top three indicative outage priorities" hidden></ol>
-          <button type="button" id="view-priority">View response plan <span>→</span></button>
+          <div class="priority-actions"><button class="why-priority" type="button" id="why-priority">Why this priority?</button><button type="button" id="view-priority">View response plan <span>→</span></button></div>
         </aside>
+        <button class="mobile-action-toggle" id="mobile-action-toggle" type="button" aria-expanded="false" aria-controls="priority-card"><span aria-hidden="true">!</span> Next action</button>
 
         <div class="forecast-timeline" id="forecast-timeline" hidden>
           <button class="timeline-play" type="button" id="timeline-play" aria-label="Play cyclone timeline">▶</button>
-          <div class="timeline-heading"><span>Cyclone scenario</span><strong id="timeline-current">Thu 18:00 · current</strong></div>
+          <div class="timeline-heading"><span><b>Forecast</b> cyclone scenario</span><strong id="timeline-current">Thu 18:00 · current</strong></div>
           <div class="timeline-control"><input id="timeline-range" type="range" min="0" max="4" value="2" step="1" aria-label="Cyclone forecast time"><div><span>Thu 06</span><span>Thu 12</span><span>Thu 18</span><span>Fri 06</span><span>Fri 18</span></div></div>
         </div>
 
         <div class="map-status-legend" aria-label="Map status legend"><span><i class="normal"></i>Normal</span><span><i class="degraded"></i>Degraded</span><span><i class="offline"></i>Offline</span><span><i class="critical"></i>Critical</span></div>
 
         <aside class="detail-drawer closed" id="detail-drawer" aria-live="polite" aria-hidden="true">
+          <button class="drawer-back" type="button" id="back-to-action">← Recommended action</button>
           <button class="drawer-close" type="button" id="drawer-close" aria-label="Close details">×</button>
           <span class="eyebrow" id="detail-kicker">COMMUNITY PROFILE</span>
           <h2 id="detail-name">Select a map location</h2>
@@ -211,7 +215,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="priority-scoring.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

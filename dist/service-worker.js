@@ -1,8 +1,8 @@
-const CACHE = 'remoteready-core-v4';
+const CACHE = 'remoteready-core-v8';
 const CORE = [
-  './', './index.html', './styles.css', './app.js', './priority-scoring.js', './manifest.webmanifest',
+  './', './index.html', './styles.css', './app.js', './manifest.webmanifest',
   './vendor/leaflet/leaflet.css', './vendor/leaflet/leaflet.js',
-  './data/connectivity.geojson', './data/facilities.geojson', './data/download_log.json', './data/outage-scenario.json'
+  './data/connectivity.geojson', './data/facilities.geojson', './data/download_log.json'
 ];
 
 self.addEventListener('install', event => {
