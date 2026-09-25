@@ -1,7 +1,7 @@
 {
   "name": "RemoteReady NT",
   "short_name": "RemoteReady",
-  "description": "Northern Territory communications resilience and offline preparedness prototype.",
+  "description": "Northern Territory communications resilience and offline preparedness exercise.",
   "start_url": "./index.html#dashboard",
   "display": "standalone",
   "background_color": "#e6eef1",

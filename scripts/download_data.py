@@ -59,7 +59,7 @@ def request_bytes(url: str, timeout: int = 30, data: bytes | None = None) -> byt
     req = urllib.request.Request(
         url,
         data=data,
-        headers={"User-Agent": "RemoteReadyNT-MVP/2.0 (+local competition prototype)"},
+        headers={"User-Agent": "RemoteReadyNT-MVP/2.0 (+local data refresh)"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return response.read()
@@ -205,7 +205,7 @@ try:
             },
         })
     log["sources"]["openstreetmap_facilities"] = {
-        "title": "Essential service locations",
+        "title": "OpenStreetMap facility records (raw import)",
         "provider": "OpenStreetMap contributors",
         "status": "ok",
         "url": "https://www.openstreetmap.org/copyright",
@@ -215,7 +215,7 @@ try:
     print("Downloaded facilities", len(facility_features))
 except Exception as exc:
     log["sources"]["openstreetmap_facilities"] = {
-        "title": "Essential service locations",
+        "title": "OpenStreetMap facility records (raw import)",
         "provider": "OpenStreetMap contributors",
         "status": "unavailable",
         "url": "https://www.openstreetmap.org/copyright",
@@ -225,6 +225,16 @@ except Exception as exc:
     if cached.exists():
         facility_features = json.loads(cached.read_text(encoding="utf-8")).get("features", [])
     print("Kept cached facilities")
+
+displayed_facility_count = sum(
+    1 for feature in facility_features
+    if feature["properties"].get("kind") != "shelter"
+    and not feature["properties"].get("name", "").lower().startswith("unnamed ")
+)
+log["sources"]["openstreetmap_facilities"].update({
+    "display_records": displayed_facility_count,
+    "display_policy": "Raw records retained; unnamed records and generic OSM shelters are excluded from the default map and search.",
+})
 
 facilities = {
     "type": "FeatureCollection",
@@ -243,6 +253,7 @@ log["counts"] = {
     "communities": sum(1 for feature in connectivity_features if feature["properties"]["kind"] == "community"),
     "small_cells": sum(1 for feature in connectivity_features if feature["properties"]["kind"] == "small-cell"),
     "facilities": len(facility_features),
+    "displayed_facilities": displayed_facility_count,
 }
 (DATA / "download_log.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
 (DIST_DATA / "download_log.json").write_text(json.dumps(log, ensure_ascii=False), encoding="utf-8")

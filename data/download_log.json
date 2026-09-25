@@ -52,18 +52,21 @@
       "type": "dataset"
     },
     "openstreetmap_facilities": {
-      "title": "Essential service locations",
+      "title": "OpenStreetMap facility records (raw import)",
       "provider": "OpenStreetMap contributors",
       "status": "ok",
       "url": "https://www.openstreetmap.org/copyright",
       "type": "map data",
-      "records": 1080
+      "records": 1080,
+      "display_records": 385,
+      "display_policy": "Raw records retained; unnamed records and generic OSM shelters are excluded from the default map and search."
     }
   },
   "counts": {
     "connectivity": 88,
     "communities": 64,
     "small_cells": 24,
-    "facilities": 1080
+    "facilities": 1080,
+    "displayed_facilities": 385
   }
 }
