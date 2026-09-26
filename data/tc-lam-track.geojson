@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "Tropical Cyclone Lam historical track context",
+    "status": "historical_context_only",
+    "notice": "Approximate track points for this exercise visualisation. Not a live warning or forecast."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"kind": "historical-track", "name": "TC Lam historical track", "source": "Bureau of Meteorology historical cyclone information"},
+      "geometry": {"type": "LineString", "coordinates": [[138.0, -10.7], [137.1, -11.2], [136.2, -11.7], [135.4, -12.3], [134.5, -13.1], [133.5, -14.1]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"kind": "historical-milestone", "order": 1, "label": "Arafura Sea"},
+      "geometry": {"type": "Point", "coordinates": [137.1, -11.2]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"kind": "historical-milestone", "order": 2, "label": "Arnhem Land coast"},
+      "geometry": {"type": "Point", "coordinates": [135.4, -12.3]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"kind": "historical-milestone", "order": 3, "label": "Inland weakening"},
+      "geometry": {"type": "Point", "coordinates": [133.5, -14.1]}
+    }
+  ]
+}

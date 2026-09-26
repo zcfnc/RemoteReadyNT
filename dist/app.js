@@ -580,11 +580,6 @@ function initMapControls() {
       setTimeout(() => app.map.invalidateSize(), 120);
     } catch { toast('Fullscreen is not available in this browser'); }
   });
-  bind('#reset-map', 'click', () => {
-    setExerciseStage('48_hours_before_simulated_impact');
-    app.map.fitBounds(NT_BOUNDS, {padding: [18, 18]});
-    toast('Exercise restarted at the first stage');
-  });
   const setMapPanelExpanded = expanded => {
     const panel = $('#map-panel');
     panel.classList.toggle('collapsed', !expanded);
@@ -633,8 +628,6 @@ function initMapControls() {
       setExerciseStage(stages[next].dataset.exerciseStage);
     });
   });
-  const restartExercise = $('#restart-exercise');
-  if (restartExercise) restartExercise.addEventListener('click', () => setExerciseStage('48_hours_before_simulated_impact'));
   bind('#search-button', 'click', runSearch);
   bind('#place-search', 'input', runSearch);
   bind('#place-search', 'focus', runSearch);

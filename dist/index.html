@@ -43,15 +43,14 @@
         <span><strong id="metric-risk">7</strong> communities in exercise context</span>
         <span><strong id="metric-facilities">—</strong> essential facilities</span>
         <span class="metric-connectivity" aria-hidden="true"><strong id="metric-connectivity">—</strong> connectivity sites</span>
-        <span class="summary-note"><b>Historical exercise</b> · public data + scenario inputs</span>
       </div>
 
       <div class="map-workspace">
         <div id="map" aria-label="Interactive Northern Territory communications resilience map"></div>
 
-        <aside class="map-panel collapsed" id="map-panel" aria-label="Map exploration controls" aria-hidden="true" inert>
+        <aside class="map-panel" id="map-panel" aria-label="Map exploration controls" aria-hidden="false">
           <div class="panel-heading">
-            <div><span class="eyebrow">MAP EXPLORATION</span><h2>Explore map</h2></div>
+            <div><span class="eyebrow">MAP EXPLORATION</span></div>
             <button type="button" id="panel-toggle" aria-label="Close map exploration">×</button>
           </div>
           <div class="search-box">
@@ -60,7 +59,6 @@
             <div class="search-shortcuts"><span>Exercise focus</span><button type="button" data-quick-search="Galiwinku">Galiwinku</button><button type="button" data-quick-search="Milingimbi">Milingimbi</button></div>
             <ul id="search-results" class="search-results"></ul>
           </div>
-          <div class="panel-subhead"><strong>Map layers</strong><small>Reference layers are off by default</small></div>
           <div class="panel-scroll" id="layers-tab">
             <section class="layer-section open">
               <button class="layer-section-title" type="button"><span>Exercise context</span><span>⌃</span></button>
@@ -76,8 +74,8 @@
                 <label><input type="checkbox" data-layer="smallcells"><span class="layer-swatch smallcell"></span><span>Mobile small cells</span><b id="count-smallcells">—</b></label>
               </div>
             </section>
-            <section class="layer-section">
-              <button class="layer-section-title" type="button"><span>Essential services</span><span>⌄</span></button>
+            <section class="layer-section open">
+              <button class="layer-section-title" type="button"><span>Essential services</span><span>⌃</span></button>
               <div class="layer-options">
                 <label><input type="checkbox" data-layer="health"><span class="layer-swatch health">+</span><span>Clinics and hospitals</span><b id="count-health">—</b></label>
                 <label><input type="checkbox" data-layer="schools"><span class="layer-swatch school"></span><span>Schools</span><b id="count-schools">—</b></label>
@@ -85,9 +83,8 @@
               </div>
             </section>
           </div>
-          <footer class="panel-footer"><button type="button" id="reset-map">Reset exercise</button><span>Scenario data</span></footer>
         </aside>
-        <button class="map-explore-toggle" id="explore-map" type="button" aria-expanded="false" aria-controls="map-panel"><span aria-hidden="true">⌕</span> Explore map</button>
+        <button class="map-explore-toggle" id="explore-map" type="button" aria-expanded="true" aria-controls="map-panel"><span aria-hidden="true">⌕</span> Explore map</button>
 
         <div class="map-tools" aria-label="Map tools">
           <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
@@ -101,7 +98,6 @@
           <span><b id="scenario-data-tag">SIMULATION · NOT LIVE</b></span>
           <strong>TC Lam communications resilience exercise</strong>
           <small id="exercise-stage-summary">Stage 1 of 4 · 48 hours before simulated impact</small>
-          <button type="button" id="restart-exercise">Restart</button>
         </section>
 
         <aside class="priority-card mobile-collapsed" id="priority-card" aria-label="Recommended next action">

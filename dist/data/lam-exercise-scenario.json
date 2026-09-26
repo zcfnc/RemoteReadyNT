@@ -1,0 +1,16 @@
+{
+  "exercise_id": "tc-lam-communications-resilience-v1",
+  "updated_at": "2026-09-25T00:00:00Z",
+  "status": "simulated_exercise_input",
+  "notice": "Fictional exercise assumptions only. They do not represent current network, road, facility, personnel or stock conditions.",
+  "resource_inventory": {"satellite_terminals": 2, "portable_cell": 1, "backup_power_kit": 1},
+  "communities": [
+    {"community_id": "galiwinku", "exposure": "high", "essential_service_priority": "critical", "redundancy": "fragile", "access": "highly_constrained", "historical_context": "officially_documented_impact", "confidence": "medium", "recommended_resource": "satellite_terminal", "verify_locally": ["Network service status", "Safe air and sea access", "Community communications need"]},
+    {"community_id": "milingimbi", "exposure": "high", "essential_service_priority": "high", "redundancy": "limited", "access": "constrained", "historical_context": "officially_documented_impact_context", "confidence": "medium", "recommended_resource": "portable_cell", "verify_locally": ["Network service status", "Road and airstrip access", "Local backup power"]},
+    {"community_id": "maningrida", "exposure": "medium_high", "essential_service_priority": "high", "redundancy": "limited", "access": "constrained", "historical_context": "historical_preparedness_context", "confidence": "medium", "recommended_resource": "backup_power_kit", "verify_locally": ["Network service status", "Available generator capacity", "Community priority needs"]},
+    {"community_id": "ramingining", "exposure": "medium_high", "essential_service_priority": "medium", "redundancy": "partial", "access": "partly_constrained", "historical_context": "historical_preparedness_context", "confidence": "low", "recommended_resource": "satellite_terminal", "verify_locally": ["Network service status", "Wet-season access", "Local contact availability"]},
+    {"community_id": "gunbalanya", "exposure": "medium", "essential_service_priority": "high", "redundancy": "partial", "access": "highly_constrained", "historical_context": "historical_response_context_only", "confidence": "low", "recommended_resource": "portable_cell", "verify_locally": ["Network service status", "Flooding and road access", "Community priority needs"]},
+    {"community_id": "yirrkala", "exposure": "medium", "essential_service_priority": "medium", "redundancy": "higher", "access": "accessible_with_limits", "historical_context": "historical_response_context_only", "confidence": "medium", "recommended_resource": "backup_power_kit", "verify_locally": ["Network service status", "Facility power status", "Community priority needs"]},
+    {"community_id": "bulman", "exposure": "low_medium", "essential_service_priority": "medium", "redundancy": "limited", "access": "partly_constrained", "historical_context": "not_verified_by_reviewed_sources", "confidence": "low", "recommended_resource": "satellite_terminal", "verify_locally": ["Network service status", "Access conditions", "Community priority needs"]}
+  ]
+}

@@ -650,10 +650,8 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
 .exercise-context>small{display:block}
 .exercise-context>span{font-size:.58rem;font-weight:900;letter-spacing:.07em;color:#526a77}
 .exercise-context>span b{display:inline-block;margin-left:4px;padding:3px 5px;border-radius:3px;background:#e6f0f7;color:#235c79;letter-spacing:0}
-.exercise-context>strong{margin:7px 92px 3px 0;color:var(--navy);font-size:.9rem;line-height:1.25}
+.exercise-context>strong{margin:7px 0 3px;color:var(--navy);font-size:.9rem;line-height:1.25}
 .exercise-context>small{color:#5d7280;font-size:.64rem;line-height:1.35}
-.exercise-context>button{position:absolute;right:12px;bottom:12px;border:1px solid #8ba5b2;border-radius:4px;background:#fff;color:var(--navy);padding:6px 8px;font-size:.62rem;font-weight:800;cursor:pointer}
-.exercise-context>button:hover,.exercise-context>button:focus-visible{background:#edf4f7;outline:2px solid var(--blue);outline-offset:1px}
 
 @media(min-width:761px){
   .priority-card,.detail-drawer{top:140px}
@@ -691,9 +689,8 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
 @media(max-width:760px){
   .exercise-context{top:8px;left:52px;right:8px;width:auto;min-height:82px;padding:9px 10px;border-top-width:3px}
   .exercise-context>span{font-size:.53rem}.exercise-context>span b{display:none}
-  .exercise-context>strong{margin:5px 80px 2px 0;font-size:.75rem}
+  .exercise-context>strong{margin:5px 0 2px;font-size:.75rem}
   .exercise-context>small{max-width:190px;font-size:.57rem}
-  .exercise-context>button{right:8px;bottom:9px;padding:5px 6px;font-size:.56rem}
   .mobile-action-toggle{top:100px}
   .exercise-timeline{min-height:62px!important}
   .forecast-timeline>.exercise-stages{display:grid!important;width:100%}
@@ -706,8 +703,7 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
 /* Exercise interface: one compact context line, one action, evidence on demand. */
 .exercise-context{min-height:92px;padding:10px 13px}
 .exercise-context>span b{margin-left:0;background:#e9f0f3;color:#294f62}
-.exercise-context>strong{margin:7px 78px 2px 0;font-size:.86rem}
-.exercise-context>button{bottom:10px;min-height:34px}
+.exercise-context>strong{margin:7px 0 2px;font-size:.86rem}
 .priority-rank{margin:0 15px 10px!important;padding:7px 9px;border-left:3px solid var(--purple);background:#f3f0f8;color:#5d4b7b!important;font-size:.67rem!important;font-weight:800}
 .priority-actions button{min-height:44px}
 .priority-actions button:only-child{flex:1}
@@ -734,7 +730,6 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
   .map-explore-toggle{width:44px;height:44px;padding:0;justify-content:center;font-size:0;overflow:hidden}
   .map-explore-toggle span{font-size:1rem}
   .exercise-context{left:60px;min-height:92px}
-  .exercise-context>button{min-width:68px;min-height:40px}
   .mobile-action-toggle{top:108px}
   .map-tools button{width:44px;height:44px}
   .drawer-close,.mobile-card-close{min-width:44px;min-height:44px}
@@ -748,7 +743,7 @@ dialog{border:0;padding:0;width:min(560px,92vw);box-shadow:0 18px 60px #0008}dia
   .app-header{height:56px;padding:0 12px}.brand{min-width:220px}.brand-mark{width:36px;height:36px}.brand small,.system-state{display:none}.primary-nav .nav-button{padding:0 10px}
   #view-dashboard{height:calc(100dvh - 56px);min-height:0;grid-template-rows:52px 32px 1fr}
   .warning-strip{padding:0 10px}.warning-strip p,.warning-strip time{display:none}.dashboard-metrics{padding:0 10px}.dashboard-metrics>span:nth-child(2),.dashboard-metrics .summary-note{display:none}
-  .exercise-context{top:8px;right:52px;width:300px;min-height:78px;padding:8px 10px}.exercise-context>strong{font-size:.75rem}.exercise-context>small{font-size:.58rem}.exercise-context>button{right:8px;bottom:7px;min-height:34px}
+  .exercise-context{top:8px;right:52px;width:300px;min-height:78px;padding:8px 10px}.exercise-context>strong{font-size:.75rem}.exercise-context>small{font-size:.58rem}
   .priority-card{top:92px;right:52px;width:300px;max-height:calc(100% - 158px);overflow:auto}.priority-card h2{font-size:1.2rem}
   .forecast-timeline.exercise-timeline{left:8px;right:8px;bottom:8px;min-height:56px}.timeline-heading{display:none!important}
   .detail-drawer{top:8px;left:8px;right:auto;bottom:72px;width:320px}
