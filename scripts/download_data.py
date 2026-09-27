@@ -14,9 +14,9 @@ from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-DIST_DATA = ROOT / "dist" / "data"
+APP_PUBLIC_DATA = ROOT / "app" / "public" / "data"
 DATA.mkdir(exist_ok=True)
-DIST_DATA.mkdir(parents=True, exist_ok=True)
+APP_PUBLIC_DATA.mkdir(parents=True, exist_ok=True)
 
 SOURCES = {
     "nt_mobile_coverage_source.txt": {
@@ -160,7 +160,7 @@ connectivity = {
     "features": connectivity_features,
 }
 (DATA / "connectivity.geojson").write_text(json.dumps(connectivity, ensure_ascii=False), encoding="utf-8")
-(DIST_DATA / "connectivity.geojson").write_text(json.dumps(connectivity, ensure_ascii=False), encoding="utf-8")
+(APP_PUBLIC_DATA / "connectivity.geojson").write_text(json.dumps(connectivity, ensure_ascii=False), encoding="utf-8")
 print("Built connectivity.geojson", len(connectivity_features), "features")
 
 
@@ -243,10 +243,7 @@ facilities = {
     "features": facility_features,
 }
 (DATA / "facilities.geojson").write_text(json.dumps(facilities, ensure_ascii=False), encoding="utf-8")
-(DIST_DATA / "facilities.geojson").write_text(json.dumps(facilities, ensure_ascii=False), encoding="utf-8")
-
-if demo_path.exists():
-    (DIST_DATA / "communities.json").write_bytes(demo_path.read_bytes())
+(APP_PUBLIC_DATA / "facilities.geojson").write_text(json.dumps(facilities, ensure_ascii=False), encoding="utf-8")
 
 log["counts"] = {
     "connectivity": len(connectivity_features),
@@ -256,5 +253,5 @@ log["counts"] = {
     "displayed_facilities": displayed_facility_count,
 }
 (DATA / "download_log.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
-(DIST_DATA / "download_log.json").write_text(json.dumps(log, ensure_ascii=False), encoding="utf-8")
+(APP_PUBLIC_DATA / "download_log.json").write_text(json.dumps(log, ensure_ascii=False), encoding="utf-8")
 print("Source refresh complete.")

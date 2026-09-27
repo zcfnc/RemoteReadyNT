@@ -4,13 +4,29 @@
 
 Interactive, offline-friendly prototype for the CDU IT Code Fair 2026 Data Innovation Challenge.
 
-Serve `dist` with a local HTTP server. Run `python scripts/download_data.py` to refresh public source metadata, NT Government mobile-coverage workbooks, browser-ready connectivity GeoJSON and mapped essential services. If a portal is unavailable, checked-in data remains available and the failure is recorded in `data/download_log.json`.
+The application is a React + TypeScript project in `app/`. It includes an exercise dashboard for historical TC Lam context and a simulated communications-site outcome, a preparedness checklist, an offline data pack and a data-source catalogue. Exercise conclusions are indicative and must be verified locally.
 
-The MVP includes a real interactive map, functional connectivity and facility layers, Normal/Cyclone/Tower Outage scenarios, cyclone uncertainty, community detail cards, a persistent preparedness checklist, a device-local offline data pack, and a transparent source catalogue. Resilience scores and scenario values are indicative prototype models and must be validated before operational use.
+## Start development
 
-```powershell
-python scripts/download_data.py
-python -m http.server 4317 --directory dist
+```sh
+cd app
+npm install
+npm run dev
 ```
 
-Then open `http://127.0.0.1:4317/index.html`.
+Open the local URL printed by Vite, normally `http://localhost:5173`.
+
+## Validate or preview a production build
+
+```sh
+cd app
+npm run lint
+npm test
+npm run build
+npm run test:visual
+npm run preview
+```
+
+React browser data is versioned in `app/public/data/` and is served as `/data/...`. The root `data/` directory contains refresh-script inputs, source caches and offline fallbacks; it is not served to the browser.
+
+`python scripts/download_data.py` is optional. Run it only when intentionally refreshing external public data; it requires Python and `openpyxl`, writes generated data to `app/public/data/`, and is not needed to start or test the application.

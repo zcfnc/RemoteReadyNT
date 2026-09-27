@@ -1,0 +1,8 @@
+# JavaScript dependencies and reproducible build/test artifacts
+node_modules/
+app/dist/
+app/playwright-report/
+app/test-results/
+*.tsbuildinfo
+
+# Runtime data in app/public/data is intentionally versioned.
