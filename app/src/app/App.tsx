@@ -22,7 +22,7 @@ export function App() {
     <>
       <AppShell activeView={activeView} onViewChange={setActiveView}>
         {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} />}
-        {activeView === 'preparedness' && <PreparednessPage />}
+        {activeView === 'preparedness' && <PreparednessPage onNavigate={setActiveView} />}
         {activeView === 'sources' && <DataSourcesPage />}
       </AppShell>
       <PwaUpdateNotice />

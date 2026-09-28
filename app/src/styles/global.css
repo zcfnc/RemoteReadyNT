@@ -541,6 +541,114 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 
 .dashboard-redesign .priority-card .why-priority { border-left: 4px solid #bf3131; background: #fff1f1; color: #9d2727; font-weight: 900; }
 
+/* Preparedness page: same compact public-service dashboard system as Dashboard
+   and Data Sources, with the checklist and offline pack kept as the primary work surface. */
+.preparedness-redesign {
+  width: min(1360px, 78vw);
+  margin: 0 auto;
+  background: #fff;
+  color: #172936;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.preparedness-redesign .dashboard-visual-strip,
+.preparedness-redesign .dashboard-status-grid,
+.preparedness-redesign .preparedness-actions,
+.preparedness-redesign .preparedness-section,
+.preparedness-redesign .preparedness-boundary-warning,
+.preparedness-redesign .preparedness-footer { width: 100%; }
+.preparedness-redesign .dashboard-visual-strip { gap: 1px; }
+.preparedness-redesign .strip-tile { min-height: 124px; padding: 14px; background-image: url('/assets/remote-ready-nt-strip.png'); background-size: 500% 100%; background-repeat: no-repeat; }
+.preparedness-redesign .strip-tile::before, .preparedness-redesign .strip-tile::after { display: none; }
+.preparedness-redesign .strip-tile.sand { background-position: 0% center; }
+.preparedness-redesign .strip-tile.storm { background-position: 25% center; }
+.preparedness-redesign .strip-tile.access { background-position: 50% center; }
+.preparedness-redesign .strip-tile.comms { background-position: 75% center; }
+.preparedness-redesign .strip-tile.water { background-position: 100% center; }
+.preparedness-redesign .strip-tile span { width: 30px; height: 30px; background: rgb(5 34 50 / 34%); }
+.preparedness-redesign .strip-tile strong { font-size: 14px; font-weight: 700; line-height: 1.15; }
+.preparedness-redesign .dashboard-status-grid { gap: 5px; padding-top: 5px; }
+.preparedness-redesign .status-tile { min-height: 94px; grid-template-columns: 54px max-content minmax(0, 1fr); gap: 10px; border-radius: 0; padding: 10px 14px; }
+.preparedness-redesign .status-tile > span { width: 46px; height: 46px; font-size: 31px; font-weight: 400; }
+.preparedness-redesign .status-tile > strong { font-size: 31px; font-weight: 700; white-space: nowrap; }
+.preparedness-redesign .status-tile b { font-size: 14px; font-weight: 700; }
+.preparedness-redesign .status-tile small { font-size: 10px; font-weight: 400; }
+.preparedness-redesign .preparedness-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding-top: 4px; }
+.preparedness-redesign .preparedness-actions .quick-action { min-height: 40px; border-radius: 0; }
+.preparedness-redesign .preparedness-actions .quick-action strong { font-size: 14px; font-weight: 700; }
+.preparedness-redesign .preparedness-actions .quick-action > span { font-size: 16px; }
+.preparedness-section { margin-top: 8px; }
+.preparedness-section-heading { display: flex; min-height: 54px; align-items: center; justify-content: space-between; gap: 18px; padding: 6px 14px; background: #555; color: #fff; }
+.preparedness-section-heading span { color: #c6e3ee; font-size: 10px; font-weight: 700; letter-spacing: .08em; line-height: 1; }
+.preparedness-section-heading h2 { margin: 3px 0 0; color: #fff; font-size: 20px; font-weight: 700; line-height: 1.1; }
+.preparedness-section-heading p { margin: 0; color: #fff; font-size: 14px; }
+.preparedness-workspace { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(330px, .95fr); gap: 10px; padding-top: 8px; }
+.readiness-checklist-panel, .offline-readiness-panel, .field-tool-card { border: 1px solid #d5dfe3; background: #fff; }
+.readiness-checklist-panel { padding: 16px 18px; }
+.panel-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.panel-title-row h3, .offline-readiness-panel h3 { margin: 0; color: #073f66; font-size: 19px; line-height: 1.2; }
+.panel-title-row strong { color: #247b4a; font-size: 13px; }
+.preparedness-progress { height: 10px; margin: 12px 0 8px; background: #dfe6e9; }
+.preparedness-progress i { display: block; height: 100%; background: #159b50; transition: width .2s; }
+.preparedness-check-item { display: grid; grid-template-columns: 24px 30px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 58px; border-top: 1px solid #dce5e8; cursor: pointer; }
+.preparedness-check-item input { width: 20px; height: 20px; margin: 0; accent-color: #0c66a1; }
+.check-item-icon { color: #0a4a73; font-size: 23px; line-height: 1; text-align: center; }
+.check-item-copy strong, .check-item-copy small { display: block; }
+.check-item-copy strong { color: #073f66; font-size: 14px; line-height: 1.2; }
+.check-item-copy small { margin-top: 3px; color: #506875; font-size: 12px; line-height: 1.3; }
+.offline-readiness-panel { padding: 16px 18px; }
+.network-status { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 7px 11px; background: #dff2ff; color: #0c66a1; font-size: 13px; }
+.network-status i { width: 15px; height: 15px; border-radius: 50%; background: #159b50; }
+.offline-readiness-panel h3 { margin-top: 14px; font-size: 18px; }
+.offline-readiness-panel > p { margin: 7px 0 12px; color: #506875; font-size: 13px; line-height: 1.35; }
+.offline-contents { display: grid; gap: 8px; border: 1px solid #d5dfe3; padding: 12px; color: #073f66; font-size: 13px; }
+.offline-contents strong { margin-bottom: 2px; }
+.offline-contents span { display: flex; gap: 10px; align-items: center; font-size: 19px; }
+.offline-contents b { color: #405a68; font-size: 13px; font-weight: 400; }
+.offline-save-button { display: flex; width: 100%; min-height: 42px; align-items: center; justify-content: center; gap: 9px; margin: 11px 0; border: 0; background: #0c5790; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.offline-save-button:hover, .offline-save-button:focus-visible { background: #073f66; }
+.offline-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; color: #506875; font-size: 12px; }
+.offline-meta strong { color: #405a68; font-weight: 700; }
+.offline-warning { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 0 !important; border: 1px solid #efbf63; padding: 9px; background: #fff4da; color: #704312 !important; font-size: 12px !important; }
+.offline-warning span { font-size: 16px; }
+.offline-notice { margin: 9px 0 0 !important; color: #247b4a !important; font-size: 12px !important; }
+.field-tools-section { margin-top: 10px; }
+.field-tools-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; padding-top: 8px; }
+.field-tool-card { min-height: 166px; padding: 15px 14px; text-align: center; }
+.field-tool-icon { display: block; color: #0a4a73; font-size: 29px; line-height: 1; }
+.field-tool-card h3 { margin: 9px 0 6px; color: #073f66; font-size: 15px; }
+.field-tool-card p { min-height: 38px; margin: 0; color: #506875; font-size: 12px; line-height: 1.35; }
+.field-tool-card button { margin-top: 13px; border: 0; background: transparent; color: #0879bf; font-size: 13px; font-weight: 700; cursor: pointer; }
+.preparedness-boundary-warning { display: flex; align-items: center; gap: 12px; margin: 8px 0 0; border: 1px solid #efbf63; padding: 11px 18px; background: #fff4da; color: #704312; font-size: 13px; line-height: 1.35; }
+.preparedness-boundary-warning span { font-size: 21px; }
+.preparedness-footer { margin-top: 38px; }
+
+@media (max-width: 980px) {
+  .preparedness-redesign { width: calc(100% - 24px); }
+  .preparedness-workspace { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .preparedness-redesign { width: 100%; }
+  .preparedness-redesign .dashboard-visual-strip { grid-template-columns: repeat(5, 180px); overflow-x: auto; }
+  .preparedness-redesign .strip-tile { min-height: 90px; padding: 10px; }
+  .preparedness-redesign .dashboard-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .preparedness-redesign .status-tile { min-height: 82px; grid-template-columns: 30px max-content minmax(0, 1fr); gap: 5px; padding: 7px 6px; }
+  .preparedness-redesign .status-tile > span { width: 28px; height: 30px; font-size: 18px; }
+  .preparedness-redesign .status-tile > strong { font-size: 20px; }
+  .preparedness-redesign .status-tile b { font-size: 10px; }
+  .preparedness-redesign .status-tile small { font-size: 8.5px; }
+  .preparedness-redesign .preparedness-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .preparedness-section-heading { min-height: 66px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 5px; }
+  .preparedness-section-heading h2 { font-size: 17px; }
+  .readiness-checklist-panel, .offline-readiness-panel { padding: 14px 12px; }
+  .preparedness-check-item { grid-template-columns: 22px 24px minmax(0, 1fr); gap: 8px; }
+  .check-item-copy strong { font-size: 13px; }
+  .check-item-copy small { font-size: 11px; }
+  .field-tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .field-tool-card { min-height: 152px; padding: 12px 8px; }
+  .preparedness-boundary-warning { align-items: flex-start; margin-right: 8px; margin-left: 8px; }
+  .preparedness-footer { margin-top: 28px; }
+}
+
 /* Keep the desktop legend grouped with the action card; on narrow screens,
    place it after the map instead of covering the map controls or timeline. */
 @media (min-width: 761px) {
@@ -577,24 +685,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 
 /* Data sources page: uses the same compact public-service dashboard language
    as the main operational page while keeping source provenance readable. */
-.sources-header { min-height: 100px; }
-
-@media (min-width: 761px) {
-  .sources-header .app-header-top {
-    min-height: 60px;
-    padding: 0 max(48px, calc((100vw - 1360px) / 2));
-  }
-  .sources-header .brand { gap: 9px; }
-  .sources-header .brand-mark { width: 40px; height: 40px; border-radius: 8px; font-size: 13px; }
-  .sources-header .brand strong { font-size: 18px; }
-  .sources-header .brand small { font-size: 9px; }
-  .sources-header .dashboard-page-title { font-size: 24px; }
-  .sources-header .primary-nav {
-    height: 40px;
-    padding: 5px max(48px, calc((100vw - 1360px) / 2)) 0;
-  }
-  .sources-header .primary-nav button { min-width: 0; padding: 0 18px; font-size: 11px; }
-}
+.sources-header { min-height: 126px; }
 
 .visually-hidden {
   position: absolute;
@@ -607,7 +698,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 }
 
 .sources-redesign {
-  width: min(1360px, calc(100% - 96px));
+  width: min(1360px, 78vw);
   min-height: 0;
   margin: 0 auto;
   background: #fff;
@@ -626,7 +717,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 }
 
 .sources-redesign .strip-tile {
-  min-height: 132px;
+  min-height: 124px;
   padding: 14px;
   background-image: url('/assets/remote-ready-nt-strip.png');
   background-size: 500% 100%;
@@ -644,10 +735,10 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 .sources-redesign .strip-tile strong { font-size: 14px; font-weight: 700; letter-spacing: 0; line-height: 1.15; }
 
 .sources-redesign .dashboard-status-grid { gap: 5px; padding-top: 5px; }
-.sources-redesign .status-tile { min-height: 100px; grid-template-columns: 38px max-content minmax(0, 1fr); gap: 7px; border-radius: 0; padding: 10px 9px; }
-.sources-redesign .status-tile > span { width: 36px; height: 40px; font-size: 27px; font-weight: 400; }
-.sources-redesign .status-tile > strong { font-size: 29px; font-weight: 700; white-space: nowrap; }
-.sources-redesign .status-tile b { font-size: 13px; font-weight: 700; }
+.sources-redesign .status-tile { min-height: 94px; grid-template-columns: 54px 46px minmax(0, 1fr); gap: 10px; border-radius: 0; padding: 10px 14px; }
+.sources-redesign .status-tile > span { width: 46px; height: 46px; font-size: 31px; font-weight: 400; }
+.sources-redesign .status-tile > strong { font-size: 36px; font-weight: 700; white-space: nowrap; }
+.sources-redesign .status-tile b { font-size: 14px; font-weight: 700; }
 .sources-redesign .status-tile small { font-size: 10px; font-weight: 400; }
 
 .sources-redesign .source-actions {
@@ -655,7 +746,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
   gap: 4px;
   padding-top: 4px;
 }
-.sources-redesign .source-actions .quick-action { min-height: 39px; border-radius: 0; }
+.sources-redesign .source-actions .quick-action { min-height: 40px; border-radius: 0; }
 .sources-redesign .source-actions .quick-action > span { font-size: 16px; }
 .sources-redesign .source-actions .quick-action strong { font-size: 13px; font-weight: 700; }
 .sources-redesign .source-warning { max-width: none; margin: 6px 0 0; border-left: 4px solid #efa62c; font-size: 13px; }
