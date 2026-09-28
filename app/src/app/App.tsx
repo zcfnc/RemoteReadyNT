@@ -21,7 +21,7 @@ export function App() {
   return (
     <>
       <AppShell activeView={activeView} onViewChange={setActiveView}>
-        {activeView === 'dashboard' && <DashboardPage />}
+        {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} />}
         {activeView === 'preparedness' && <PreparednessPage />}
         {activeView === 'sources' && <DataSourcesPage />}
       </AppShell>

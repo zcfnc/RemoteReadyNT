@@ -48,16 +48,16 @@ export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChan
       <div className="exercise-focus"><span>Exercise focus</span><div className="exercise-focus-actions"><button onClick={() => search('Galiwinku')} type="button">Galiwinku</button><button onClick={() => search('Milingimbi')} type="button">Milingimbi</button></div></div>
     </form>
     <LayerGroup expanded={openGroups.exercise} onToggle={() => toggleGroup('exercise')} title="Exercise context">
-      <Layer checked={layers.uncertainty} label="Scenario uncertainty" swatch="scenario" onChange={(value) => onLayerChange('uncertainty', value)} />
+      <Layer checked={layers.uncertainty} label="Scenario uncertainty" onChange={(value) => onLayerChange('uncertainty', value)} />
     </LayerGroup>
     <LayerGroup expanded={openGroups.connectivity} onToggle={() => toggleGroup('connectivity')} title="Connectivity">
-      <Layer checked={layers.community} count={communities.length} label="Remote communities" swatch="community" onChange={(value) => onLayerChange('community', value)} />
-      <Layer checked={layers['small-cell']} label="Mobile small cells" swatch="small-cell" onChange={(value) => onLayerChange('small-cell', value)} />
+      <Layer checked={layers.community} count={communities.length} label="Remote communities" onChange={(value) => onLayerChange('community', value)} />
+      <Layer checked={layers['small-cell']} label="Mobile small cells" onChange={(value) => onLayerChange('small-cell', value)} />
     </LayerGroup>
     <LayerGroup expanded={openGroups.services} onToggle={() => toggleGroup('services')} title="Essential services">
-      <Layer checked={layers.clinic || layers.hospital} count={counts.health} label="Clinics and hospitals" swatch="health" onChange={(value) => { onLayerChange('clinic', value); onLayerChange('hospital', value); }} />
-      <Layer checked={layers.school} count={counts.schools} label="Schools" swatch="school" onChange={(value) => onLayerChange('school', value)} />
-      <Layer checked={layers.community_centre} count={counts.services} label="Community centres" swatch="service" onChange={(value) => onLayerChange('community_centre', value)} />
+      <Layer checked={layers.clinic || layers.hospital} count={counts.health} label="Clinics and hospitals" onChange={(value) => { onLayerChange('clinic', value); onLayerChange('hospital', value); }} />
+      <Layer checked={layers.school} count={counts.schools} label="Schools" onChange={(value) => onLayerChange('school', value)} />
+      <Layer checked={layers.community_centre} count={counts.services} label="Community centres" onChange={(value) => onLayerChange('community_centre', value)} />
     </LayerGroup>
   </aside>;
 }
@@ -69,6 +69,6 @@ function LayerGroup({ children, expanded, onToggle, title }: { children: ReactNo
   </section>;
 }
 
-function Layer({ checked, count, label, onChange, swatch }: { checked: boolean; count?: number; label: string; onChange: (value: boolean) => void; swatch: string }) {
-  return <label className="layer"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox" /><span aria-hidden="true" className={`layer-swatch ${swatch}`} /><span className="layer-label">{label}</span>{count !== undefined && <span className="layer-count">{count}</span>}</label>;
+function Layer({ checked, count, label, onChange }: { checked: boolean; count?: number; label: string; onChange: (value: boolean) => void }) {
+  return <label className="layer"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox" /><span className="layer-label">{label}</span>{count !== undefined && <span className="layer-count">{count}</span>}</label>;
 }

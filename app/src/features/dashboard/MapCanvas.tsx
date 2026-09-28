@@ -1,4 +1,4 @@
-import { Circle, CircleMarker, MapContainer, Marker, Polygon, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { Circle, MapContainer, Marker, Polygon, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import type { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
 import { useEffect } from 'react';
@@ -88,12 +88,24 @@ function milestoneIcon(order: number) {
   });
 }
 
-function locationIcon(kind: 'small-cell' | 'clinic' | 'hospital' | 'school' | 'community_centre' | 'shelter', selected = false) {
+type LocationKind = 'community' | 'small-cell' | 'clinic' | 'hospital' | 'school' | 'community_centre' | 'shelter';
+
+const locationGlyphs: Record<LocationKind, string> = {
+  community: '<path d="M4 10.3 12 4l8 6.3v8.4a1.3 1.3 0 0 1-1.3 1.3H5.3A1.3 1.3 0 0 1 4 18.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 20v-5.2h6V20M8 10.7h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  'small-cell': '<path d="M12 5.2v11.5M8.5 20h7M9.3 16.7h5.4M7.6 13.5h8.8M5.8 10.2h12.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9.5 6.5 12 3l2.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  clinic: '<path d="M5 6.5h14v12H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8.5v8M8 12.5h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  hospital: '<path d="M4.5 6.5h15v12h-15zM7.5 4.5h9v2h-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8.5v7M8.5 12h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  school: '<path d="m3.5 10 8.5-5 8.5 5-8.5 5zM6 12.3v5.2h12v-5.2M9 17.5v-4.2h6v4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M20.5 10v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  community_centre: '<path d="M4 10h16M5.5 10v8.5M9 10v8.5M15 10v8.5M18.5 10v8.5M3.5 18.5h17M12 4l8.5 5H3.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 4V2.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+  shelter: '<path d="m3.5 18 8.5-13 8.5 13zM12 5v13M7.5 18h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+};
+
+function locationIcon(kind: LocationKind, selected = false) {
   return divIcon({
-    className: `location-marker-icon ${kind}${selected ? ' selected' : ''}`,
-    html: '<span aria-hidden="true"></span>',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
+    className: `semantic-marker-icon ${kind}${selected ? ' selected' : ''}`,
+    html: `<span class="marker-pin" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${locationGlyphs[kind]}</svg></span>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   });
 }
 
@@ -132,7 +144,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLa
     <StageViewport stage={stage} />
     <SelectedLocation feature={selectedFeature} />
     <MapTools stage={stage} />
-    <TileLayer attribution="© OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <TileLayer attribution="Tiles © Esri — Source: Esri, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" />
     {enabledLayers.uncertainty && !outcome && <Polygon positions={uncertaintyBounds} pathOptions={{ color: '#0879a6', weight: 3, dashArray: '8 8', fillColor: '#32a4c9', fillOpacity: 0.12, lineCap: 'round', lineJoin: 'round' }} />}
     {outcome && <Circle center={[-12.095, 134.945]} radius={62000} pathOptions={{ color: '#bf3131', weight: 5, dashArray: '13 10', fillColor: '#bf3131', fillOpacity: 0.09 }} />}
     {trackPoints.length > 0 && <>
@@ -145,7 +157,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLa
     {connectivity.features.filter((item) => enabledLayers[item.properties.kind]).map((item) => {
       const isPriority = outcome && item.properties.id === priorityCommunityId;
       const isSelected = selectedFeature?.properties.id === item.properties.id;
-      const type = item.properties.kind === 'small-cell' ? 'Mobile small cell' : 'Community';
+      const type = item.properties.kind === 'small-cell' ? 'Mobile small cell' : 'Remote community';
       const tooltip = `${item.properties.name} · ${type}`;
       if (isPriority) return <Marker eventHandlers={{ click: () => onSelect(item) }} icon={priorityIcon(item.properties.name)} key={`${item.properties.kind}-${item.properties.id}`} position={pointPosition(item)} title={`Modelled priority: ${item.properties.name}`}>
         <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{tooltip}</Tooltip>
@@ -153,9 +165,9 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLa
       if (item.properties.kind === 'small-cell') return <Marker eventHandlers={{ click: () => onSelect(item) }} icon={locationIcon('small-cell', isSelected)} key={`${item.properties.kind}-${item.properties.id}`} position={pointPosition(item)} title={`Mobile small cell: ${item.properties.name}`}>
         <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{tooltip}</Tooltip>
       </Marker>;
-      return <CircleMarker center={pointPosition(item)} eventHandlers={{ click: () => onSelect(item) }} key={`${item.properties.kind}-${item.properties.id}`} pathOptions={{ color: isSelected ? '#07334e' : '#fff', fillColor: isSelected ? '#07334e' : '#78949d', fillOpacity: isSelected ? 1 : 0.78, weight: isSelected ? 3 : 1.5 }} radius={isSelected ? 7 : 4.5}>
+      return <Marker eventHandlers={{ click: () => onSelect(item) }} icon={locationIcon('community', isSelected)} key={`${item.properties.kind}-${item.properties.id}`} position={pointPosition(item)} title={`Remote community: ${item.properties.name}`}>
         <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -8]} sticky>{tooltip}</Tooltip>
-      </CircleMarker>;
+      </Marker>;
     })}
     {visibleFacilities.map((item) => <Marker eventHandlers={{ click: () => onSelect(item) }} icon={locationIcon(item.properties.kind, selectedFeature?.properties.id === item.properties.id)} key={item.properties.id} position={pointPosition(item)} title={`${item.properties.label}: ${item.properties.name}`}>
       <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{item.properties.name} · {item.properties.label}</Tooltip>
