@@ -12,16 +12,22 @@ const navigation: Array<{ view: View; label: string }> = [
   { view: 'sources', label: 'Data sources' },
 ];
 
+const pageTitles: Record<View, string> = {
+  dashboard: 'Disaster Dashboard',
+  preparedness: 'Preparedness',
+  sources: 'Data Sources',
+};
+
 export function AppShell({ activeView, children, onViewChange }: AppShellProps) {
   return (
     <div className="app-shell">
-      <header className={`app-header ${activeView === 'dashboard' ? 'dashboard-header' : ''}`}>
+      <header className={`app-header portal-header ${activeView}-header`}>
         <div className="app-header-top">
           <div className="brand" aria-label="RemoteReady NT">
             <span className="brand-mark" aria-hidden="true">RR</span>
             <span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span>
           </div>
-          {activeView === 'dashboard' && <h1 className="dashboard-page-title">Disaster Dashboard</h1>}
+          <h1 className="dashboard-page-title">{pageTitles[activeView]}</h1>
           <div className="header-utilities">
             <div className="system-state" aria-label="Source catalogue status">
               <i aria-hidden="true" />
@@ -33,6 +39,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
         <nav className="primary-nav" aria-label="Primary navigation">
           {navigation.map(({ view, label }) => (
             <button
+              aria-current={activeView === view ? 'page' : undefined}
               className={activeView === view ? 'active' : undefined}
               key={view}
               onClick={() => onViewChange(view)}
