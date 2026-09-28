@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from './DashboardPage';
 import { useDashboardData } from '../features/dashboard/useDashboardData';
@@ -29,10 +29,27 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
+    const quickActions = within(screen.getByRole('region', { name: 'Dashboard quick actions' }));
+    expect(quickActions.queryByRole('button', { name: 'Cyclone track' })).not.toBeInTheDocument();
+    expect(quickActions.queryByRole('button', { name: 'Data sources' })).not.toBeInTheDocument();
+    expect(quickActions.queryByRole('button', { name: 'Radio and satellite' })).not.toBeInTheDocument();
+    expect(quickActions.queryByRole('button', { name: 'Preparedness checklist' })).not.toBeInTheDocument();
+    expect(quickActions.getByRole('button', { name: 'Offline pack' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Local radio stations/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Fire danger rating' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /^Weather$/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Bushfire' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Social media' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Exercise context' })).getByText('Stage 1 of 4 · 48 hours before')).toBeInTheDocument();
+    expect(screen.getByText('CURRENT EXERCISE ACTION')).toBeInTheDocument();
+    expect(screen.queryByText('Modelled recommendation')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: /simulated outcome/i }));
 
-    expect(screen.getByText('PRIORITY: Galiwinku')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Why this community?' }));
+    expect(within(screen.getByRole('region', { name: 'Exercise context' })).getByText('Stage 4 of 4 · Simulated outcome')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Verify conditions in Galiwinku' })).toBeInTheDocument();
+    expect(screen.getByText('Modelled recommendation')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open assessment overview' })).toHaveTextContent('Assessment Overview');
+    fireEvent.click(screen.getByRole('button', { name: 'Open assessment overview' }));
     expect(screen.getByRole('dialog', { name: 'Galiwinku' })).toBeInTheDocument();
     expect(screen.getByText('Indicative Priority Score: 91.0 / 100')).toBeInTheDocument();
     expect(screen.getByText('#1 Galiwinku')).toBeInTheDocument();
@@ -56,7 +73,7 @@ describe('DashboardPage priority action', () => {
     expect(screen.getByText('Essential-service priority')).toBeInTheDocument();
     expect(screen.getByText('No linked facility references are recorded for this community. Nearby map points are not assumed to belong to it.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close details' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Why this community?' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Open assessment overview' }));
     fireEvent.click(screen.getByRole('button', { name: 'Close priority explanation' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 

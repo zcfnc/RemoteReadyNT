@@ -39,7 +39,6 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   const outcome = stage === 'simulated_impact_outcome';
   const priorities = useMemo(() => core && optional.scenario ? priorityResults(core.connectivity, optional.scenario.communities) : [], [core, optional.scenario]);
   const topPriority = priorities[0];
-  const stageAction = outcome && topPriority ? `Verify conditions in ${topPriority.feature.properties.name}` : current.action;
   const navigate = (view: View) => onNavigate?.(view);
   const showPending = (label: string) => setNotice(`${label}（待实现）`);
   const changeStage = (nextStage: ExerciseStage) => {
@@ -82,42 +81,40 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
       <QuickAction icon="♟" label="Community recovery" pending onClick={() => showPending('Community recovery')} />
       <QuickAction icon="↓" label="Offline pack" onClick={() => navigate('preparedness')} />
       <QuickAction icon="☎" label="Useful contacts" pending onClick={() => showPending('Useful contacts')} />
-      <QuickAction icon="◒" label="Cyclone track" onClick={() => document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth' })} />
-      <QuickAction icon="▤" label="Data sources" onClick={() => navigate('sources')} />
-      <QuickAction icon="◉" label="Radio and satellite" pending onClick={() => showPending('Radio and satellite')} />
-      <QuickAction icon="✓" label="Preparedness checklist" onClick={() => navigate('preparedness')} />
     </section>
     {optional.warnings.length > 0 && <p className="data-warning">{optional.warnings.join(' ')}</p>}
     <section className="dashboard-map-section" id="map-section" aria-labelledby="map-section-title">
       <div className="map-section-heading"><div><span className="eyebrow">OPERATIONAL MAP</span><h2 id="map-section-title">Map layers</h2></div><span className="map-section-context">TC Lam exercise · Stage {stages.findIndex((item) => item.id === stage) + 1} of 4</span></div>
-      <div className="dashboard-map-workspace">
+      <div className={`dashboard-map-workspace ${outcome ? 'has-simulated-outcome' : ''}`}>
         <MapCanvas connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onSelect={setSelected} priorityCommunityId={outcome ? topPriority?.feature.properties.id : undefined} selectedFeature={selected} stage={stage} />
         <MapExplorerPanel connectivity={core.connectivity} facilities={core.facilities} layers={layers} onLayerChange={(name, value) => setLayers((currentLayers) => ({ ...currentLayers, [name]: value }))} onSelect={setSelected} />
-        <section className="exercise-context">
-          <span>SIMULATION · NOT LIVE</span>
-          <strong>TC Lam communications resilience exercise</strong>
-          <small>{current.title}</small>
+        <div className="priority-column">
+        <section className="exercise-context" aria-label="Exercise context">
+          <div className="exercise-status"><span>SIMULATED EXERCISE</span><span>NOT LIVE</span></div>
+          <strong>TC Lam communications resilience</strong>
+          <small>Stage {stages.findIndex((item) => item.id === stage) + 1} of 4 · {current.label}</small>
         </section>
         <aside className={`priority-card ${mobileActionOpen ? 'mobile-open' : ''}`}>
           <button aria-label="Close next action" className="mobile-action-close" onClick={() => setMobileActionOpen(false)} type="button">×</button>
-          <span>{outcome ? 'RECOMMENDED NEXT STEP · MODELLED' : 'CURRENT EXERCISE ACTION'}</span>
-          <h1>{stageAction}</h1>
+          <span>{outcome ? 'NEXT STEP' : 'CURRENT EXERCISE ACTION'}</span>
+          <h1 aria-label={outcome && topPriority ? `Verify conditions in ${topPriority.feature.properties.name}` : undefined} className={outcome ? 'outcome-action-title' : 'stage-action-title'}>{outcome && topPriority ? <><span>Verify conditions</span><strong>{topPriority.feature.properties.name}</strong></> : outcome ? 'Verify local conditions' : current.action}</h1>
           <p>{outcome ? 'Confirm network status, safe access and community need before considering communications support.' : current.copy}</p>
           {outcome && topPriority && <>
-            <p className="priority-label">PRIORITY: {topPriority.feature.properties.name}</p>
-            <div className="priority-context">{confidenceLabel(topPriority.record.confidence)} confidence · Verify locally</div>
+            <div className="priority-context"><span>Modelled recommendation</span><span>{confidenceLabel(topPriority.record.confidence)} confidence · Verify locally</span></div>
           </>}
           <div className="priority-actions">
             <button onClick={() => topPriority && setSelected(topPriority.feature)} type="button">{outcome ? `Review ${topPriority?.feature.properties.name ?? 'community'} →` : 'Explore map →'}</button>
-            {outcome && topPriority && <button className="why-priority" onClick={() => setPriorityExplanationOpen(true)} type="button">Why this community?</button>}
+            {outcome && topPriority && <button aria-label="Open assessment overview" className="why-priority" onClick={() => setPriorityExplanationOpen(true)} type="button">Assessment Overview</button>}
           </div>
         </aside>
+        <div className="desktop-map-legend"><MapLegend /></div>
+        </div>
         <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>
         <ExerciseTimeline onStageChange={changeStage} stage={stage} />
-        <MapLegend />
         {selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
         {priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
       </div>
+      <div className="mobile-map-legend"><MapLegend /></div>
     </section>
     <section className="dashboard-action-row" aria-label="Preparedness shortcuts">
       <QuickAction icon="✓" label="Get ready" onClick={() => navigate('preparedness')} />
@@ -130,16 +127,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
       <InfoCard icon="▤" title="Readiness"><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><MetricPair value="4" label="scenario stages" /><MetricPair value="1" label="simulation in progress" /><button className="info-link" onClick={() => navigate('preparedness')} type="button">View preparedness information →</button></InfoCard>
       <InfoCard icon="☁" title="Weather and warnings" pending><MetricPair value="—" label="live warning feed" /><MetricPair value="—" label="current weather" /><p className="pending-copy">Official weather and warning integration（待实现）</p><button className="info-link" onClick={() => showPending('Weather and warnings')} type="button">View weather and warnings →</button></InfoCard>
     </section>
-    <section className="dashboard-resource-grid" aria-label="Emergency information modules">
-      <article className="resource-card"><h2>⌁ Local radio stations</h2><p>Emergency radio details（待实现）</p><table><tbody><tr><th>ABC Far North</th><td>106.7FM · 95.7FM</td></tr><tr><th>4AM</th><td>558AM · 91.3FM</td></tr><tr><th>Community radio</th><td>Local frequency to verify</td></tr></tbody></table></article>
-      <article className="resource-card fire-card"><h2>Fire danger rating</h2><div className="fire-meter"><strong>PLAN AND PREPARE</strong><span>Current rating（待实现）</span></div><dl><div><dt>Fire weather district</dt><dd>North and Central NT</dd></div><div><dt>Last updated</dt><dd>Not connected</dd></div></dl></article>
-      <article className="resource-card weather-card"><h2>Weather</h2><p className="weather-placeholder">☁</p><strong>Weather feed（待实现）</strong><small>Connect an official source before using operationally.</small><button onClick={() => showPending('Weather')} type="button">View more</button></article>
-    </section>
     <div className="neighbour-bar"><button onClick={() => showPending('Neighbouring dashboards')} type="button">▦ Neighbouring dashboards（待实现）</button></div>
-    <section className="dashboard-secondary-grid" aria-label="Additional preparedness modules">
-      <article className="secondary-card"><h2>Bushfire</h2><p>Fire incident integration（待实现）</p></article>
-      <article className="secondary-card social-card"><h2>Social media</h2><p>Official community updates（待实现）</p><div className="social-placeholder">RemoteReady NT community updates</div></article>
-    </section>
     <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
     {notice && <button className="dashboard-notice" onClick={() => setNotice('')} type="button">{notice} · 点击关闭</button>}
   </section>;

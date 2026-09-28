@@ -26,6 +26,52 @@ test('desktop dashboard keeps key interface text at readable sizes', async ({ pa
   }
 });
 
+test('desktop map legend aligns below the current exercise action without covering the timeline', async ({ page }) => {
+  await page.goto('/#dashboard');
+  test.skip((await page.evaluate(() => window.innerWidth)) <= 760, 'desktop legend placement only');
+  const action = await page.locator('.priority-card').boundingBox();
+  const legend = await page.locator('.desktop-map-legend .data-boundary-legend').boundingBox();
+  const timeline = await page.locator('.exercise-timeline').boundingBox();
+  expect(action).not.toBeNull();
+  expect(legend).not.toBeNull();
+  expect(timeline).not.toBeNull();
+  expect(Math.abs((legend?.x ?? 0) - (action?.x ?? 0))).toBeLessThanOrEqual(1);
+  expect((legend?.y ?? 0)).toBeGreaterThanOrEqual((action?.y ?? 0) + (action?.height ?? 0));
+  expect((legend?.y ?? 0) + (legend?.height ?? 0)).toBeLessThan((timeline?.y ?? 0));
+});
+
+test('exercise context, action, legend and timeline remain separated across all stages', async ({ page }) => {
+  await page.goto('/#dashboard');
+  test.skip((await page.evaluate(() => window.innerWidth)) <= 760, 'desktop layout only');
+  for (const stage of ['48 hours before', '24 hours before', '12 hours before', 'Simulated outcome']) {
+    await page.getByRole('tab', { name: stage }).click();
+    const headingSize = await page.locator('.priority-card h1').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    expect(headingSize).toBe(stage === 'Simulated outcome' ? 20 : 17);
+    const context = await page.locator('.exercise-context').boundingBox();
+    const action = await page.locator('.priority-card').boundingBox();
+    const legend = await page.locator('.desktop-map-legend .data-boundary-legend').boundingBox();
+    const timeline = await page.locator('.exercise-timeline').boundingBox();
+    expect(context && action && legend && timeline).toBeTruthy();
+    expect(context!.y + context!.height).toBeLessThan(action!.y);
+    expect(action!.y + action!.height).toBeLessThan(legend!.y);
+    expect(legend!.y + legend!.height).toBeLessThan(timeline!.y);
+  }
+});
+
+test('mobile next action remains above the timeline with its disclosure visible', async ({ page }) => {
+  await page.goto('/#dashboard');
+  test.skip((await page.evaluate(() => window.innerWidth)) > 760, 'mobile layout only');
+  await page.getByRole('tab', { name: 'Simulated outcome' }).click();
+  await page.getByRole('button', { name: /Next action/ }).click();
+  await expect.poll(async () => {
+    const action = await page.locator('.priority-card').boundingBox();
+    const timeline = await page.locator('.exercise-timeline').boundingBox();
+    return action && timeline ? timeline.y - (action.y + action.height) : -1;
+  }).toBeGreaterThan(0);
+  await expect(page.getByRole('button', { name: 'Open assessment overview' })).toBeVisible();
+  await expect(page.locator('.simulation-banner.outcome')).toContainText('not a real network fault');
+});
+
 test('mobile dashboard keeps key text visible and controls touch-sized', async ({ page }) => {
   await page.goto('/#dashboard');
   const width = await page.evaluate(() => window.innerWidth);
@@ -56,6 +102,16 @@ test('mobile dashboard keeps key text visible and controls touch-sized', async (
   expect(focusTextClipped).toEqual([false, false]);
 });
 
+test('mobile map legend is available below the map without overlaying its controls', async ({ page }) => {
+  await page.goto('/#dashboard');
+  test.skip((await page.evaluate(() => window.innerWidth)) > 760, 'mobile legend placement only');
+  const workspace = await page.locator('.dashboard-map-workspace').boundingBox();
+  const legend = await page.locator('.mobile-map-legend .data-boundary-legend').boundingBox();
+  expect(legend).not.toBeNull();
+  expect((legend?.y ?? 0)).toBeGreaterThanOrEqual((workspace?.y ?? 0) + (workspace?.height ?? 0));
+  await expect(page.locator('.mobile-map-legend .data-boundary-legend')).toContainText('Simulated outage site');
+});
+
 for (const [name, label] of [
   ['stage-2', '24 hours before'],
   ['stage-3', '12 hours before'],
@@ -70,15 +126,28 @@ for (const [name, label] of [
   });
 }
 
-test('map service markers use distinct clinic and hospital shapes', async ({ page }) => {
+test('map service markers stay compact and keep clinic and hospital cues distinct', async ({ page }) => {
   await page.route('**://*.tile.openstreetmap.org/**', (route) => route.abort());
   await page.goto('/#dashboard');
   await page.getByRole('checkbox', { name: /Clinics and hospitals/ }).check();
 
-  await expect(page.locator('.location-marker-icon.clinic')).toHaveCount(116);
-  await expect(page.locator('.location-marker-icon.hospital')).toHaveCount(9);
-  await expect(page.locator('.location-marker-icon.clinic span').first()).toHaveCSS('border-radius', '50%');
-  await expect(page.locator('.location-marker-icon.hospital span').first()).toHaveCSS('border-radius', '2px');
+  await expect(page.locator('.semantic-marker-icon.clinic')).toHaveCount(116);
+  await expect(page.locator('.semantic-marker-icon.hospital')).toHaveCount(9);
+  await expect(page.locator('.semantic-marker-icon.clinic .marker-pin').first()).toHaveCSS('width', '19px');
+  await expect(page.locator('.semantic-marker-icon.clinic .marker-pin svg').first()).toHaveCSS('width', '12px');
+  const clinicFill = await page.locator('.semantic-marker-icon.clinic .marker-pin').first().evaluate((element) => getComputedStyle(element).backgroundImage);
+  const hospitalFill = await page.locator('.semantic-marker-icon.hospital .marker-pin').first().evaluate((element) => getComputedStyle(element).backgroundImage);
+  expect(clinicFill).not.toBe(hospitalFill);
+
+  for (const kind of ['community', 'small-cell', 'school', 'community_centre']) {
+    await page.getByRole('checkbox', { name: kind === 'community' ? /Remote communities/ : kind === 'small-cell' ? /Mobile small cells/ : kind === 'school' ? /Schools/ : /Community centres/ }).check();
+    const pin = page.locator(`.semantic-marker-icon.${kind} .marker-pin`).first();
+    await expect(pin).toHaveCSS('width', '19px');
+    await expect(pin.locator('svg')).toHaveCSS('width', '12px');
+    const hitArea = await page.locator(`.semantic-marker-icon.${kind}`).first().boundingBox();
+    expect(hitArea?.width).toBe(28);
+    expect(hitArea?.height).toBe(28);
+  }
 });
 
 test('hovering a map facility shows its name and type', async ({ page }) => {
@@ -86,7 +155,14 @@ test('hovering a map facility shows its name and type', async ({ page }) => {
   await page.goto('/#dashboard');
   await page.getByRole('checkbox', { name: /Schools/ }).check();
 
-  const school = page.locator('.location-marker-icon.school').first();
+  const schools = page.locator('.semantic-marker-icon.school');
+  const visibleSchoolIndex = await schools.evaluateAll((markers) => markers.findIndex((marker) => {
+    const box = marker.getBoundingClientRect();
+    const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    return Boolean(hit && (marker === hit || marker.contains(hit)));
+  }));
+  expect(visibleSchoolIndex).toBeGreaterThanOrEqual(0);
+  const school = schools.nth(visibleSchoolIndex);
   await school.hover();
   const tooltip = page.locator('.leaflet-tooltip.remote-node-tooltip');
   await expect(tooltip).toBeVisible();
@@ -112,12 +188,13 @@ test('selected community and simulated outcome have distinct map emphasis', asyn
   await page.goto('/#dashboard');
   await page.getByRole('button', { name: 'Galiwinku', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Galiwinku' })).toBeVisible();
-  await expect(page.locator('.leaflet-overlay-pane path[fill="#07334e"]')).toHaveCount(1);
+  await expect(page.locator('.semantic-marker-icon.community.selected')).toHaveCount(1);
+  await expect(page.locator('.semantic-marker-icon.community.selected .marker-pin')).toHaveCSS('outline-width', '2px');
 
   await page.getByRole('tab', { name: 'Simulated outcome' }).click();
   await expect(page.locator('.priority-community-icon')).toHaveCount(1);
   await expect(page.locator('.scenario-incident-icon')).toHaveCount(1);
-  await expect(page.locator('.priority-community-icon')).toHaveAttribute('title', 'Modelled priority: Galiwinku');
+  await expect(page.locator('.priority-community-icon .priority-tag')).toContainText('PRIORITY');
   await expect(page.locator('.scenario-incident-icon')).toHaveAttribute('title', 'Simulated unavailable communications site A · exercise only');
 });
 
@@ -126,7 +203,7 @@ test('priority explanation opens with rankings and a scrollable score breakdown'
   await page.getByRole('tab', { name: 'Simulated outcome' }).click();
   const viewportWidth = await page.evaluate(() => window.innerWidth);
   if (viewportWidth <= 760) await page.getByRole('button', { name: /Next action/ }).click();
-  await page.getByRole('button', { name: 'Why this community?' }).click();
+  await page.getByRole('button', { name: 'Open assessment overview' }).click();
   const dialog = page.getByRole('dialog', { name: 'Galiwinku' });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText('Indicative Priority Score: 95.0 / 100')).toBeVisible();
@@ -141,7 +218,7 @@ test('priority explanation opens with rankings and a scrollable score breakdown'
 test('candidate ranking buttons support keyboard selection', async ({ page }) => {
   await page.goto('/#dashboard');
   await page.getByRole('tab', { name: 'Simulated outcome' }).click();
-  await page.getByRole('button', { name: 'Why this community?' }).click();
+  await page.getByRole('button', { name: 'Open assessment overview' }).click();
   const candidate = page.getByRole('button', { name: /Select Milingimbi, rank 2/ });
   await candidate.focus();
   await expect(candidate).toBeFocused();
