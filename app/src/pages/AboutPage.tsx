@@ -2,7 +2,7 @@ const members = [
   { id: '01', name: 'SURESH BHANDARI', role: 'Data Research & Validation', program: 'Master of IT', contribution: 'Public dataset research, source documentation and data validation.', tone: 'blue', photo: '/assets/team-member-1-v3.jpeg' },
   { id: '02', name: 'SIHAO CUI', role: 'Frontend Engineering', program: 'Master of IT', contribution: 'React interface development, responsive layouts and offline-ready features.', tone: 'red', photo: '/assets/team-member-2.jpeg' },
   { id: '03', name: 'KEKE CHEN', role: 'Geospatial Data & Analytics', program: 'Master of IT', contribution: 'Leaflet mapping, GeoJSON processing and community resilience analysis.', tone: 'green', photo: '/assets/team-member-3.jpg' },
-  { id: '04', name: 'LIZHI XIE', role: 'Product Design & User Experience', program: 'Master of IT', contribution: 'Product structure, user experience and decision-support report design.', tone: 'orange', photo: '/assets/team-member-4.jpeg' },
+  { id: '04', name: 'Aiden XIE', role: 'Product Design & User Experience', program: 'Master of IT', contribution: 'Product structure, user experience and decision-support report design.', tone: 'orange', photo: '/assets/team-member-4.jpeg' },
 ] as const;
 
 const principles = [

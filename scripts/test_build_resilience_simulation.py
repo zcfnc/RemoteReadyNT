@@ -35,7 +35,7 @@ class ResilienceSimulationTests(unittest.TestCase):
         self.assertEqual(len(actual), len(expected))
         self.assertEqual(set(actual), expected)
         self.assertEqual(self.result["modelVersion"], MODEL_VERSION)
-        self.assertEqual(self.result["sourceBoundaries"]["capabilityAndResources"]["sourceType"], "simulation")
+        self.assertEqual(self.result["sourceBoundaries"]["capabilityAndResources"]["sourceType"], "mixed")
         self.assertEqual(self.result["sourceBoundaries"]["cycloneProximity"]["sourceType"], "published_derived")
         self.assertEqual(next(item for item in self.result["communities"] if item["communityId"] == "bynoe")["sourcePoint"]["reviewStatus"], "locality_name_requires_review")
         self.assertTrue(all(not item["sourcePoint"]["deploymentSiteConfirmed"] for item in self.result["communities"]))
@@ -47,12 +47,19 @@ class ResilienceSimulationTests(unittest.TestCase):
             indices = {}
             for key, value in item["dimensions"].items():
                 indices[key] = next(index for index, state in enumerate(DIMENSIONS[key]["states"]) if state == value["state"])
-                self.assertEqual(value["sourceType"], "simulation")
+                self.assertIn(value["sourceType"], ("simulation", "evidence"))
+                expected_status = "no_community_level_verified_evidence" if value["sourceType"] == "simulation" else "matched_published_evidence"
+                self.assertEqual(value["evidenceStatus"], expected_status)
+                self.assertTrue(self.result["dimensions"][key]["simulationReason"])
+                self.assertTrue(self.result["dimensions"][key]["sourcesReviewed"])
+                self.assertTrue(all(source["name"] and source["url"] and source["limitation"] for source in self.result["dimensions"][key]["sourcesReviewed"]))
                 self.assertEqual(value["points"], DIMENSIONS[key]["weight"] * value["level"])
             self.assertEqual(item["baselineScore"], score(indices))
             self.assertFalse(indices["backup_power"] == 0 and indices["route_redundancy"] == 2)
             self.assertGreaterEqual(item["baselineScore"], 0)
             self.assertLessEqual(item["baselineScore"], 100)
+            expected_source_type = "simulation" if all(value["sourceType"] == "simulation" for value in item["dimensions"].values()) else "mixed"
+            self.assertEqual(item["sourceType"], expected_source_type)
             self.assertEqual(len(item["resourceEvaluations"]), len(RESOURCES))
             for evaluation in item["resourceEvaluations"]:
                 expected = resource_evaluation(catalog[evaluation["resourceId"]], indices)
@@ -91,6 +98,15 @@ class ResilienceSimulationTests(unittest.TestCase):
 
     def test_generation_is_deterministic(self) -> None:
         self.assertEqual(build(), self.result)
+
+    def test_provenance_catalog_covers_all_dimensions_and_counts_fallbacks(self) -> None:
+        self.assertEqual(set(self.result["dimensions"]), set(DIMENSIONS))
+        self.assertEqual(self.result["counts"]["simulatedDimensions"] + self.result["counts"]["evidenceScoredDimensions"], len(self.result["communities"]) * len(DIMENSIONS))
+        self.assertGreater(self.result["counts"]["evidenceScoredDimensions"], 0)
+        galiwinku = next(item for item in self.result["communities"] if item["communityId"] == "galiwinku")
+        self.assertEqual(galiwinku["dimensions"]["route_redundancy"]["evidenceStatus"], "matched_published_evidence")
+        minjilang = next(item for item in self.result["communities"] if item["communityId"] == "minjilang")
+        self.assertEqual(minjilang["dimensions"]["backup_power"]["evidenceStatus"], "matched_published_evidence")
 
 
 if __name__ == "__main__":

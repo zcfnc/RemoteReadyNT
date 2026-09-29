@@ -46,8 +46,9 @@ export function simulatedResourceOutcome(data: ResilienceSimulationData, scenari
 }
 
 export function validateResilienceSimulation(data: ResilienceSimulationData, connectivity: FeatureCollection<ConnectivityProperties>, exposure: CycloneExposureData): boolean {
-  if (!data || data.schemaVersion !== 1 || data.sourceType !== 'simulation' || data.sourceBoundaries?.capabilityAndResources?.sourceType !== 'simulation') return false;
+  if (!data || data.schemaVersion !== 1 || !['simulation', 'mixed', 'evidence'].includes(data.sourceType) || !['simulation', 'mixed', 'evidence'].includes(data.sourceBoundaries?.capabilityAndResources?.sourceType)) return false;
   if (resilienceDimensionIds.reduce((total, key) => total + (data.dimensions?.[key]?.weight ?? 0), 0) !== 100) return false;
+  if (resilienceDimensionIds.some((key) => !data.dimensions[key]?.simulationReason || !data.dimensions[key]?.sourcesReviewed?.length || data.dimensions[key].sourcesReviewed.some((source) => !source.name || !source.url || !source.limitation))) return false;
   const communityIds = connectivity.features.filter((item) => item.properties.kind === 'community').map((item) => item.properties.id);
   const exposureIds = exposure.communities.map((item) => item.communityId);
   const scenarioIds = data.communities?.map((item) => item.communityId);
@@ -56,8 +57,21 @@ export function validateResilienceSimulation(data: ResilienceSimulationData, con
   if (communityIds.some((id) => !scenarioIds.includes(id)) || exposureIds.length !== communityIds.length || exposureIds.some((id) => !scenarioIds.includes(id))) return false;
   const resourceIds = data.resourceCatalog?.map((item) => item.id);
   if (!resourceIds || !unique(resourceIds) || resourceIds.some((id) => !id) || data.resourceCatalog.some((item) => item.sourceType !== 'simulation' || item.costUnits <= 0 || !resilienceDimensionIds.includes(item.targetDimension))) return false;
+  const simulatedDimensionCount = data.communities.reduce((total, scenario) => total + resilienceDimensionIds.filter((key) => scenario.dimensions[key]?.sourceType === 'simulation').length, 0);
+  const evidenceDimensionCount = data.communities.length * resilienceDimensionIds.length - simulatedDimensionCount;
+  if (data.counts.simulatedDimensions !== simulatedDimensionCount || data.counts.evidenceScoredDimensions !== evidenceDimensionCount) return false;
   return data.communities.every((scenario) => {
-    if (scenario.sourceType !== 'simulation' || scenario.sourcePoint.deploymentSiteConfirmed || scenario.sourcePoint.sourceType !== 'published_source') return false;
+    const simulatedCount = resilienceDimensionIds.filter((key) => scenario.dimensions[key]?.sourceType === 'simulation').length;
+    const expectedSourceType = simulatedCount === resilienceDimensionIds.length ? 'simulation' : simulatedCount === 0 ? 'evidence' : 'mixed';
+    if (scenario.sourceType !== expectedSourceType || scenario.sourcePoint.deploymentSiteConfirmed || scenario.sourcePoint.sourceType !== 'published_source') return false;
+    if (resilienceDimensionIds.some((key) => {
+      const dimension = scenario.dimensions[key];
+      const dimensionSources = dimension?.sourcesReviewed ?? data.dimensions[key]?.sourcesReviewed;
+      return !dimensionSources?.length
+        || dimensionSources.some((source) => !source.name || !source.url || !source.limitation)
+        || (dimension.sourceType === 'simulation' && ((dimension.simulationReason ?? data.dimensions[key]?.simulationReason) === undefined || dimension.evidenceStatus !== 'no_community_level_verified_evidence'))
+        || (dimension.sourceType === 'evidence' && (dimension.simulationReason !== null || dimension.evidenceStatus !== 'matched_published_evidence' || !dimension.evidenceSummary));
+    })) return false;
     const baseline = calculateScenarioScore(data, scenario);
     if (baseline === null || baseline !== scenario.baselineScore || baseline < 0 || baseline > 100) return false;
     const evaluations = scenario.resourceEvaluations;

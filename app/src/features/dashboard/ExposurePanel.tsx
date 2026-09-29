@@ -54,7 +54,7 @@ export function ExposurePanel({ data, error, simulation, tracksUnavailable = fal
           const rank = results.indexOf(item) + 1;
           const scenario = simulation?.communities.find((entry) => entry.communityId === item.community.communityId);
           const scoreBand = capacityBand(scenario?.baselineScore);
-          const scoreDescription = scoreBand === 'lower' ? 'Low resilience' : scoreBand === 'middle' ? 'Moderate resilience' : scoreBand === 'higher' ? 'Higher resilience' : 'Resilience not assessed';
+          const scoreDescription = scoreBand === 'lower' ? 'Early planning' : scoreBand === 'middle' ? 'Developing planning' : scoreBand === 'higher' ? 'Strong planning' : 'Planning score unavailable';
           return <li key={item.community.communityId}><button aria-current={selectedCommunityId === item.community.communityId ? 'true' : undefined} onClick={() => onCommunitySelect(item.community.communityId)} type="button"><span className="exposure-rank">{rank}</span><span className="exposure-community-name">{item.community.name}<small>Nearest path {distanceLabel(item.nearestDistanceKm)}</small>{scenario && <small>Resilience <span aria-label={`${scoreDescription}, ${scenario.baselineScore.toFixed(1)} out of 100`} className={`exposure-resilience-score ${scoreBand}`} title={scoreDescription}>{scenario.baselineScore.toFixed(1)} / 100</span></small>}</span><strong>{item.count}<small>cyclones</small></strong></button></li>;
         })}</ol>}
         {results.length > 10 && <button className="exposure-show-all" onClick={() => setShowAll((value) => !value)} type="button">{showAll ? 'Show top 10' : `View all ${results.length} communities`}</button>}
@@ -66,7 +66,6 @@ export function ExposurePanel({ data, error, simulation, tracksUnavailable = fal
           {selected.encounters.length ? <><p className="exposure-detail-note">Select a cyclone to highlight its existing map track. Distances use the complete recorded path.</p><ul aria-label={`Cyclones near ${selected.community.name}`}>{selected.encounters.map((item) => <li key={item.stormId}><button aria-pressed={selectedStormId === item.stormId} onClick={() => onStormSelect(item.stormId)} type="button"><span><strong>{item.name}</strong><small>{item.year} · {item.stormId}</small></span><b>{distanceLabel(item.distanceKm)}</b></button></li>)}</ul></> : <p className="exposure-empty">No cyclone track fell within the selected range for this community.</p>}
         </> : <p className="exposure-empty">Select a community in the ranking or on the map to inspect its cyclone records.</p>}
       </div>
-      <p className="exposure-boundary">Based on historical cyclone system tracks and community point locations. This is not observed damage or a future forecast.</p>
     </>}
   </aside>;
 }

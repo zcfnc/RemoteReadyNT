@@ -233,7 +233,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, bomCyclon
     <StageViewport analysis={analysisMode} stage={stage} />
     <SelectedLocation feature={selectedFeature} />
     <MapTools analysis={analysisMode} stage={stage} />
-    {analysisMode && <div aria-label="Planning map legend" className="resilience-map-legend"><strong>MAP KEY</strong><span><i className="lower" />Lower &lt;40 <i className="middle" />Middle 40–69 <i className="higher" />Higher ≥70</span><span>Orange badge: path approaches</span><span>Grey lines: historical tracks</span><small>Grey house: score unavailable</small></div>}
+    {analysisMode && <div aria-label="Communities info" className="resilience-map-legend"><strong>COMMUNITIES INFO</strong><ul><li><i className="lower" />Early planning &lt;40</li><li><i className="middle" />Developing planning 40–69</li><li><i className="higher" />Strong planning ≥70</li></ul></div>}
     <TileLayer attribution="Tiles © Esri — Source: Esri, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" />
     {selectedBomEnd && <Circle center={[selectedBomEnd[1], selectedBomEnd[0]]} radius={62000} pathOptions={{ color: '#d46b2c', weight: 4, dashArray: '13 10', fillColor: '#d46b2c', fillOpacity: 0.12 }} />}
     {bomCycloneTracks?.features.filter((track) => {

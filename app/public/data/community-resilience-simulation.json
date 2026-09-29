@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "modelVersion": "resilience-planning-v1",
-  "sourceType": "simulation",
-  "notice": "Fictional planning exercise only. Capability states, costs, effects and resource eligibility are simulated; no site, damage, stock or deployment condition is verified.",
+  "sourceType": "mixed",
+  "notice": "Planning score combines conservatively matched published records with simulated fallback values. Published records are not field-verified; resource effects and eligibility remain simulated.",
   "sourceBoundaries": {
     "communityPoints": {
       "sourceType": "published_source",
@@ -20,15 +20,15 @@
       "trackGeneratedAt": "2026-09-29T01:16:46.996676+00:00"
     },
     "capabilityAndResources": {
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "modelVersion": "resilience-planning-v1"
     }
   },
   "method": {
-    "score": "Sum of dimension weight multiplied by simulated level (0, 0.5 or 1). Historical cyclone proximity is not an input.",
+    "score": "Sum of dimension weight multiplied by level (0, 0.5 or 1). Conservatively matched published records set some intermediate states; unmatched dimensions use simulated levels. Historical cyclone proximity is not an input.",
     "assumptionAssignment": "Stable SHA-256 assignment from modelVersion, communityId and dimension; not inferred from a community's actual conditions. A route/power consistency constraint is then applied.",
     "resourceEffect": "Eligible resources advance one state in exactly one target dimension; scoreAfter is recalculated using the same weights.",
-    "missingActualData": "Unknown real-world capability is not zero. These complete fictional scenarios must never be presented as verified assessments.",
+    "missingActualData": "Unknown real-world capability is not zero. Published matches support only cautious intermediate states; current operation, tests and community reach are not inferred. Unmatched dimensions use a stable simulated fallback.",
     "costUnits": "Relative simulation units, not dollars or procurement estimates."
   },
   "dimensions": {
@@ -38,18 +38,39 @@
       "states": [
         {
           "id": "single_route",
-          "level": 0.0,
-          "meaning": "Assume only one usable communications route."
+          "level": 0.0
         },
         {
           "id": "backup_untested",
-          "level": 0.5,
-          "meaning": "Assume a backup route exists but independence or testing is unconfirmed."
+          "level": 0.5
         },
         {
           "id": "independent_tested",
-          "level": 1.0,
-          "meaning": "Assume an independent backup route was tested in the exercise."
+          "level": 1.0
+        }
+      ],
+      "simulationReason": "No public-access satellite backup site could be matched within 1 km of this community point. Provider/backhaul or more distant facility records alone do not establish a usable community backup route.",
+      "sourcesReviewed": [
+        {
+          "name": "NT Remote Communities with Mobile Coverage and Backhaul Transmission",
+          "url": "https://data.nt.gov.au/dataset/list-of-remote-communities-with-mobile-coverage",
+          "date": "2019 dataset; updated 2022-06-30",
+          "file": "data/nt_remote-communities-mobile-coverage.xlsx",
+          "limitation": "Community-level location/provider/backhaul context; not proof of an independent backup route or failover test."
+        },
+        {
+          "name": "ACCC Mobile Infrastructure Report data release",
+          "url": "https://data.gov.au/data/dataset/accc-mobile-infrastructure-report-data-release",
+          "date": "site records to 2025-01-31",
+          "file": "data/raw/score-research/2026-09-29/accc_mobile_sites_*.csv",
+          "limitation": "Mobile sites/operators do not reveal independent backhaul/failure domains; shared MOCN records must not be double-counted."
+        },
+        {
+          "name": "STAND Sky Muster deployments",
+          "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+          "date": "source map; deployment dates vary",
+          "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+          "limitation": "A mapped deployment is not verified community-level route independence or availability during an emergency."
         }
       ]
     },
@@ -59,18 +80,32 @@
       "states": [
         {
           "id": "no_backup",
-          "level": 0.0,
-          "meaning": "Assume no usable backup power at the planning point."
+          "level": 0.0
         },
         {
           "id": "backup_unverified",
-          "level": 0.5,
-          "meaning": "Assume backup power exists but duration or testing is unconfirmed."
+          "level": 0.5
         },
         {
           "id": "target_tested",
-          "level": 1.0,
-          "meaning": "Assume backup power meets the scenario target and was tested."
+          "level": 1.0
+        }
+      ],
+      "simulationReason": "No completed MNHP power upgrade was matched to this named community. Nearby or regional project records do not establish this community's backup-power capability.",
+      "sourcesReviewed": [
+        {
+          "name": "Mobile Network Hardening Program (MNHP)",
+          "url": "https://data.gov.au/data/en/dataset/mobile-network-hardening-program-mnhp-round-1",
+          "date": "program data updated 2023-10-10; metadata 2024-10-10",
+          "file": "data/raw/score-research/2026-09-29-followup/mnhp_round_1_stage_1_funded_base_stations.kml; mnhp_round_1_stage_2_funded_base_stations.kml",
+          "limitation": "Funded upgrade/site records; stage 1 describes a 12-hour target, not present-day operation or a passed community-level test."
+        },
+        {
+          "name": "NT Remote Small Cells program update",
+          "url": "https://dcdd.nt.gov.au/news/2026/new-mobile-coverage-for-remote-territory-communities",
+          "date": "2026-06-10",
+          "file": null,
+          "limitation": "Program-level report of new coverage; not a per-community runtime, maintenance or test register."
         }
       ]
     },
@@ -80,18 +115,32 @@
       "states": [
         {
           "id": "no_plan",
-          "level": 0.0,
-          "meaning": "Assume no communications continuity plan for a hypothetical critical service."
+          "level": 0.0
         },
         {
           "id": "partial_plan",
-          "level": 0.5,
-          "meaning": "Assume a plan exists but coverage or testing is incomplete."
+          "level": 0.5
         },
         {
           "id": "tested_plan",
-          "level": 1.0,
-          "meaning": "Assume the hypothetical service has a tested continuity plan."
+          "level": 1.0
+        }
+      ],
+      "simulationReason": "Territory/local emergency plans describe coordination and arrangements, but available records do not verify a critical facility's communications plan and successful test.",
+      "sourcesReviewed": [
+        {
+          "name": "NT Territory Emergency Plan",
+          "url": "https://pfes.nt.gov.au/file/download/406",
+          "date": "Version 10, endorsed 2024-11-27",
+          "file": null,
+          "limitation": "Territory-level emergency coordination; not facility-specific continuity/test evidence."
+        },
+        {
+          "name": "NT Emergency Service local emergency plans",
+          "url": "https://pfes.nt.gov.au/emergency-service/publications",
+          "date": "plan versions vary by locality",
+          "file": null,
+          "limitation": "Local arrangements do not consistently establish critical-service plan implementation or successful drills."
         }
       ]
     },
@@ -101,18 +150,39 @@
       "states": [
         {
           "id": "single_channel",
-          "level": 0.0,
-          "meaning": "Assume alerts depend on one online channel."
+          "level": 0.0
         },
         {
           "id": "offline_untested",
-          "level": 0.5,
-          "meaning": "Assume an offline or alternate channel exists but was not tested."
+          "level": 0.5
         },
         {
           "id": "multi_channel_tested",
-          "level": 1.0,
-          "meaning": "Assume alternate alerts and offline information were tested."
+          "level": 1.0
+        }
+      ],
+      "simulationReason": "Public plans and mapped facilities identify potential channels, but do not verify reach, offline availability or test results for this community.",
+      "sourcesReviewed": [
+        {
+          "name": "NT Emergency Service local emergency plans",
+          "url": "https://pfes.nt.gov.au/emergency-service/publications",
+          "date": "plan versions vary by locality",
+          "file": null,
+          "limitation": "A listed channel is not proof of reception by residents or successful offline testing."
+        },
+        {
+          "name": "STAND Sky Muster deployments",
+          "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+          "date": "source map; deployment dates vary",
+          "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+          "limitation": "Map is illustrative; the publisher warns a site may not be used during an emergency."
+        },
+        {
+          "name": "Secure NT Emergency Alert guidance",
+          "url": "https://securent.nt.gov.au/respond/emergency-alert",
+          "date": "2026-06-15",
+          "file": null,
+          "limitation": "Explains alert-system limits; mobile alerts are not offline when phone service is unavailable."
         }
       ]
     },
@@ -122,18 +192,32 @@
       "states": [
         {
           "id": "no_owner",
-          "level": 0.0,
-          "meaning": "Assume no named owner or exercise schedule."
+          "level": 0.0
         },
         {
           "id": "owner_no_drill",
-          "level": 0.5,
-          "meaning": "Assume an owner is named but a drill or maintenance review is pending."
+          "level": 0.5
         },
         {
           "id": "owner_drill_review",
-          "level": 1.0,
-          "meaning": "Assume an owner, drill and maintenance review are in place."
+          "level": 1.0
+        }
+      ],
+      "simulationReason": "Published plans name agencies and coordination roles, but no community-level device owner, maintenance log and completed drill evidence is linked to this point.",
+      "sourcesReviewed": [
+        {
+          "name": "NT Territory Emergency Plan",
+          "url": "https://pfes.nt.gov.au/file/download/406",
+          "date": "Version 10, endorsed 2024-11-27",
+          "file": null,
+          "limitation": "Defines government coordination responsibilities; not a local maintenance or completed exercise record."
+        },
+        {
+          "name": "NT Emergency Service local emergency plans",
+          "url": "https://pfes.nt.gov.au/emergency-service/publications",
+          "date": "plan versions vary by locality",
+          "file": null,
+          "limitation": "Emergency arrangements are not proof that telecommunications maintenance or drills occurred."
         }
       ]
     }
@@ -141,7 +225,7 @@
   "resourceCatalog": [
     {
       "id": "independent_satellite_backup",
-      "label": "Independent satellite backup planning option",
+      "label": "Independent satellite link",
       "targetDimension": "route_redundancy",
       "prerequisites": {
         "backup_power": 0.5,
@@ -154,7 +238,7 @@
     },
     {
       "id": "backup_power_upgrade",
-      "label": "Backup power planning option",
+      "label": "Backup power",
       "targetDimension": "backup_power",
       "prerequisites": {
         "operational_readiness": 0.5
@@ -166,7 +250,7 @@
     },
     {
       "id": "critical_service_comms_kit",
-      "label": "Critical-service communications kit planning option",
+      "label": "Critical-service comms kit",
       "targetDimension": "critical_service_continuity",
       "prerequisites": {
         "route_redundancy": 0.5,
@@ -179,7 +263,7 @@
     },
     {
       "id": "offline_alert_bundle",
-      "label": "Offline information and alternate alert planning option",
+      "label": "Offline alerts and information",
       "targetDimension": "alerts_and_offline",
       "prerequisites": {
         "operational_readiness": 0.5
@@ -191,7 +275,7 @@
     },
     {
       "id": "readiness_drill",
-      "label": "Readiness drill and maintenance planning option",
+      "label": "Readiness drill",
       "targetDimension": "operational_readiness",
       "prerequisites": {},
       "costUnits": 1,
@@ -201,12 +285,14 @@
     }
   ],
   "counts": {
-    "coveragePoints": 64
+    "coveragePoints": 64,
+    "simulatedDimensions": 287,
+    "evidenceScoredDimensions": 33
   },
   "communities": [
     {
       "communityId": "adelaide-river",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -217,37 +303,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Adelaide River School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT001",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -342,36 +440,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -449,7 +547,7 @@
     },
     {
       "communityId": "alyangula",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -460,43 +558,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Alyangula Area School is listed for public access 0.1 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT002",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 70.0,
+      "baselineScore": 55.0,
       "gapDimensions": [
+        "route_redundancy",
         "backup_power",
         "operational_readiness",
         "alerts_and_offline"
@@ -508,11 +619,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -568,7 +678,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 75.0,
+          "scoreAfter": 60.0,
           "upliftPoints": 5.0
         }
       ]
@@ -587,36 +697,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -704,7 +814,7 @@
     },
     {
       "communityId": "ampilatwatja",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -715,43 +825,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Ampilatwatja School is listed for public access 0.4 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT049",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 87.5,
+      "baselineScore": 72.5,
       "gapDimensions": [
+        "route_redundancy",
         "alerts_and_offline",
         "operational_readiness"
       ],
@@ -759,16 +882,14 @@
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 87.5,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -807,7 +928,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 95.0,
+          "scoreAfter": 80.0,
           "upliftPoints": 7.5
         },
         {
@@ -819,14 +940,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 92.5,
+          "scoreAfter": 77.5,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "angurugu",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -837,37 +958,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Angurugu School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT005",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -966,36 +1099,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -1094,36 +1227,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -1219,36 +1352,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -1346,36 +1479,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -1468,36 +1601,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -1576,7 +1709,7 @@
     },
     {
       "communityId": "batchelor",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -1587,60 +1720,71 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Batchelor Outdoor Education Centre is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT007",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 65.0,
+      "baselineScore": 50.0,
       "gapDimensions": [
         "critical_service_continuity",
-        "alerts_and_offline"
+        "alerts_and_offline",
+        "route_redundancy"
       ],
       "resourceEvaluations": [
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 65.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -1665,7 +1809,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "no_plan",
           "afterState": "partial_plan",
-          "scoreAfter": 75.0,
+          "scoreAfter": 60.0,
           "upliftPoints": 10.0
         },
         {
@@ -1677,7 +1821,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "single_channel",
           "afterState": "offline_untested",
-          "scoreAfter": 72.5,
+          "scoreAfter": 57.5,
           "upliftPoints": 7.5
         },
         {
@@ -1710,36 +1854,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -1827,7 +1971,7 @@
     },
     {
       "communityId": "borroloola",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -1838,37 +1982,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Borroloola Health Clinic  is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG006",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -1960,36 +2116,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -2083,36 +2239,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -2208,36 +2364,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -2319,7 +2475,7 @@
     },
     {
       "communityId": "daly-river",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -2330,43 +2486,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Daly River Police Station is listed for public access 0.0 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG022",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 82.5,
+      "baselineScore": 67.5,
       "gapDimensions": [
+        "route_redundancy",
         "critical_service_continuity",
         "alerts_and_offline"
       ],
@@ -2374,16 +2543,14 @@
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 82.5,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -2408,7 +2575,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 92.5,
+          "scoreAfter": 77.5,
           "upliftPoints": 10.0
         },
         {
@@ -2420,7 +2587,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 90.0,
+          "scoreAfter": 75.0,
           "upliftPoints": 7.5
         },
         {
@@ -2453,36 +2620,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -2574,36 +2741,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -2695,36 +2862,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -2804,7 +2971,7 @@
     },
     {
       "communityId": "galiwinku",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -2815,37 +2982,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Shepherdson College is listed for public access 0.5 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT036",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -2939,36 +3118,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -3050,7 +3229,7 @@
     },
     {
       "communityId": "gunbalanya",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3061,37 +3240,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Gunbalanya Health Clinic  is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG011",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -3188,36 +3379,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -3297,7 +3488,7 @@
     },
     {
       "communityId": "jabiru",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3308,43 +3499,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Jabiru Area School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT015",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 85.0,
+      "baselineScore": 70.0,
       "gapDimensions": [
+        "route_redundancy",
         "critical_service_continuity",
         "operational_readiness"
       ],
@@ -3352,16 +3556,14 @@
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 85.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -3386,7 +3588,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 95.0,
+          "scoreAfter": 80.0,
           "upliftPoints": 10.0
         },
         {
@@ -3412,14 +3614,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 90.0,
+          "scoreAfter": 75.0,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "kalkaringi",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3430,43 +3632,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Kalkaringi School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT050",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 82.5,
+      "baselineScore": 67.5,
       "gapDimensions": [
+        "route_redundancy",
         "operational_readiness",
         "alerts_and_offline"
       ],
@@ -3477,11 +3692,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -3538,7 +3752,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 87.5,
+          "scoreAfter": 72.5,
           "upliftPoints": 5.0
         }
       ]
@@ -3557,36 +3771,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -3670,7 +3884,7 @@
     },
     {
       "communityId": "kintore",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3681,42 +3895,54 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Walunguru School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT053",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 62.5,
+      "baselineScore": 77.5,
       "gapDimensions": [
         "route_redundancy",
         "alerts_and_offline"
@@ -3729,9 +3955,9 @@
           "deploymentEligible": false,
           "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
-          "afterState": "backup_untested",
-          "scoreAfter": 77.5,
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 92.5,
           "upliftPoints": 15.0
         },
         {
@@ -3754,7 +3980,6 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "route_redundancy",
             "target_already_at_maximum"
           ],
           "targetDimension": "critical_service_continuity",
@@ -3772,7 +3997,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 70.0,
+          "scoreAfter": 85.0,
           "upliftPoints": 7.5
         },
         {
@@ -3793,7 +4018,7 @@
     },
     {
       "communityId": "lajamanu",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3804,37 +4029,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Lajamanu Police Station  is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG016",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -3921,7 +4158,7 @@
     },
     {
       "communityId": "maningrida",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -3932,44 +4169,57 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Maningrida School is listed for public access 0.6 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT017",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 52.5,
+      "baselineScore": 37.5,
       "gapDimensions": [
         "alerts_and_offline",
+        "route_redundancy",
         "backup_power",
         "critical_service_continuity",
         "operational_readiness"
@@ -3981,11 +4231,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -4013,7 +4262,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 62.5,
+          "scoreAfter": 47.5,
           "upliftPoints": 10.0
         },
         {
@@ -4039,7 +4288,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 57.5,
+          "scoreAfter": 42.5,
           "upliftPoints": 5.0
         }
       ]
@@ -4058,36 +4307,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -4167,7 +4416,7 @@
     },
     {
       "communityId": "mataranka",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -4178,43 +4427,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Mataranka Police Station is listed for public access 0.1 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG018",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 65.0,
+      "baselineScore": 50.0,
       "gapDimensions": [
+        "route_redundancy",
         "backup_power",
         "critical_service_continuity",
         "alerts_and_offline",
@@ -4224,16 +4486,14 @@
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 65.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -4244,7 +4504,7 @@
           "targetDimension": "backup_power",
           "beforeState": "backup_unverified",
           "afterState": "target_tested",
-          "scoreAfter": 77.5,
+          "scoreAfter": 62.5,
           "upliftPoints": 12.5
         },
         {
@@ -4256,7 +4516,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 75.0,
+          "scoreAfter": 60.0,
           "upliftPoints": 10.0
         },
         {
@@ -4268,7 +4528,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 72.5,
+          "scoreAfter": 57.5,
           "upliftPoints": 7.5
         },
         {
@@ -4280,7 +4540,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 70.0,
+          "scoreAfter": 55.0,
           "upliftPoints": 5.0
         }
       ]
@@ -4299,36 +4559,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -4409,7 +4669,7 @@
     },
     {
       "communityId": "milikapiti",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -4420,45 +4680,58 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Milikapiti School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT020",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 55.0,
+      "baselineScore": 40.0,
       "gapDimensions": [
         "critical_service_continuity",
         "alerts_and_offline",
+        "route_redundancy",
         "operational_readiness"
       ],
       "resourceEvaluations": [
@@ -4468,11 +4741,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -4501,7 +4773,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "no_plan",
           "afterState": "partial_plan",
-          "scoreAfter": 65.0,
+          "scoreAfter": 50.0,
           "upliftPoints": 10.0
         },
         {
@@ -4527,7 +4799,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 60.0,
+          "scoreAfter": 45.0,
           "upliftPoints": 5.0
         }
       ]
@@ -4546,36 +4818,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -4655,7 +4927,7 @@
     },
     {
       "communityId": "minjilang",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -4666,44 +4938,69 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Mamaruni School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT016",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
-          "sourceType": "simulation",
-          "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
-          "level": 1.0,
-          "points": 25.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_unverified",
+          "level": 0.5,
+          "points": 12.5,
+          "evidenceSummary": "MNHP record MBSP-NT-003: completed lead-acid battery upgrade upgrade at Minjilang; reported capacity ≥12.",
+          "sourcesReviewed": [
+            {
+              "name": "Mobile Network Hardening Program (MNHP)",
+              "url": "https://data.gov.au/data/en/dataset/mobile-network-hardening-program-mnhp-round-1",
+              "date": "20170615",
+              "file": "data/raw/score-research/2026-09-29-followup/mnhp_round_1_stage_1_funded_base_stations.kml",
+              "recordId": "MBSP-NT-003",
+              "limitation": "The source marks the upgrade complete and reports its power specification, but does not provide a current inspection or community-level outage test."
+            }
+          ],
+          "simulationReason": null
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 75.0,
+      "baselineScore": 62.5,
       "gapDimensions": [
         "route_redundancy",
+        "backup_power",
         "critical_service_continuity"
       ],
       "resourceEvaluations": [
@@ -4716,22 +5013,20 @@
           "targetDimension": "route_redundancy",
           "beforeState": "backup_untested",
           "afterState": "independent_tested",
-          "scoreAfter": 90.0,
+          "scoreAfter": 77.5,
           "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "backup_power",
-          "beforeState": "target_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_unverified",
+          "afterState": "target_tested",
+          "scoreAfter": 75.0,
+          "upliftPoints": 12.5
         },
         {
           "resourceId": "critical_service_comms_kit",
@@ -4742,7 +5037,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 85.0,
+          "scoreAfter": 72.5,
           "upliftPoints": 10.0
         },
         {
@@ -4789,36 +5084,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -4914,36 +5209,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -5036,36 +5331,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -5159,36 +5454,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -5269,7 +5564,7 @@
     },
     {
       "communityId": "nganmarriyanga",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -5280,45 +5575,57 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Nganmarriyanga School is listed for public access 0.6 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT025",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 27.5,
+      "baselineScore": 42.5,
       "gapDimensions": [
-        "route_redundancy",
         "critical_service_continuity",
+        "route_redundancy",
         "backup_power",
         "operational_readiness"
       ],
@@ -5332,7 +5639,7 @@
             "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -5354,16 +5661,14 @@
         {
           "resourceId": "critical_service_comms_kit",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "route_redundancy"
-          ],
+          "blockedBy": [],
           "targetDimension": "critical_service_continuity",
           "beforeState": "no_plan",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "afterState": "partial_plan",
+          "scoreAfter": 52.5,
+          "upliftPoints": 10.0
         },
         {
           "resourceId": "offline_alert_bundle",
@@ -5389,14 +5694,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 32.5,
+          "scoreAfter": 47.5,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "ngukurr",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -5407,46 +5712,58 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Ngukurr School is listed for public access 0.6 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT026",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 12.5,
+      "baselineScore": 27.5,
       "gapDimensions": [
-        "route_redundancy",
         "critical_service_continuity",
         "alerts_and_offline",
+        "route_redundancy",
         "backup_power",
         "operational_readiness"
       ],
@@ -5460,7 +5777,7 @@
             "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -5482,16 +5799,14 @@
         {
           "resourceId": "critical_service_comms_kit",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "route_redundancy"
-          ],
+          "blockedBy": [],
           "targetDimension": "critical_service_continuity",
           "beforeState": "no_plan",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "afterState": "partial_plan",
+          "scoreAfter": 37.5,
+          "upliftPoints": 10.0
         },
         {
           "resourceId": "offline_alert_bundle",
@@ -5516,7 +5831,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 17.5,
+          "scoreAfter": 32.5,
           "upliftPoints": 5.0
         }
       ]
@@ -5535,36 +5850,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -5646,7 +5961,7 @@
     },
     {
       "communityId": "numbulwar",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -5657,60 +5972,71 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Numbulwar School is listed for public access 0.1 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT030",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 75.0,
+      "baselineScore": 60.0,
       "gapDimensions": [
         "alerts_and_offline",
+        "route_redundancy",
         "critical_service_continuity"
       ],
       "resourceEvaluations": [
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 75.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -5735,7 +6061,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 85.0,
+          "scoreAfter": 70.0,
           "upliftPoints": 10.0
         },
         {
@@ -5747,7 +6073,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "single_channel",
           "afterState": "offline_untested",
-          "scoreAfter": 82.5,
+          "scoreAfter": 67.5,
           "upliftPoints": 7.5
         },
         {
@@ -5780,36 +6106,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
           "points": 15.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -5896,7 +6222,7 @@
     },
     {
       "communityId": "peppimenarti",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -5907,43 +6233,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Peppimenarti School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT032",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 67.5,
+      "baselineScore": 52.5,
       "gapDimensions": [
+        "route_redundancy",
         "backup_power",
         "critical_service_continuity",
         "operational_readiness"
@@ -5955,11 +6294,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -5987,7 +6325,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 77.5,
+          "scoreAfter": 62.5,
           "upliftPoints": 10.0
         },
         {
@@ -6014,14 +6352,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 72.5,
+          "scoreAfter": 57.5,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "pine-creek",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6032,60 +6370,71 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Pine Creek Police Station is listed for public access 0.5 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG030",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 80.0,
+      "baselineScore": 65.0,
       "gapDimensions": [
         "alerts_and_offline",
+        "route_redundancy",
         "operational_readiness"
       ],
       "resourceEvaluations": [
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 80.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -6124,7 +6473,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "single_channel",
           "afterState": "offline_untested",
-          "scoreAfter": 87.5,
+          "scoreAfter": 72.5,
           "upliftPoints": 7.5
         },
         {
@@ -6136,14 +6485,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 85.0,
+          "scoreAfter": 70.0,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "pirlangimpi",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6154,42 +6503,54 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Pularumpi School is listed for public access 0.8 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT033",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 62.5,
+      "baselineScore": 77.5,
       "gapDimensions": [
         "route_redundancy",
         "alerts_and_offline"
@@ -6202,9 +6563,9 @@
           "deploymentEligible": false,
           "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
-          "afterState": "backup_untested",
-          "scoreAfter": 77.5,
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 92.5,
           "upliftPoints": 15.0
         },
         {
@@ -6227,7 +6588,6 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "route_redundancy",
             "target_already_at_maximum"
           ],
           "targetDimension": "critical_service_continuity",
@@ -6245,7 +6605,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 70.0,
+          "scoreAfter": 85.0,
           "upliftPoints": 7.5
         },
         {
@@ -6266,7 +6626,7 @@
     },
     {
       "communityId": "ramingining",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6277,60 +6637,71 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Ramingining School is listed for public access 0.5 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT034",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
       },
-      "baselineScore": 75.0,
+      "baselineScore": 60.0,
       "gapDimensions": [
         "alerts_and_offline",
+        "route_redundancy",
         "critical_service_continuity"
       ],
       "resourceEvaluations": [
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 75.0,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -6355,7 +6726,7 @@
           "targetDimension": "critical_service_continuity",
           "beforeState": "partial_plan",
           "afterState": "tested_plan",
-          "scoreAfter": 85.0,
+          "scoreAfter": 70.0,
           "upliftPoints": 10.0
         },
         {
@@ -6367,7 +6738,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "single_channel",
           "afterState": "offline_untested",
-          "scoreAfter": 82.5,
+          "scoreAfter": 67.5,
           "upliftPoints": 7.5
         },
         {
@@ -6388,7 +6759,7 @@
     },
     {
       "communityId": "santa-teresa",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6399,37 +6770,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Ltyentye Apurte Catholic School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT051",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -6528,36 +6911,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -6638,7 +7021,7 @@
     },
     {
       "communityId": "timber-creek",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6649,45 +7032,57 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Timber Creek School is listed for public access 0.6 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT038",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 20.0,
+      "baselineScore": 35.0,
       "gapDimensions": [
-        "route_redundancy",
         "critical_service_continuity",
+        "route_redundancy",
         "backup_power",
         "operational_readiness",
         "alerts_and_offline"
@@ -6702,7 +7097,7 @@
             "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -6724,16 +7119,14 @@
         {
           "resourceId": "critical_service_comms_kit",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "route_redundancy"
-          ],
+          "blockedBy": [],
           "targetDimension": "critical_service_continuity",
           "beforeState": "no_plan",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "afterState": "partial_plan",
+          "scoreAfter": 45.0,
+          "upliftPoints": 10.0
         },
         {
           "resourceId": "offline_alert_bundle",
@@ -6758,14 +7151,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 25.0,
+          "scoreAfter": 40.0,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "titjikala",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6776,46 +7169,58 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Titjikala School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT052",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 15.0,
+      "baselineScore": 30.0,
       "gapDimensions": [
-        "route_redundancy",
         "backup_power",
         "critical_service_continuity",
+        "route_redundancy",
         "operational_readiness"
       ],
       "resourceEvaluations": [
@@ -6829,7 +7234,7 @@
             "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -6854,7 +7259,6 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "route_redundancy",
             "backup_power"
           ],
           "targetDimension": "critical_service_continuity",
@@ -6887,14 +7291,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 20.0,
+          "scoreAfter": 35.0,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "umbakumba",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -6905,46 +7309,58 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
-          "level": 0.0,
-          "points": 0.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Alyarrmandumanja Umbakumba School is listed for public access 0.2 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT003",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 20.0,
+      "baselineScore": 35.0,
       "gapDimensions": [
-        "route_redundancy",
         "backup_power",
         "critical_service_continuity",
+        "route_redundancy",
         "operational_readiness"
       ],
       "resourceEvaluations": [
@@ -6957,7 +7373,7 @@
             "backup_power"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "single_route",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -6971,7 +7387,7 @@
           "targetDimension": "backup_power",
           "beforeState": "no_backup",
           "afterState": "backup_unverified",
-          "scoreAfter": 32.5,
+          "scoreAfter": 47.5,
           "upliftPoints": 12.5
         },
         {
@@ -6980,7 +7396,6 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "route_redundancy",
             "backup_power"
           ],
           "targetDimension": "critical_service_continuity",
@@ -7012,14 +7427,14 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 25.0,
+          "scoreAfter": 40.0,
           "upliftPoints": 5.0
         }
       ]
     },
     {
       "communityId": "wadeye",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -7030,43 +7445,56 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Port Keats (Wadeye) Police Station is listed for public access 0.1 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "2NTG033",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
       },
-      "baselineScore": 87.5,
+      "baselineScore": 72.5,
       "gapDimensions": [
+        "route_redundancy",
         "alerts_and_offline",
         "operational_readiness"
       ],
@@ -7074,16 +7502,14 @@
         {
           "resourceId": "independent_satellite_backup",
           "sourceType": "simulation",
-          "planningEligible": false,
+          "planningEligible": true,
           "deploymentEligible": false,
-          "blockedBy": [
-            "target_already_at_maximum"
-          ],
+          "blockedBy": [],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
-          "afterState": null,
-          "scoreAfter": null,
-          "upliftPoints": null
+          "beforeState": "backup_untested",
+          "afterState": "independent_tested",
+          "scoreAfter": 87.5,
+          "upliftPoints": 15.0
         },
         {
           "resourceId": "backup_power_upgrade",
@@ -7122,7 +7548,7 @@
           "targetDimension": "alerts_and_offline",
           "beforeState": "offline_untested",
           "afterState": "multi_channel_tested",
-          "scoreAfter": 95.0,
+          "scoreAfter": 80.0,
           "upliftPoints": 7.5
         },
         {
@@ -7134,7 +7560,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "owner_no_drill",
           "afterState": "owner_drill_review",
-          "scoreAfter": 92.5,
+          "scoreAfter": 77.5,
           "upliftPoints": 5.0
         }
       ]
@@ -7153,36 +7579,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -7264,7 +7690,7 @@
     },
     {
       "communityId": "warruwi",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -7275,44 +7701,57 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
-          "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
-          "level": 1.0,
-          "points": 30.0
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
+          "state": "backup_untested",
+          "level": 0.5,
+          "points": 15.0,
+          "evidenceSummary": "Warruwi School is listed for public access 0.1 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT042",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
       },
-      "baselineScore": 62.5,
+      "baselineScore": 47.5,
       "gapDimensions": [
         "alerts_and_offline",
+        "route_redundancy",
         "backup_power",
         "operational_readiness"
       ],
@@ -7323,11 +7762,10 @@
           "planningEligible": false,
           "deploymentEligible": false,
           "blockedBy": [
-            "operational_readiness",
-            "target_already_at_maximum"
+            "operational_readiness"
           ],
           "targetDimension": "route_redundancy",
-          "beforeState": "independent_tested",
+          "beforeState": "backup_untested",
           "afterState": null,
           "scoreAfter": null,
           "upliftPoints": null
@@ -7383,7 +7821,7 @@
           "targetDimension": "operational_readiness",
           "beforeState": "no_owner",
           "afterState": "owner_no_drill",
-          "scoreAfter": 67.5,
+          "scoreAfter": 52.5,
           "upliftPoints": 5.0
         }
       ]
@@ -7402,36 +7840,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -7511,7 +7949,7 @@
     },
     {
       "communityId": "wurrumiyanga",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -7522,37 +7960,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Xavier Catholic College is listed for public access 0.8 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT045",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_drill_review",
-          "assumption": "Assume an owner, drill and maintenance review are in place.",
           "level": 1.0,
           "points": 10.0
         }
@@ -7643,36 +8093,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "offline_untested",
-          "assumption": "Assume an offline or alternate channel exists but was not tested.",
           "level": 0.5,
           "points": 7.5
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -7758,7 +8208,7 @@
     },
     {
       "communityId": "yirrkala",
-      "sourceType": "simulation",
+      "sourceType": "mixed",
       "sourcePoint": {
         "sourceType": "published_source",
         "sourceFile": "connectivity.geojson",
@@ -7769,37 +8219,49 @@
       },
       "dimensions": {
         "route_redundancy": {
-          "sourceType": "simulation",
+          "sourceType": "evidence",
+          "evidenceStatus": "matched_published_evidence",
           "state": "backup_untested",
-          "assumption": "Assume a backup route exists but independence or testing is unconfirmed.",
           "level": 0.5,
-          "points": 15.0
+          "points": 15.0,
+          "evidenceSummary": "Laynhapuy Homelands School is listed for public access 0.3 km from this community point.",
+          "sourcesReviewed": [
+            {
+              "name": "STAND Sky Muster satellite deployments",
+              "url": "https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer",
+              "date": null,
+              "file": "data/raw/score-research/2026-09-29-followup/stand_sky_muster_deployments.geojson",
+              "recordId": "NT046",
+              "limitation": "Public satellite Wi-Fi site is mapped within 1 km and marked Public Access=Yes. Current operation, power during an outage and community-wide reach are not verified."
+            }
+          ],
+          "simulationReason": null
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "backup_unverified",
-          "assumption": "Assume backup power exists but duration or testing is unconfirmed.",
           "level": 0.5,
           "points": 12.5
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "partial_plan",
-          "assumption": "Assume a plan exists but coverage or testing is incomplete.",
           "level": 0.5,
           "points": 10.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }
@@ -7890,36 +8352,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_route",
-          "assumption": "Assume only one usable communications route.",
           "level": 0.0,
           "points": 0.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_backup",
-          "assumption": "Assume no usable backup power at the planning point.",
           "level": 0.0,
           "points": 0.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_plan",
-          "assumption": "Assume no communications continuity plan for a hypothetical critical service.",
           "level": 0.0,
           "points": 0.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "single_channel",
-          "assumption": "Assume alerts depend on one online channel.",
           "level": 0.0,
           "points": 0.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "no_owner",
-          "assumption": "Assume no named owner or exercise schedule.",
           "level": 0.0,
           "points": 0.0
         }
@@ -8019,36 +8481,36 @@
       "dimensions": {
         "route_redundancy": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "independent_tested",
-          "assumption": "Assume an independent backup route was tested in the exercise.",
           "level": 1.0,
           "points": 30.0
         },
         "backup_power": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "target_tested",
-          "assumption": "Assume backup power meets the scenario target and was tested.",
           "level": 1.0,
           "points": 25.0
         },
         "critical_service_continuity": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "tested_plan",
-          "assumption": "Assume the hypothetical service has a tested continuity plan.",
           "level": 1.0,
           "points": 20.0
         },
         "alerts_and_offline": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "multi_channel_tested",
-          "assumption": "Assume alternate alerts and offline information were tested.",
           "level": 1.0,
           "points": 15.0
         },
         "operational_readiness": {
           "sourceType": "simulation",
+          "evidenceStatus": "no_community_level_verified_evidence",
           "state": "owner_no_drill",
-          "assumption": "Assume an owner is named but a drill or maintenance review is pending.",
           "level": 0.5,
           "points": 5.0
         }

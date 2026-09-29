@@ -94,6 +94,28 @@ export interface ResilienceDimensionDefinition {
   label: string;
   weight: number;
   states: Array<{ id: string; level: number }>;
+  simulationReason: string;
+  sourcesReviewed: ResilienceEvidenceSource[];
+}
+
+export interface ResilienceEvidenceSource {
+  name: string;
+  url: string;
+  date: string | null;
+  file: string | null;
+  limitation: string;
+  recordId?: string;
+}
+
+export interface ResilienceDimensionScore {
+  sourceType: 'evidence' | 'simulation';
+  evidenceStatus: 'matched_published_evidence' | 'no_community_level_verified_evidence';
+  evidenceSummary?: string;
+  simulationReason?: string | null;
+  sourcesReviewed?: ResilienceEvidenceSource[];
+  state: string;
+  level: number;
+  points: number;
 }
 
 export interface ResilienceResourceOption {
@@ -109,9 +131,9 @@ export interface ResilienceResourceOption {
 
 export interface CommunityResilienceScenario {
   communityId: string;
-  sourceType: 'simulation';
+  sourceType: 'simulation' | 'mixed' | 'evidence';
   sourcePoint: { sourceType: 'published_source'; sourceFile: string; coordinateRole: string; reviewStatus: string; reviewReference: string | null; deploymentSiteConfirmed: false };
-  dimensions: Record<ResilienceDimensionId, { sourceType: 'simulation'; state: string; level: number; points: number }>;
+  dimensions: Record<ResilienceDimensionId, ResilienceDimensionScore>;
   baselineScore: number;
   gapDimensions: ResilienceDimensionId[];
   resourceEvaluations: Array<{ resourceId: string; sourceType: 'simulation'; planningEligible: boolean; deploymentEligible: false; blockedBy: string[]; targetDimension: ResilienceDimensionId; beforeState: string; afterState: string | null; scoreAfter: number | null; upliftPoints: number | null }>;
@@ -120,13 +142,13 @@ export interface CommunityResilienceScenario {
 export interface ResilienceSimulationData {
   schemaVersion: 1;
   modelVersion: string;
-  sourceType: 'simulation';
+  sourceType: 'simulation' | 'mixed' | 'evidence';
   notice: string;
-  sourceBoundaries: { communityPoints: { sourceType: 'published_source'; file: string; generatedAt: string | null; provider: string | null; upstreamRecordDate: string | null; dateCaveat: string }; cycloneProximity: { sourceType: 'published_derived'; file: string; metric: string; trackProvider: string | null; trackGeneratedAt: string | null }; capabilityAndResources: { sourceType: 'simulation'; modelVersion: string } };
+  sourceBoundaries: { communityPoints: { sourceType: 'published_source'; file: string; generatedAt: string | null; provider: string | null; upstreamRecordDate: string | null; dateCaveat: string }; cycloneProximity: { sourceType: 'published_derived'; file: string; metric: string; trackProvider: string | null; trackGeneratedAt: string | null }; capabilityAndResources: { sourceType: 'simulation' | 'mixed' | 'evidence'; modelVersion: string } };
   method: { score: string; assumptionAssignment: string; resourceEffect: string; missingActualData: string; costUnits: string };
   dimensions: Record<ResilienceDimensionId, ResilienceDimensionDefinition>;
   resourceCatalog: ResilienceResourceOption[];
-  counts: { coveragePoints: number };
+  counts: { coveragePoints: number; simulatedDimensions: number; evidenceScoredDimensions: number };
   communities: CommunityResilienceScenario[];
 }
 

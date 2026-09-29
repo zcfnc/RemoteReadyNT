@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import type { ConnectivityProperties, GeoJsonFeature, ResilienceDimensionId, ResilienceSimulationData } from '../../types/data';
+import type { ConnectivityProperties, GeoJsonFeature, ResilienceDimensionId, ResilienceDimensionScore, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
 import { capacityBand, planningReviewTier, resilienceDimensionIds, simulatedResourceOutcome } from './resilience';
 
@@ -19,9 +19,9 @@ function distanceLabel(value: number | null) {
 }
 
 function capacityLabel(score: number) {
-  if (score < 40) return 'Low resilience';
-  if (score < 70) return 'Moderate resilience';
-  return 'High resilience';
+  if (score < 40) return 'Early planning';
+  if (score < 70) return 'Developing planning';
+  return 'Strong planning';
 }
 
 function blockerLabel(value: string, data: ResilienceSimulationData) {
@@ -89,12 +89,14 @@ function useAnimatedNumber(target: number, duration = 800, delay = 0) {
   return reducedMotion ? target : value;
 }
 
-function AnimatedDimension({ id, points, weight, delay }: { id: ResilienceDimensionId; points: number; weight: number; delay: number }) {
+function AnimatedDimension({ id, dimension, weight, delay, preview }: { id: ResilienceDimensionId; dimension: ResilienceDimensionScore; weight: number; delay: number; preview?: { points: number; state: string } }) {
   const copy = dimensionCopy[id];
-  const animatedPoints = useAnimatedNumber(points, 720, delay);
+  const displayedState = preview?.state ?? dimension.state;
+  const animatedPoints = useAnimatedNumber(preview?.points ?? dimension.points, 720, delay);
   const displayedPoints = Math.max(0, Math.min(weight, animatedPoints));
   const percentage = Math.min(100, Math.max(0, displayedPoints / weight * 100));
-  return <div className="resilience-dimension-content"><div><span className="resilience-dimension-label"><strong>{copy.label}</strong><ScoreHelp label={copy.label}>{copy.question} {copy.explanation} Maximum contribution to this illustrative score: {weight} points. The state is simulated and has not been verified in the community.</ScoreHelp></span><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${copy.label}, ${points} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
+  const isSimulated = dimension.sourceType === 'simulation';
+  return <div className="resilience-dimension-content"><div><span className="resilience-dimension-label"><strong>{copy.label}</strong><span className={`resilience-source-badge ${preview ? 'simulated' : isSimulated ? 'simulated' : 'evidence'}`}>{preview ? 'Simulated preview' : isSimulated ? 'Simulated' : 'Source data'}</span><ScoreHelp label={copy.label}><span>{copy.question} {copy.explanation} Maximum contribution: {weight} points. Current status: {displayedState.replaceAll('_', ' ')}.</span><p className="resilience-evidence-reason">{preview ? 'Illustrative resource scenario only; this is not a real-world upgrade or verified outcome.' : isSimulated ? 'Illustrative planning value only. Missing real-world information is not treated as zero.' : `${dimension.evidenceSummary ?? 'A published record supports this status.'} This record has not been independently verified in the field.`}</p></ScoreHelp></span><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${copy.label}, ${displayedPoints} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={displayedPoints} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
 }
 
 function AnimatedScore({ value, duration = 800 }: { value: number; duration?: number }) {
@@ -126,8 +128,12 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
   const selectedOption = data?.resourceCatalog.find((item) => item.id === selectedResourceId);
   const evaluation = scenario?.resourceEvaluations.find((item) => item.resourceId === selectedResourceId);
   const outcome = data && scenario && selectedOption ? simulatedResourceOutcome(data, scenario, selectedOption) : null;
+  const previewActive = Boolean(outcome && evaluation?.planningEligible);
+  const displayedScore = previewActive ? outcome!.scoreAfter : scenario?.baselineScore ?? 0;
   const review = result && scenario ? planningReviewTier(result, rank, scenario) : undefined;
-  const animatedBaseline = useAnimatedNumber(scenario?.baselineScore ?? 0);
+  const animatedBaseline = useAnimatedNumber(displayedScore);
+  const simulatedDimensionCount = scenario ? resilienceDimensionIds.filter((key) => scenario.dimensions[key].sourceType === 'simulation').length : 0;
+  const evidenceDimensionCount = scenario ? resilienceDimensionIds.length - simulatedDimensionCount : 0;
 
   return <section aria-labelledby="resilience-section-title" className="resilience-planning-section" id="resilience-section">
     <header className="resilience-planning-header">
@@ -137,7 +143,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
     {data && !result && <p className="resilience-planning-state">Select a point on the map or in the ranking to review its score and resources.</p>}
     {data && result && !scenario && <p className="resilience-planning-state" role="alert">No resilience record is available for this point.</p>}
     {data && result && scenario && <>
-      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3></div><span className={`resilience-capacity-label ${capacityBand(scenario.baselineScore)}`}>{capacityLabel(scenario.baselineScore)}</span></div>
+      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3></div><span className={`resilience-capacity-label ${capacityBand(displayedScore)}`}>{capacityLabel(displayedScore)}</span></div>
       <div className="resilience-summary-grid">
         <article aria-label="Historical path proximity evidence" className="resilience-summary-card">
           <h4>Path history</h4>
@@ -147,12 +153,13 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
           <p className="resilience-review-next"><strong>{review?.label}</strong><span> · {review?.reason}</span></p>
         </article>
         <article aria-label="Resilience score breakdown" className="resilience-summary-card">
-          <div className="resilience-score-heading"><div><h4>Communications resilience score <ScoreHelp label="Communications resilience score">This is a planning example, not a verified assessment of this community. It combines five simulated capability areas; each state contributes 0%, 50% or 100% of that area's maximum points, for a total of 100. Historical cyclone approaches are not included. Red is below 40, yellow is 40–69, and green is 70 or above; green does not mean risk-free.</ScoreHelp></h4>
-          <p className="resilience-card-source">Illustrative planning score · not field verified</p>
-          </div><div className={`resilience-score-ring ${capacityBand(scenario.baselineScore)}`} style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`Total score ${scenario.baselineScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
+          <div className="resilience-score-heading"><div><h4>Communications resilience score <ScoreHelp label="Communications resilience score">This is a planning score, not a verified assessment of this community. {simulatedDimensionCount} of 5 dimensions use simulated values and {evidenceDimensionCount} use matched published records; each state contributes 0%, 50% or 100% of that area's maximum points, for a total of 100. Historical cyclone approaches are not included. Red is below 40, yellow is 40–69, and green is 70 or above; green does not mean risk-free.</ScoreHelp></h4>
+          <p className="resilience-card-source">{previewActive ? `Simulated preview · ${selectedOption?.label}` : simulatedDimensionCount ? `Planning score · ${simulatedDimensionCount} simulated, ${evidenceDimensionCount} source-supported` : 'Source-supported planning score · not field verified'}</p>
+          </div><div className={`resilience-score-ring ${capacityBand(displayedScore)}`} style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`${previewActive ? 'Simulated scenario score' : 'Total score'} ${displayedScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
           <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key, index) => {
             const dimension = scenario.dimensions[key];
-            return <li key={`${scenario.communityId}-${key}`}><CapabilityIcon name={key}/><AnimatedDimension delay={index * 90} id={key} points={dimension.points} weight={data.dimensions[key].weight}/></li>;
+            const preview = previewActive && selectedOption?.targetDimension === key ? { points: dimension.points + outcome!.upliftPoints, state: outcome!.afterState } : undefined;
+            return <li key={`${scenario.communityId}-${key}`}><CapabilityIcon name={key}/><AnimatedDimension delay={index * 90} id={key} dimension={dimension} weight={data.dimensions[key].weight} preview={preview}/></li>;
           })}</ol>
         </article>
       </div>
@@ -160,14 +167,14 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         <div className="resilience-resources-heading"><div><h4>Resource comparison</h4><p>Select one resource to compare its score impact and cost.</p></div></div>
         <div className="resilience-resource-grid">{data.resourceCatalog.map((resource) => {
           const option = scenario.resourceEvaluations.find((item) => item.resourceId === resource.id);
-          const available = Boolean(option?.planningEligible);
-          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><CapabilityIcon name={resource.id === 'independent_satellite_backup' ? resource.id : resource.targetDimension}/><strong>{resource.label}</strong>{available ? <AnimatedUplift value={option?.upliftPoints ?? undefined}/> : <span className="resilience-resource-status">Unavailable</span>}<span className="resilience-resource-cost">{resource.costUnits} cost {resource.costUnits === 1 ? 'unit' : 'units'}</span><small>{available ? 'Compare' : 'View requirements'} <b aria-hidden="true">→</b></small></button>;
+          const available = Boolean(data && scenario && simulatedResourceOutcome(data, scenario, resource));
+          const uplift = data && scenario ? simulatedResourceOutcome(data, scenario, resource)?.upliftPoints : undefined;
+          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><CapabilityIcon name={resource.id === 'independent_satellite_backup' ? resource.id : resource.targetDimension}/><strong>{resource.label}</strong>{available ? <AnimatedUplift value={uplift}/> : <span className="resilience-resource-status">Unavailable</span>}<span className="resilience-resource-cost">{resource.costUnits} cost {resource.costUnits === 1 ? 'unit' : 'units'}</span><small>{available ? 'Compare' : 'View requirements'} <b aria-hidden="true">→</b></small></button>;
         })}</div>
         {selectedOption && evaluation && <article aria-label={`${selectedOption.label} comparison`} className="resilience-comparison" role="status">
           <h5>{selectedOption.label}</h5>
           {outcome && evaluation.planningEligible ? <><div className="resilience-before-after"><span><small>Current</small><strong><AnimatedScore value={scenario.baselineScore}/> / 100</strong></span><span aria-hidden="true">→</span><span><small>Illustrative scenario</small><strong><AnimatedScore value={outcome.scoreAfter ?? scenario.baselineScore}/> / 100</strong></span></div><p>{dimensionCopy[selectedOption.targetDimension].label}: {outcome.beforeState.replaceAll('_', ' ')} → {outcome.afterState.replaceAll('_', ' ')}. This is a modelled change, not a guaranteed outcome.</p></> : <p>Unavailable: {evaluation.blockedBy.map((item) => blockerLabel(item, data)).join('; ')}.</p>}
           <p>Prerequisites: {Object.keys(selectedOption.prerequisites).length ? Object.entries(selectedOption.prerequisites).map(([key, level]) => `${data.dimensions[key as keyof typeof data.dimensions].label} ≥ ${level}`).join('; ') : 'None in the simulation model'}.</p>
-          <small>Cost: {selectedOption.costUnits} units</small>
         </article>}
       </section>
       <p className="resilience-data-boundary">Sources: NT location records · Bureau of Meteorology cyclone tracks</p>

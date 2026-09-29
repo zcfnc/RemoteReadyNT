@@ -142,7 +142,7 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Historical proximity' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Community analysis' }));
     const panel = screen.getByRole('complementary', { name: 'Historical cyclone proximity analysis' });
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-mode', 'exposure');
     expect(within(panel).getByText('2015–2026 · within 100 km · 2 points with records')).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe('DashboardPage priority action', () => {
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Milingimbi');
     expect(within(panel).getByText('No cyclone track fell within the selected range for this community.')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'TC Lam exercise' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-mode', 'exercise');
     expect(screen.queryByRole('complementary', { name: 'Historical cyclone proximity analysis' })).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /simulated outcome/i })).toBeInTheDocument();

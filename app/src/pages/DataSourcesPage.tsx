@@ -15,6 +15,51 @@ const dataUseCards = [
   { icon: '▤', title: 'Verify locally', copy: 'Network, access and service conditions must be confirmed with local organisations and community contacts.' },
 ];
 
+const importedDatasets = [
+  {
+    id: 'stand-sky-muster',
+    title: 'STAND Sky Muster satellite deployments',
+    provider: 'Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts',
+    description: 'Mapped public Sky Muster satellite deployments intended to provide an additional communications option at selected emergency-service and evacuation sites.',
+    records: '1,255 mapped features',
+    category: 'Emergency satellite locations',
+    fileName: 'stand_sky_muster_deployments.geojson',
+    sourceDate: '18 Sept 2026',
+    license: 'License to verify from source metadata',
+    limitation: 'Illustrative only. The publisher warns that listed sites may not be available during an emergency; this does not prove community-wide access or a tested independent route.',
+    url: 'https://spatial.infrastructure.gov.au/server/rest/services/Strengthening_Telecommunications_Against_Natural_Disasters/MapServer',
+    icon: 'stand',
+  },
+  {
+    id: 'mnhp-stage-1',
+    title: 'MNHP Stage 1 funded base stations',
+    provider: 'Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts',
+    description: 'National base-station locations funded for resilience upgrades under the Mobile Network Hardening Program (MNHP). Stage 1 includes a program target of at least 12 hours of battery backup at the funded sites.',
+    records: 'Funded base-station locations',
+    category: 'Backup power upgrade program',
+    fileName: 'mnhp_round_1_stage_1_funded_base_stations.kml',
+    sourceDate: '18 Sept 2026',
+    license: 'CC BY-SA 4.0',
+    limitation: 'Funding/upgrade records do not confirm present operation, current battery runtime, maintenance or a community-level test.',
+    url: 'https://data.gov.au/data/en/dataset/mobile-network-hardening-program-mnhp-round-1',
+    icon: 'mnhp',
+  },
+  {
+    id: 'mnhp-stage-2',
+    title: 'MNHP Stage 2 funded base stations',
+    provider: 'Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts',
+    description: 'National base-station locations funded for resilience upgrades, including backup power, generators, batteries and transmission resilience.',
+    records: 'Funded base-station locations',
+    category: 'Network resilience upgrades',
+    fileName: 'mnhp_round_1_stage_2_funded_base_stations.kml',
+    sourceDate: '18 Sept 2026',
+    license: 'CC BY-SA 4.0',
+    limitation: 'A funded upgrade does not confirm current operation, prove an independent end-to-end route or show that failover was tested for a community.',
+    url: 'https://data.gov.au/data/en/dataset/mobile-network-hardening-program-mnhp-round-1',
+    icon: 'mnhp',
+  },
+];
+
 export function DataSourcesPage() {
   const { sourceLog, facilities, optionalWarnings, error } = useSourceData();
   if (error) return <section className="page page-sources"><div className="sources-error"><h1>Source catalogue unavailable</h1><p>{error}</p></div></section>;
@@ -45,7 +90,7 @@ export function DataSourcesPage() {
     </div>
 
     <section className="dashboard-status-grid source-status-grid" aria-label="Data source summary">
-      <SourceMetric icon="▤" label="Sources available" note={`of ${totalSources || '—'} total sources`} tone="red" value={sourceLog ? String(available) : '—'} />
+      <SourceMetric icon="▤" label="Auto sources available" note={`of ${totalSources || '—'} checked at refresh`} tone="red" value={sourceLog ? String(available) : '—'} />
       <SourceMetric icon="●" label="Connectivity records" note="in latest dataset" tone="blue" value={String(sourceLog?.counts?.connectivity ?? '—')} />
       <SourceMetric icon="▦" label="Essential facilities" note={displayedFacilities === undefined ? 'Loading facility data' : `${displayedFacilities.toLocaleString('en-AU')} displayable records`} tone="orange" value={facilityCount?.toLocaleString('en-AU') ?? '—'} />
       <SourceMetric icon="◷" label="Last refreshed" note={refreshed.detail} tone="green" value={refreshed.short} />
@@ -63,10 +108,11 @@ export function DataSourcesPage() {
     <section className="source-catalogue-redesign" id="source-catalogue" aria-labelledby="source-catalogue-title">
       <header className="source-section-heading">
         <div><span>DATA CATALOGUE</span><h2 id="source-catalogue-title">Imported and reference datasets</h2></div>
-        <p>{sourceLog ? `${available} of ${totalSources} sources available at last refresh` : 'Loading source status'}</p>
+        <p>{sourceLog ? `${available} of ${totalSources} automated sources available · ${importedDatasets.length} local imports` : `${importedDatasets.length} local imports · Loading source status`}</p>
       </header>
       <div className="source-record-grid">
         {sources.map((source) => <SourceRecordCard key={`${source.title}-${source.url}`} log={sourceLog} source={source} />)}
+        {importedDatasets.map((dataset) => <ImportedDatasetCard key={dataset.id} dataset={dataset} />)}
       </div>
     </section>
 
@@ -117,6 +163,33 @@ function SourceRecordCard({ log, source }: { log?: SourceLog; source: SourceReco
       {source.url && <a href={source.url} rel="noreferrer" target="_blank">Open official source →</a>}
     </div>
   </article>;
+}
+
+function ImportedDatasetCard({ dataset }: { dataset: typeof importedDatasets[number] }) {
+  return <article className="source-record available imported">
+    <div className="source-record-main">
+      <ImportedDatasetGlyph icon={dataset.icon} />
+      <div className="source-record-heading">
+        <h3>{dataset.title}</h3>
+        <p>{dataset.provider}</p>
+      </div>
+      <small>{dataset.description}</small>
+      <b>{dataset.records}<i />{dataset.category}</b>
+    </div>
+    <div className="source-record-status">
+      <strong><span aria-hidden="true">✓</span>AVAILABLE AT REFRESH</strong>
+      <div className="source-record-updated">
+        <span>Last updated</span>
+        <span>{dataset.sourceDate}</span>
+      </div>
+      <a href={dataset.url} rel="noreferrer" target="_blank">Open official source →</a>
+    </div>
+  </article>;
+}
+
+function ImportedDatasetGlyph({ icon }: { icon: string }) {
+  if (icon === 'stand') return <span className="source-record-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 20h18M7 20l3-7m7 7-3-7m-4 0h4m-2 0V4m-4 2a6 6 0 0 1 8 0M6 3a10 10 0 0 1 12 0" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" /></svg></span>;
+  return <span className="source-record-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.7"/><path d="M9 7V5h6v2m-3 3-2 3h3l-1 3 3-4h-3l1-2" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7"/></svg></span>;
 }
 
 function sourceRecordLabel(source: SourceRecord, log?: SourceLog) {
