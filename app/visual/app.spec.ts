@@ -194,7 +194,8 @@ test('selected community and simulated outcome have distinct map emphasis', asyn
   await page.getByRole('tab', { name: 'Simulated outcome' }).click();
   await expect(page.locator('.priority-community-icon')).toHaveCount(1);
   await expect(page.locator('.scenario-incident-icon')).toHaveCount(1);
-  await expect(page.locator('.priority-community-icon .priority-tag')).toContainText('PRIORITY');
+  await expect(page.locator('.priority-community-icon .priority-community-pin')).toBeVisible();
+  await expect(page.locator('.priority-community-icon .priority-tag')).toHaveCount(0);
   await expect(page.locator('.scenario-incident-icon')).toHaveAttribute('title', 'Simulated unavailable communications site A · exercise only');
 });
 

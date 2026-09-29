@@ -130,13 +130,12 @@ function locationIcon(kind: LocationKind, selected = false) {
   });
 }
 
-function priorityIcon(name: string) {
-  const safeName = name.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
+function priorityIcon(_name: string) {
   return divIcon({
     className: 'priority-community-icon',
-    html: `<span class="priority-dot"></span><span class="priority-tag">PRIORITY · ${safeName}</span>`,
-    iconSize: [124, 34],
-    iconAnchor: [13, 34],
+    html: '<span class="priority-community-pin" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">' + locationGlyphs.community + '</svg><b>!</b></span>',
+    iconSize: [34, 38],
+    iconAnchor: [17, 37],
   });
 }
 
@@ -160,10 +159,10 @@ function exposureCommunityIcon(count: number, selected: boolean, simulatedScore?
 
 function communityClusterIcon(count: number) {
   return divIcon({
-    className: 'exposure-cluster-icon',
-    html: `<span aria-hidden="true">${count} communities</span>`,
-    iconSize: [94, 32],
-    iconAnchor: [47, 16],
+    className: 'community-cluster-icon',
+    html: '<span class="community-cluster-pin" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">' + locationGlyphs.community + '</svg><b>' + count + '</b></span>',
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
   });
 }
 
