@@ -40,6 +40,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   const [selected, setSelected] = useState<Selected>();
   const [exposurePopupId, setExposurePopupId] = useState<string>();
   const [selectedResourceId, setSelectedResourceId] = useState<string>();
+  const [scoreAnimationVersion, setScoreAnimationVersion] = useState(0);
   const [priorityExplanationOpen, setPriorityExplanationOpen] = useState(false);
   const [mobileActionOpen, setMobileActionOpen] = useState(false);
   const [notice, setNotice] = useState('');
@@ -68,7 +69,10 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     selectedExposure,
     popupCommunityId: exposurePopupId,
     onPopupClose: (communityId: string) => setExposurePopupId((current) => current === communityId ? undefined : current),
-    onViewRecords: () => document.getElementById('resilience-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    onViewRecords: () => {
+      setScoreAnimationVersion((version) => version + 1);
+      document.getElementById('resilience-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
   } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById]);
   const topPriority = priorities[0];
   const activePriority = selected?.properties.kind === 'community' ? priorities.find((item) => item.feature.properties.id === selected.properties.id) ?? topPriority : topPriority;
@@ -196,7 +200,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
         {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
         {mapMode === 'exercise' && priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
       </div>
-      {mapMode === 'exposure' && <ResiliencePlanningSection data={optional.resilienceSimulation} error={optional.resilienceError} feature={selected?.properties.kind === 'community' ? selected as GeoJsonFeature<ConnectivityProperties> : undefined} filter={activeExposureFilter} onResourceSelect={setSelectedResourceId} rank={selectedExposure ? exposureRanking.indexOf(selectedExposure) + 1 : 0} result={selectedExposure} selectedResourceId={selectedResourceId} />}
+      {mapMode === 'exposure' && <ResiliencePlanningSection key={scoreAnimationVersion} data={optional.resilienceSimulation} error={optional.resilienceError} feature={selected?.properties.kind === 'community' ? selected as GeoJsonFeature<ConnectivityProperties> : undefined} filter={activeExposureFilter} onResourceSelect={setSelectedResourceId} rank={selectedExposure ? exposureRanking.indexOf(selectedExposure) + 1 : 0} result={selectedExposure} selectedResourceId={selectedResourceId} />}
       {mapMode === 'exercise' && <div className="mobile-map-legend"><MapLegend /></div>}
     </section>
     <section className="dashboard-info-grid" aria-label="RemoteReady NT information summary">

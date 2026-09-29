@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import type { ConnectivityProperties, GeoJsonFeature, ResilienceSimulationData } from '../../types/data';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import type { ConnectivityProperties, GeoJsonFeature, ResilienceDimensionId, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
 import { capacityBand, planningReviewTier, resilienceDimensionIds, simulatedResourceOutcome } from './resilience';
 
@@ -18,14 +18,30 @@ function distanceLabel(value: number | null) {
   return value === null ? 'No record' : `${Math.round(value)} km`;
 }
 
-function pointReviewLabel(status: string) {
-  return status === 'locality_name_requires_review'
-    ? 'Place name needs review'
-    : 'Point classification needs review';
+function capacityLabel(score: number) {
+  if (score < 40) return 'Low resilience';
+  if (score < 70) return 'Moderate resilience';
+  return 'High resilience';
 }
 
 function blockerLabel(value: string, data: ResilienceSimulationData) {
   return value === 'target_already_at_maximum' ? 'Already at maximum' : `${data.dimensions[value as keyof typeof data.dimensions]?.label ?? value} prerequisite not met`;
+}
+
+const dimensionCopy: Record<ResilienceDimensionId, { label: string; question: string; explanation: string }> = {
+  route_redundancy: { label: 'Backup communication route', question: 'If the main communications service fails, is another route available?', explanation: 'The scenario ranges from a single route, to a backup route whose independence or testing is unconfirmed, to an independent backup route tested in an exercise.' },
+  backup_power: { label: 'Communications power during outages', question: 'Can communications equipment keep running during a power outage?', explanation: 'The scenario ranges from no usable backup power, to backup power with unconfirmed duration or testing, to backup power that meets the scenario target and has been tested.' },
+  critical_service_continuity: { label: 'Critical service communications plan', question: 'Do critical services have an alternative communications plan?', explanation: 'The example considers a hypothetical critical service and ranges from no continuity plan, to a partial or untested plan, to a tested plan.' },
+  alerts_and_offline: { label: 'Warnings and offline information', question: 'Can people access warnings and essential information without internet?', explanation: 'The scenario ranges from one online alert channel, to an untested alternate or offline channel, to tested multiple channels and offline information.' },
+  operational_readiness: { label: 'Ownership, maintenance and drills', question: 'Is someone responsible for maintaining and exercising the arrangements?', explanation: 'The scenario ranges from no named owner, to an owner without a completed drill or maintenance review, to an owner with both in place.' },
+};
+
+function ScoreHelp({ label, children }: { label: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return <span className="resilience-score-help" data-open={open} onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}>
+    <button aria-controls={`score-help-${label.replaceAll(/[^a-z0-9]+/gi, '-')}`} aria-describedby={`score-help-${label.replaceAll(/[^a-z0-9]+/gi, '-')}`} aria-expanded={open} aria-label={`More about ${label}`} className="resilience-score-help-trigger" onClick={() => setOpen((value) => !value)} type="button">?</button>
+    <span className="resilience-score-help-popover" id={`score-help-${label.replaceAll(/[^a-z0-9]+/gi, '-')}`} role="tooltip"><strong>{label}</strong>{children}</span>
+  </span>;
 }
 
 function useAnimatedNumber(target: number, duration = 800, delay = 0) {
@@ -46,13 +62,11 @@ function useAnimatedNumber(target: number, duration = 800, delay = 0) {
   useEffect(() => {
     if (reducedMotion) {
       valueRef.current = target;
-      setValue(target);
       return;
     }
 
     const startValue = valueRef.current;
     let frame = 0;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
     const start = performance.now();
     const tick = (now: number) => {
       const progress = Math.min(1, (now - start) / duration);
@@ -63,7 +77,7 @@ function useAnimatedNumber(target: number, duration = 800, delay = 0) {
       if (progress < 1) frame = requestAnimationFrame(tick);
     };
     const begin = () => { frame = requestAnimationFrame(tick); };
-    timeout = delay ? setTimeout(begin, delay) : undefined;
+    const timeout: ReturnType<typeof setTimeout> | undefined = delay ? setTimeout(begin, delay) : undefined;
     if (!delay) begin();
 
     return () => {
@@ -72,21 +86,22 @@ function useAnimatedNumber(target: number, duration = 800, delay = 0) {
     };
   }, [delay, duration, reducedMotion, target]);
 
-  return value;
+  return reducedMotion ? target : value;
 }
 
-function AnimatedDimension({ label, points, weight, delay }: { label: string; points: number; weight: number; delay: number }) {
+function AnimatedDimension({ id, points, weight, delay }: { id: ResilienceDimensionId; points: number; weight: number; delay: number }) {
+  const copy = dimensionCopy[id];
   const animatedPoints = useAnimatedNumber(points, 720, delay);
   const displayedPoints = Math.max(0, Math.min(weight, animatedPoints));
   const percentage = Math.min(100, Math.max(0, displayedPoints / weight * 100));
-  return <div className="resilience-dimension-content"><div><strong>{label}</strong><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${label}, ${points} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
+  return <div className="resilience-dimension-content"><div><span className="resilience-dimension-label"><strong>{copy.label}</strong><ScoreHelp label={copy.label}>{copy.question} {copy.explanation} Maximum contribution to this illustrative score: {weight} points. The state is simulated and has not been verified in the community.</ScoreHelp></span><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${copy.label}, ${points} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
 }
 
 function AnimatedScore({ value, duration = 800 }: { value: number; duration?: number }) {
   return <>{useAnimatedNumber(value, duration).toFixed(1)}</>;
 }
 
-function AnimatedUplift({ value }: { value?: number }) {
+function AnimatedUplift({ value }: { value?: number | null }) {
   const animatedValue = useAnimatedNumber(value ?? 0, 550);
   return <span className="resilience-resource-status resilience-uplift">+{animatedValue.toFixed(1)} score</span>;
 }
@@ -122,7 +137,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
     {data && !result && <p className="resilience-planning-state">Select a point on the map or in the ranking to review its score and resources.</p>}
     {data && result && !scenario && <p className="resilience-planning-state" role="alert">No resilience record is available for this point.</p>}
     {data && result && scenario && <>
-      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3><p>{pointReviewLabel(scenario.sourcePoint.reviewStatus)} · Installation site unconfirmed</p></div><span className={`resilience-capacity-tag ${capacityBand(scenario.baselineScore)}`}>{animatedBaseline.toFixed(1)} / 100</span></div>
+      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3></div><span className={`resilience-capacity-label ${capacityBand(scenario.baselineScore)}`}>{capacityLabel(scenario.baselineScore)}</span></div>
       <div className="resilience-summary-grid">
         <article aria-label="Historical path proximity evidence" className="resilience-summary-card">
           <h4>Path history</h4>
@@ -132,13 +147,12 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
           <p className="resilience-review-next"><strong>{review?.label}</strong><span> · {review?.reason}</span></p>
         </article>
         <article aria-label="Resilience score breakdown" className="resilience-summary-card">
-          <div className="resilience-score-heading"><div><h4>Resilience score</h4>
-          <p className="resilience-card-source">Score by capability dimension</p>
+          <div className="resilience-score-heading"><div><h4>Communications resilience score <ScoreHelp label="Communications resilience score">This is a planning example, not a verified assessment of this community. It combines five simulated capability areas; each state contributes 0%, 50% or 100% of that area's maximum points, for a total of 100. Historical cyclone approaches are not included. Red is below 40, yellow is 40–69, and green is 70 or above; green does not mean risk-free.</ScoreHelp></h4>
+          <p className="resilience-card-source">Illustrative planning score · not field verified</p>
           </div><div className={`resilience-score-ring ${capacityBand(scenario.baselineScore)}`} style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`Total score ${scenario.baselineScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
           <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key, index) => {
-            const definition = data.dimensions[key];
             const dimension = scenario.dimensions[key];
-            return <li key={`${scenario.communityId}-${key}`}><CapabilityIcon name={key}/><AnimatedDimension delay={index * 90} label={definition.label} points={dimension.points} weight={definition.weight}/></li>;
+            return <li key={`${scenario.communityId}-${key}`}><CapabilityIcon name={key}/><AnimatedDimension delay={index * 90} id={key} points={dimension.points} weight={data.dimensions[key].weight}/></li>;
           })}</ol>
         </article>
       </div>
@@ -151,7 +165,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         })}</div>
         {selectedOption && evaluation && <article aria-label={`${selectedOption.label} comparison`} className="resilience-comparison" role="status">
           <h5>{selectedOption.label}</h5>
-          {outcome && evaluation.planningEligible ? <><div className="resilience-before-after"><span><small>Current</small><strong><AnimatedScore value={scenario.baselineScore}/> / 100</strong></span><span aria-hidden="true">→</span><span><small>With {selectedOption.label}</small><strong><AnimatedScore value={outcome.scoreAfter}/> / 100</strong></span></div><p>{data.dimensions[selectedOption.targetDimension].label}: {outcome.beforeState.replaceAll('_', ' ')} → {outcome.afterState.replaceAll('_', ' ')}.</p></> : <p>Unavailable: {evaluation.blockedBy.map((item) => blockerLabel(item, data)).join('; ')}.</p>}
+          {outcome && evaluation.planningEligible ? <><div className="resilience-before-after"><span><small>Current</small><strong><AnimatedScore value={scenario.baselineScore}/> / 100</strong></span><span aria-hidden="true">→</span><span><small>Illustrative scenario</small><strong><AnimatedScore value={outcome.scoreAfter ?? scenario.baselineScore}/> / 100</strong></span></div><p>{dimensionCopy[selectedOption.targetDimension].label}: {outcome.beforeState.replaceAll('_', ' ')} → {outcome.afterState.replaceAll('_', ' ')}. This is a modelled change, not a guaranteed outcome.</p></> : <p>Unavailable: {evaluation.blockedBy.map((item) => blockerLabel(item, data)).join('; ')}.</p>}
           <p>Prerequisites: {Object.keys(selectedOption.prerequisites).length ? Object.entries(selectedOption.prerequisites).map(([key, level]) => `${data.dimensions[key as keyof typeof data.dimensions].label} ≥ ${level}`).join('; ') : 'None in the simulation model'}.</p>
           <small>Cost: {selectedOption.costUnits} units</small>
         </article>}

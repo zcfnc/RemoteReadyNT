@@ -215,8 +215,7 @@ function CommunityExposurePopup({ feature, analysis }: { feature: GeoJsonFeature
       <p className="exposure-popup-period">{analysis.filter.fromYear}–{analysis.filter.toYear} · within {analysis.filter.radiusKm} km</p>
       <div className="exposure-popup-metrics"><span><strong>{result?.count ?? 0}</strong>path approaches</span><span><strong>{result?.nearestDistanceKm == null ? 'No record' : `${Math.round(result.nearestDistanceKm)} km`}</strong>nearest path</span></div>
       <dl><div><dt>Provider</dt><dd>{exposureValue(feature.properties.provider)}</dd></div><div><dt>Mobile coverage</dt><dd>{exposureValue(feature.properties.coverage)}</dd></div><div><dt>Backhaul</dt><dd>{exposureValue(feature.properties.backhaul)}</dd></div><div><dt>Resilience score</dt><dd>{simulation ? `${simulation.baselineScore.toFixed(1)}/100` : 'Unavailable'}</dd></div></dl>
-      {simulation && <p className="exposure-popup-review">{simulation.sourcePoint.reviewStatus === 'locality_name_requires_review' ? 'Place name requires review.' : 'Point classification requires review.'} Installation site unconfirmed.</p>}
-      <button className="exposure-popup-link" onClick={analysis.onViewRecords} type="button">View score breakdown →</button>
+      <button aria-label={`View ${feature.properties.name} resilience score breakdown`} className="exposure-popup-link" onClick={analysis.onViewRecords} type="button"><span><strong>Explore resilience score</strong><small>See capability gaps and planning options</small></span><b aria-hidden="true">→</b></button>
     </article>
   </Popup>;
 }

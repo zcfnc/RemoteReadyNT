@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CycloneExposureData, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
+import { capacityBand } from './resilience';
 
 type Props = {
   data?: CycloneExposureData;
@@ -52,7 +53,9 @@ export function ExposurePanel({ data, error, simulation, tracksUnavailable = fal
         {ranked.length === 0 ? <p className="exposure-empty">No paths fall within this range. Try a wider radius or more years.</p> : <ol aria-label="Coverage point historical proximity ranking">{displayed.map((item) => {
           const rank = results.indexOf(item) + 1;
           const scenario = simulation?.communities.find((entry) => entry.communityId === item.community.communityId);
-          return <li key={item.community.communityId}><button aria-current={selectedCommunityId === item.community.communityId ? 'true' : undefined} onClick={() => onCommunitySelect(item.community.communityId)} type="button"><span className="exposure-rank">{rank}</span><span className="exposure-community-name">{item.community.name}<small>Nearest path {distanceLabel(item.nearestDistanceKm)}</small>{scenario && <small>Resilience {scenario.baselineScore.toFixed(1)} / 100</small>}</span><strong>{item.count}<small>cyclones</small></strong></button></li>;
+          const scoreBand = capacityBand(scenario?.baselineScore);
+          const scoreDescription = scoreBand === 'lower' ? 'Low resilience' : scoreBand === 'middle' ? 'Moderate resilience' : scoreBand === 'higher' ? 'Higher resilience' : 'Resilience not assessed';
+          return <li key={item.community.communityId}><button aria-current={selectedCommunityId === item.community.communityId ? 'true' : undefined} onClick={() => onCommunitySelect(item.community.communityId)} type="button"><span className="exposure-rank">{rank}</span><span className="exposure-community-name">{item.community.name}<small>Nearest path {distanceLabel(item.nearestDistanceKm)}</small>{scenario && <small>Resilience <span aria-label={`${scoreDescription}, ${scenario.baselineScore.toFixed(1)} out of 100`} className={`exposure-resilience-score ${scoreBand}`} title={scoreDescription}>{scenario.baselineScore.toFixed(1)} / 100</span></small>}</span><strong>{item.count}<small>cyclones</small></strong></button></li>;
         })}</ol>}
         {results.length > 10 && <button className="exposure-show-all" onClick={() => setShowAll((value) => !value)} type="button">{showAll ? 'Show top 10' : `View all ${results.length} communities`}</button>}
       </div>
