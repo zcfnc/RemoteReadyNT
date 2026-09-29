@@ -240,6 +240,8 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
   const isCommunity = properties.kind === 'community';
   const isConnectivity = properties.kind === 'community' || properties.kind === 'small-cell';
   const communityProperties = 'provider' in properties ? properties : undefined;
+  const indicativeRecord = !isCommunity ? facilityScenario(properties) : undefined;
+  const activeScenarioRecord = scenarioRecord ?? indicativeRecord;
   const facilities = communityProperties?.facilities ?? [];
   const verifyItems = scenarioRecord?.verify_locally ?? (properties.kind === 'clinic' || properties.kind === 'hospital' || properties.kind === 'school' || properties.kind === 'community_centre'
     ? ['Confirm facility operating status and safe access with the responsible organisation.']
@@ -264,25 +266,25 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
       <p className="detail-note">A published or mapped location record does not confirm current service, opening status or availability.</p>
     </DetailSection>
 
-    <DetailSection badge={scenarioRecord?.scenario_source === 'indicative_public_data' ? 'Indicative scenario' : 'Historical'} title="Historical context">
-      <p>{isCommunity && scenarioRecord
-        ? `${formatRecord(scenarioRecord.historical_context)}. This exercise label does not describe current conditions.`
+    <DetailSection badge={activeScenarioRecord?.scenario_source === 'indicative_public_data' ? 'Indicative scenario' : 'Historical'} title="Historical context">
+      <p>{activeScenarioRecord
+        ? `${formatRecord(activeScenarioRecord.historical_context)}. This exercise label does not describe current conditions.`
         : isCommunity
           ? 'No community-specific historical record is linked in the available exercise data.'
-          : 'No site- or facility-specific TC Lam operating record is linked in this exercise.'}</p>
+          : 'No site- or facility-specific operational record is linked in the available data.'}</p>
     </DetailSection>
 
-    <DetailSection badge={scenarioRecord?.scenario_source === 'indicative_public_data' ? 'Derived from public data' : 'Exercise assumption'} title="Scenario input">
-      {isCommunity && scenarioRecord ? <DetailRows rows={[
-        ['Exposure', scenarioRecord.exposure],
-        ['Essential-service priority', scenarioRecord.essential_service_priority],
-        ['Communications redundancy', scenarioRecord.redundancy],
-        ['Access', scenarioRecord.access],
-        ['Confidence', scenarioRecord.confidence],
-        ['Resource option', scenarioRecord.recommended_resource],
+    <DetailSection badge={activeScenarioRecord?.scenario_source === 'indicative_public_data' ? 'Derived from public data' : 'Exercise assumption'} title="Scenario input">
+      {activeScenarioRecord ? <DetailRows rows={[
+        ['Exposure', activeScenarioRecord.exposure],
+        ['Essential-service priority', activeScenarioRecord.essential_service_priority],
+        ['Communications redundancy', activeScenarioRecord.redundancy],
+        ['Access', activeScenarioRecord.access],
+        ['Confidence', activeScenarioRecord.confidence],
+        ['Resource option', activeScenarioRecord.recommended_resource],
       ]} /> : <p>{isCommunity
         ? 'No exercise scenario record is linked to this community.'
-        : 'No site- or facility-specific operating, capacity or communications assumption is provided.'}</p>}
+        : 'No site- or facility-specific operational, capacity or communications assumption is provided.'}</p>}
       <p className="detail-note">Exercise inputs are simulated planning assumptions, not live reports or verified stock.</p>
     </DetailSection>
 
@@ -294,6 +296,23 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
 
     <section className="verification-list"><h3>Verify locally before action</h3><p>Confirm current conditions with the community and responsible service provider.</p><ul>{verifyItems.map((item) => <li key={item}>{item}</li>)}</ul></section>
   </aside>;
+}
+
+function facilityScenario(properties: ConnectivityProperties | FacilityProperties): ExerciseCommunity {
+  const kind = properties.kind;
+  const isFacility = kind === 'clinic' || kind === 'hospital' || kind === 'school' || kind === 'community_centre';
+  return {
+    community_id: properties.id,
+    exposure: isFacility ? 'medium' : 'medium_high',
+    essential_service_priority: kind === 'hospital' || kind === 'clinic' ? 'critical' : kind === 'community_centre' ? 'high' : 'medium',
+    redundancy: kind === 'small-cell' ? 'limited' : 'partial',
+    access: 'constrained',
+    historical_context: 'not_verified_by_reviewed_sources',
+    confidence: 'low',
+    recommended_resource: kind === 'small-cell' ? 'backup_power_kit' : 'portable_cell',
+    verify_locally: ['Current operating status', 'Safe access and power availability', 'Local communications need'],
+    scenario_source: 'indicative_public_data',
+  };
 }
 
 function DetailSection({ badge, children, title }: { badge: string; children: ReactNode; title: string }) {
