@@ -4,6 +4,7 @@ import { PwaUpdateNotice } from '../components/PwaUpdateNotice';
 import { DashboardPage } from '../pages/DashboardPage';
 import { DataSourcesPage } from '../pages/DataSourcesPage';
 import { PreparednessPage } from '../pages/PreparednessPage';
+import { AboutPage } from '../pages/AboutPage';
 import { isView, type View } from './view';
 
 function initialView(): View {
@@ -24,6 +25,7 @@ export function App() {
         {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} />}
         {activeView === 'preparedness' && <PreparednessPage onNavigate={setActiveView} />}
         {activeView === 'sources' && <DataSourcesPage />}
+        {activeView === 'about' && <AboutPage />}
       </AppShell>
       <PwaUpdateNotice />
     </>

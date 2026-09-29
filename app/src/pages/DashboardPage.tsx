@@ -146,7 +146,6 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
       <p>{mapMode === 'exposure' ? 'Historical path distance analysis · not a forecast or damage record.' : outcome ? 'Simulated unavailable report · not a real network fault.' : 'Historical cyclone context with clearly labelled exercise assumptions.'}</p>
     </header>
     <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
-      <StripTile icon="⌂" label="Remote communities" tone="sand" />
       <StripTile icon="◒" label="Cyclones and severe weather" tone="storm" />
       <StripTile icon="✈" label="Access and supply" tone="access" />
       <StripTile icon="◉" label="Communications" tone="comms" />

@@ -61,7 +61,7 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
   return <section className="preparedness preparedness-redesign" aria-labelledby="preparedness-title">
     <h1 className="visually-hidden" id="preparedness-title">Preparedness</h1>
     <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
-      <StripTile icon="⌂" label="Remote communities" tone="sand" /><StripTile icon="◒" label="Cyclones and severe weather" tone="storm" /><StripTile icon="✈" label="Access and supply" tone="access" /><StripTile icon="◉" label="Communications" tone="comms" /><StripTile icon="✦" label="Stronger, safer communities" tone="water" />
+      <StripTile icon="◒" label="Cyclones and severe weather" tone="storm" /><StripTile icon="✈" label="Access and supply" tone="access" /><StripTile icon="◉" label="Communications" tone="comms" /><StripTile icon="✦" label="Stronger, safer communities" tone="water" />
     </div>
     <div className="dashboard-status-grid" aria-label="Preparedness summary">
       <StatusTile icon="☑" value={`${complete} / ${checklist.length}`} label="Checks complete" note={`${checklist.length - complete} actions remaining`} tone="red" />

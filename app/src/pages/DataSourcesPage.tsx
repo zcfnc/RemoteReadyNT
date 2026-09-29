@@ -2,7 +2,6 @@ import type { SourceLog, SourceRecord } from '../types/data';
 import { useSourceData } from '../features/sources/useSourceData';
 
 const focusAreas = [
-  { icon: '⌂', label: 'Remote communities', tone: 'sand' },
   { icon: '☁', label: 'Cyclones and severe weather', tone: 'storm' },
   { icon: '+', label: 'Essential infrastructure', tone: 'access' },
   { icon: '◉', label: 'Communications', tone: 'comms' },
