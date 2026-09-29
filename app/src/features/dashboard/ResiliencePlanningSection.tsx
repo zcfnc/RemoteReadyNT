@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { ConnectivityProperties, GeoJsonFeature, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
 import { capacityBand, planningReviewTier, resilienceDimensionIds, simulatedResourceOutcome } from './resilience';
@@ -27,6 +28,21 @@ function blockerLabel(value: string, data: ResilienceSimulationData) {
   return value === 'target_already_at_maximum' ? 'Already at maximum' : `${data.dimensions[value as keyof typeof data.dimensions]?.label ?? value} prerequisite not met`;
 }
 
+function CapabilityIcon({ name }: { name: string }) {
+  const glyphs: Record<string, string> = {
+    cyclone: '<path d="M12 3c-4 0-6 4-3 6 2 1 4-1 3-3-1-1-3 0-2 2m5-4c5 2 5 7 1 8-2 0-3-2-1-3 1-1 3 1 2 2m-11 4c2-4 7-3 7 1 0 2-3 3-4 1-1-2 1-3 3-2m5 4c-4 2-8 0-7-4"/>',
+    location: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+    record: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6m-6 4h4"/>',
+    route_redundancy: '<path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z"/><path d="M8 12h8M12 8v8"/>',
+    backup_power: '<rect x="4" y="7" width="16" height="11" rx="2"/><path d="M9 7V5h6v2m-3 3-2 3h3l-1 3 3-4h-3l1-2"/>',
+    critical_service_continuity: '<path d="M12 3 4 6v5c0 5 3.4 8 8 10 4.6-2 8-5 8-10V6l-8-3Z"/><path d="M8 12h8m-4-4v8"/>',
+    alerts_and_offline: '<path d="M4 10v4h3l8 4V6l-8 4H4Zm11-1a4 4 0 0 1 0 6m2-9a7 7 0 0 1 0 12"/>',
+    operational_readiness: '<path d="m14 6 4-3 3 3-3 4-3-1-7 7-1 3-3 1 1-4 7-7-1-3Z"/>',
+    independent_satellite_backup: '<path d="m4 20 7-7m-5-1 6-6 5 5-6 6m1-10 3-3 5 5-3 3M3 21h18"/>',
+  };
+  return <span className="resilience-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: glyphs[name] ?? glyphs.critical_service_continuity }} /></span>;
+}
+
 export function ResiliencePlanningSection({ data, error, filter, result, rank, feature, selectedResourceId, onResourceSelect }: Props) {
   const scenario = data?.communities.find((item) => item.communityId === result?.community.communityId);
   const selectedOption = data?.resourceCatalog.find((item) => item.id === selectedResourceId);
@@ -47,17 +63,18 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         <article aria-label="Historical path proximity evidence" className="resilience-summary-card">
           <h4>Path history</h4>
           <p className="resilience-card-source">{filter.fromYear}–{filter.toYear} · within {filter.radiusKm} km</p>
-          <div className="resilience-compact-metrics"><span><strong>{result.count}</strong>path approaches</span><span><strong>{distanceLabel(result.nearestDistanceKm)}</strong>nearest path</span></div>
-          {feature && <p className="resilience-card-source">Published location record: {feature.properties.provider || 'provider not supplied'} · {feature.properties.backhaul || 'backhaul not supplied'}. These fields do not establish disaster resilience.</p>}
-          <p><strong>{review?.label}</strong> · {review?.reason}</p>
+          <div className="resilience-compact-metrics"><span><CapabilityIcon name="cyclone"/><strong>{result.count}</strong>path approaches</span><span><CapabilityIcon name="location"/><strong>{distanceLabel(result.nearestDistanceKm)}</strong>nearest path</span></div>
+          {feature && <p className="resilience-card-source resilience-published-record"><CapabilityIcon name="record"/><span>Published location record: {feature.properties.provider || 'provider not supplied'} · {feature.properties.backhaul || 'backhaul not supplied'}</span></p>}
+          <p className="resilience-review-next"><strong>{review?.label}</strong><span> · {review?.reason}</span></p>
         </article>
         <article aria-label="Resilience score breakdown" className="resilience-summary-card">
-          <h4>Resilience score</h4>
+          <div className="resilience-score-heading"><div><h4>Resilience score</h4>
           <p className="resilience-card-source">Score by capability dimension</p>
+          </div><div className={`resilience-score-ring ${capacityBand(scenario.baselineScore)}`} style={{ '--score-pct': `${scenario.baselineScore}%` } as CSSProperties} aria-label={`Total score ${scenario.baselineScore.toFixed(1)} out of 100`}><span><strong>{scenario.baselineScore.toFixed(1)}</strong><small>/ 100</small></span></div></div>
           <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key) => {
             const definition = data.dimensions[key];
             const dimension = scenario.dimensions[key];
-            return <li key={key}><div><strong>{definition.label}</strong><span>{dimension.points.toFixed(1)} / {definition.weight}</span></div><progress aria-label={`${definition.label}, ${dimension.points} of ${definition.weight}`} max={definition.weight} value={dimension.points} /></li>;
+            return <li key={key}><CapabilityIcon name={key}/><div className="resilience-dimension-content"><div><strong>{definition.label}</strong><span>{dimension.points.toFixed(1)} / {definition.weight}</span></div><div aria-label={`${definition.label}, ${dimension.points} of ${definition.weight}`} aria-valuemax={definition.weight} aria-valuemin={0} aria-valuenow={dimension.points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${Math.min(100, Math.max(0, dimension.points / definition.weight * 100))}%` }}/></div></div></li>;
           })}</ol>
         </article>
       </div>
@@ -66,7 +83,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         <div className="resilience-resource-grid">{data.resourceCatalog.map((resource) => {
           const option = scenario.resourceEvaluations.find((item) => item.resourceId === resource.id);
           const available = Boolean(option?.planningEligible);
-          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><strong>{resource.label}</strong><span>{data.dimensions[resource.targetDimension].label}</span><span>{available ? `+${option?.upliftPoints?.toFixed(1)} score` : 'Unavailable'}</span><small>{resource.costUnits} cost units · {available ? 'Compare' : 'View requirements'}</small></button>;
+          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><CapabilityIcon name={resource.id === 'independent_satellite_backup' ? resource.id : resource.targetDimension}/><strong>{resource.label}</strong><span className="resilience-resource-status">{available ? `+${option?.upliftPoints?.toFixed(1)} score` : 'Unavailable'}</span><span className="resilience-resource-cost">{resource.costUnits} cost {resource.costUnits === 1 ? 'unit' : 'units'}</span><small>{available ? 'Compare' : 'View requirements'} <b aria-hidden="true">→</b></small></button>;
         })}</div>
         {selectedOption && evaluation && <article aria-label={`${selectedOption.label} comparison`} className="resilience-comparison" role="status">
           <h5>{selectedOption.label}</h5>
