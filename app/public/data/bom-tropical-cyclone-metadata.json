@@ -1,0 +1,11 @@
+{
+  "source": "Bureau of Meteorology Australian Tropical Cyclone Database",
+  "sourceUrl": "https://www.bom.gov.au/clim_data/IDCKMSTM0S.csv",
+  "databasePage": "https://www.bom.gov.au/cyclone/tropical-cyclone-knowledge-centre/databases/",
+  "generatedAt": "2026-09-29T01:16:46.996676+00:00",
+  "records": 31706,
+  "storms": 1133,
+  "tracks": 1133,
+  "coordinateOrder": "[longitude, latitude]",
+  "notes": "Historical best-track data. Not a live warning feed."
+}

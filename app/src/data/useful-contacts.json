@@ -1,0 +1,6 @@
+[
+  { "name": "NT Emergency Services", "phone": "000", "category": "Emergency" },
+  { "name": "Power and Water Corporation", "phone": "1800 245 092", "category": "Utilities" },
+  { "name": "NT Health", "phone": "08 8922 8044", "category": "Health" },
+  { "name": "NT Government", "phone": "1800 808 380", "category": "Government" }
+]

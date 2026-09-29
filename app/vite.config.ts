@@ -18,6 +18,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{html,js,css,json,geojson,svg}'],
+        // The raw point export is intentionally loaded on demand because it is
+        // ~9 MB; the lighter track export remains precached for offline maps.
+        globIgnores: ['**/bom-tropical-cyclone-points.geojson'],
         navigateFallback: 'index.html',
         runtimeCaching: [{
           urlPattern: /^https:\/\/.*\.tile\.openstreetmap\.org\/.*/,

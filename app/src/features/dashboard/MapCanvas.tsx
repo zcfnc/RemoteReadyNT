@@ -1,8 +1,8 @@
-import { Circle, MapContainer, Marker, Polygon, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import type { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
 import { useEffect } from 'react';
-import type { ConnectivityProperties, ExerciseStage, FacilityProperties, FeatureCollection, GeoJsonFeature, HistoricalTrackProperties } from '../../types/data';
+import type { BomCycloneTrackProperties, ConnectivityProperties, ExerciseStage, FacilityProperties, FeatureCollection, GeoJsonFeature, HistoricalTrackProperties } from '../../types/data';
 import 'leaflet/dist/leaflet.css';
 
 type MapFeature = GeoJsonFeature<ConnectivityProperties | FacilityProperties>;
@@ -11,26 +11,43 @@ type MapCanvasProps = {
   connectivity: FeatureCollection<ConnectivityProperties>;
   facilities: FeatureCollection<FacilityProperties>;
   historicalTrack?: FeatureCollection<HistoricalTrackProperties>;
+  bomCycloneTracks?: FeatureCollection<BomCycloneTrackProperties>;
   enabledLayers: Record<string, boolean>;
   stage: ExerciseStage;
   selectedFeature?: MapFeature;
   priorityCommunityId?: string;
+  selectedTrackId?: string;
+  selectedBomYear?: string;
+  selectedBomTrackId?: string;
+  onBomTrackSelect?: (track: GeoJsonFeature<BomCycloneTrackProperties>) => void;
+  onTrackSelect?: (feature: GeoJsonFeature<HistoricalTrackProperties>) => void;
   onSelect: (feature: MapFeature) => void;
 };
 
 const ntBounds: LatLngBoundsExpression = [[-26.1, 129], [-10.8, 138.1]];
 const exerciseBounds: LatLngBoundsExpression = [[-14.8, 132.4], [-10.35, 138.25]];
 const outcomeBounds: LatLngBoundsExpression = [[-14.65, 132.8], [-10.45, 138.2]];
-// The exercise JSON has no uncertainty geometry; this illustrative outline is a
-// presentation overlay around the historical track, not a forecast polygon.
-const uncertaintyBounds: LatLngExpression[] = [
-  [-11.15, 137.05], [-11.62, 136.25], [-12.12, 135.72], [-12.72, 134.95],
-  [-13.32, 134.48], [-13.48, 133.9], [-12.82, 133.55], [-12.25, 133.95],
-  [-11.82, 134.48], [-11.44, 135.25], [-10.95, 136.45], [-11.15, 137.05],
-];
-
 function boundsForStage(stage: ExerciseStage) {
   return stage === 'simulated_impact_outcome' ? outcomeBounds : exerciseBounds;
+}
+
+function trackStageFraction(stage: ExerciseStage) {
+  if (stage === '48_hours_before_simulated_impact') return 0.25;
+  if (stage === '24_hours_before_simulated_impact') return 0.5;
+  if (stage === '12_hours_before_simulated_impact') return 0.75;
+  return 1;
+}
+
+function dailyTrackMarkers(start: string, end: string, pointCount: number) {
+  const startTime = Date.parse(start.replace(' ', 'T') + 'Z');
+  const endTime = Date.parse(end.replace(' ', 'T') + 'Z');
+  const durationDays = Number.isFinite(startTime) && Number.isFinite(endTime)
+    ? Math.max(1, Math.ceil((endTime - startTime) / 86400000) + 1)
+    : Math.max(1, pointCount);
+  return Array.from({ length: Math.min(durationDays, pointCount) }, (_, dayIndex) => ({
+    day: dayIndex + 1,
+    pointIndex: Math.min(pointCount - 1, Math.round((dayIndex / Math.max(1, durationDays - 1)) * (pointCount - 1))),
+  }));
 }
 
 function mapPadding() {
@@ -128,13 +145,10 @@ function incidentIcon() {
   });
 }
 
-export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLayers, stage, selectedFeature, priorityCommunityId, onSelect }: MapCanvasProps) {
+export function MapCanvas({ connectivity, facilities, historicalTrack, bomCycloneTracks, enabledLayers, stage, selectedFeature, priorityCommunityId, selectedTrackId = 'all', selectedBomYear = 'all', selectedBomTrackId = '', onBomTrackSelect, onTrackSelect, onSelect }: MapCanvasProps) {
   const outcome = stage === 'simulated_impact_outcome';
-  const track = historicalTrack?.features.find((item) => item.properties.kind === 'historical-track');
-  const milestones = historicalTrack?.features.filter((item) => item.properties.kind === 'historical-milestone' && item.geometry.type === 'Point') ?? [];
-  const trackPoints = track?.geometry.type === 'LineString'
-    ? (track.geometry.coordinates as [number, number][]).map(([longitude, latitude]) => [latitude, longitude] as LatLngExpression)
-    : [];
+  const selectedBomTrack = bomCycloneTracks?.features.find((track) => track.properties.stormId === selectedBomTrackId);
+  const selectedBomEnd = selectedBomTrack?.geometry.type === 'LineString' ? selectedBomTrack.geometry.coordinates.at(-1) as [number, number] | undefined : undefined;
   const visibleFacilities = facilities.features.filter((item) => {
     if (item.properties.kind === 'shelter' || item.properties.name.startsWith('Unnamed')) return false;
     return enabledLayers[item.properties.kind] ?? false;
@@ -145,15 +159,29 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLa
     <SelectedLocation feature={selectedFeature} />
     <MapTools stage={stage} />
     <TileLayer attribution="Tiles © Esri — Source: Esri, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" />
-    {enabledLayers.uncertainty && !outcome && <Polygon positions={uncertaintyBounds} pathOptions={{ color: '#0879a6', weight: 3, dashArray: '8 8', fillColor: '#32a4c9', fillOpacity: 0.12, lineCap: 'round', lineJoin: 'round' }} />}
-    {outcome && <Circle center={[-12.095, 134.945]} radius={62000} pathOptions={{ color: '#bf3131', weight: 5, dashArray: '13 10', fillColor: '#bf3131', fillOpacity: 0.09 }} />}
-    {trackPoints.length > 0 && <>
-      <Polyline pathOptions={{ color: '#e8f1f4', weight: 12, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }} positions={trackPoints} />
-      <Polyline pathOptions={{ color: '#176f91', weight: 7, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }} positions={trackPoints} />
-    </>}
-    {milestones.map((item) => <Marker icon={milestoneIcon(item.properties.order ?? 0)} key={`milestone-${item.properties.order}`} position={pointPosition(item)} title={`Historical stage ${item.properties.order ?? ''}`}>
-      <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>Historical stage {item.properties.order ?? ''} · Milestone</Tooltip>
-    </Marker>)}
+    {selectedBomEnd && <Circle center={[selectedBomEnd[1], selectedBomEnd[0]]} radius={62000} pathOptions={{ color: '#d46b2c', weight: 4, dashArray: '13 10', fillColor: '#d46b2c', fillOpacity: 0.12 }} />}
+    {bomCycloneTracks?.features.filter((track) => {
+      const year = Number(track.properties.start.slice(0, 4));
+      if (selectedBomYear === 'all') return year >= 2007;
+      const [from, to] = selectedBomYear.split('-').map(Number);
+      return year >= from && year <= to;
+    }).map((track, index) => {
+      if (track.geometry.type !== 'LineString') return null;
+      const trackPoints = (track.geometry.coordinates as [number, number][]).map(([longitude, latitude]) => [latitude, longitude] as LatLngExpression);
+      const isSelected = selectedBomTrackId === track.properties.stormId;
+      const visiblePointCount = trackPoints.length;
+      const visiblePoints = trackPoints.slice(0, visiblePointCount);
+      const markerIndexes = dailyTrackMarkers(track.properties.start, track.properties.end, visiblePoints.length);
+      return <span key={`bom-${track.properties.stormId}-${index}`}>
+        <Polyline eventHandlers={{ click: () => onBomTrackSelect?.(track) }} pathOptions={{ color: isSelected ? '#d46b2c' : '#d46b2c', weight: isSelected ? 4 : 4, opacity: isSelected ? 0.5 : 0.38, lineCap: 'round', lineJoin: 'round' }} positions={trackPoints}>
+          <Tooltip className="remote-node-tooltip" sticky>{track.properties.name || 'Unnamed cyclone'} · {track.properties.start.slice(0, 10)}–{track.properties.end.slice(0, 10)} · BoM historical database</Tooltip>
+        </Polyline>
+        {isSelected && visiblePoints.length > 1 && <Polyline pathOptions={{ color: '#b84b1f', weight: 8, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }} positions={visiblePoints} />}
+        {isSelected && markerIndexes.map(({ day, pointIndex }) => <Marker icon={milestoneIcon(day)} key={`${track.properties.stormId}-day-${day}`} position={visiblePoints[pointIndex]}>
+          <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{track.properties.name || 'Unnamed cyclone'} · Day {day}</Tooltip>
+        </Marker>)}
+      </span>;
+    })}
     {connectivity.features.filter((item) => enabledLayers[item.properties.kind]).map((item) => {
       const isPriority = outcome && item.properties.id === priorityCommunityId;
       const isSelected = selectedFeature?.properties.id === item.properties.id;
@@ -172,8 +200,8 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, enabledLa
     {visibleFacilities.map((item) => <Marker eventHandlers={{ click: () => onSelect(item) }} icon={locationIcon(item.properties.kind, selectedFeature?.properties.id === item.properties.id)} key={item.properties.id} position={pointPosition(item)} title={`${item.properties.label}: ${item.properties.name}`}>
       <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{item.properties.name} · {item.properties.label}</Tooltip>
     </Marker>)}
-    {outcome && <Marker icon={incidentIcon()} position={[-12.095, 134.945]} title="Simulated unavailable communications site A · exercise only">
-      <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>Communications site A · Simulated incident</Tooltip>
+    {selectedBomEnd && <Marker icon={incidentIcon()} position={[selectedBomEnd[1], selectedBomEnd[0]]} title={`Simulated outcome · ${selectedBomTrack?.properties.name || 'Selected cyclone'}`}>
+      <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>Simulated outcome · impact range centred on selected track endpoint</Tooltip>
     </Marker>}
   </MapContainer>;
 }

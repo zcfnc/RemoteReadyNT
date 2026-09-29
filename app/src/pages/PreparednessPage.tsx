@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { View } from '../app/view';
-import { loadChecklist, loadOfflinePackDate, saveChecklist, saveOfflinePackDate } from '../services/storage';
+import { loadChecklist, saveChecklist } from '../services/storage';
+import { downloadDecisionSupportReport } from '../services/decisionReport';
+import type { ExerciseScenario } from '../types/data';
 
 const checklist = [
   ['local-map', 'Download the local map and community pack', 'Save key maps, facility locations and reference information to this device.'],
@@ -13,13 +15,10 @@ const checklist = [
   ['drill', 'Run a no-signal drill', 'Practise response steps when there is no network coverage.'],
 ] as const;
 
-const offlineAssets = ['/', '/data/connectivity.geojson', '/data/facilities.geojson', '/data/download_log.json', '/data/tc-lam-track.geojson', '/data/lam-exercise-scenario.json'];
-
 type PreparednessProps = { onNavigate?: (view: View) => void };
 
 export function PreparednessPage({ onNavigate }: PreparednessProps) {
   const [checks, setChecks] = useState<Record<string, boolean>>(loadChecklist);
-  const [savedAt, setSavedAt] = useState<string | undefined>(loadOfflinePackDate);
   const [network, setNetwork] = useState(navigator.onLine);
   const [notice, setNotice] = useState<string>();
   const complete = useMemo(() => checklist.filter(([key]) => checks[key]).length, [checks]);
@@ -35,13 +34,23 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
     const next = { ...current, [key]: !current[key] }; saveChecklist(next); return next;
   });
 
-  const savePack = async () => {
-    if (!('caches' in window)) { setNotice('Offline storage is not available in this browser.'); return; }
+  const generateReport = async () => {
     try {
-      const cache = await window.caches.open('remoteready-react-offline-v1');
-      await cache.addAll(offlineAssets);
-      const now = new Date().toISOString(); saveOfflinePackDate(now); setSavedAt(now); setNotice('Emergency data pack saved on this device.');
-    } catch { setNotice('The offline pack could not be saved. Check the connection and try again.'); }
+      const response = await fetch('/data/lam-exercise-scenario.json');
+      const scenario = response.ok ? await response.json() as ExerciseScenario : undefined;
+      await downloadDecisionSupportReport({
+        stage: 'Preparedness planning',
+        scenario,
+        checklist: checklist.map(([key, title]) => ({ title, done: Boolean(checks[key]) })),
+      });
+      setNotice('Decision-support report downloaded as a PDF.');
+    } catch {
+      await downloadDecisionSupportReport({
+        stage: 'Preparedness planning',
+        checklist: checklist.map(([key, title]) => ({ title, done: Boolean(checks[key]) })),
+      });
+      setNotice('Decision-support report downloaded as a PDF.');
+    }
   };
 
   const showLocation = () => {
@@ -57,11 +66,11 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
     <div className="dashboard-status-grid" aria-label="Preparedness summary">
       <StatusTile icon="☑" value={`${complete} / ${checklist.length}`} label="Checks complete" note={`${checklist.length - complete} actions remaining`} tone="red" />
       <StatusTile icon="▥" value={network ? 'Online' : 'Offline'} label="Device status" note={network ? 'Network available' : 'No network detected'} tone="blue" />
-      <StatusTile icon="↓" value={savedAt ? 'Saved' : 'Not saved'} label="Offline pack" note={savedAt ? 'Available on this device' : 'Save before travel'} tone="orange" />
+      <StatusTile icon="▤" value="Ready" label="Decision report" note="PDF summary available" tone="orange" />
       <StatusTile icon="◇" value={`${percentage}%`} label="Preparedness" note="Checklist progress" tone="green" />
     </div>
     <section className="quick-actions preparedness-actions" aria-label="Preparedness quick actions">
-      <ActionButton icon="↓" label="Save offline pack" onClick={() => void savePack()} /><ActionButton icon="▤" label="Community checklist" onClick={() => document.getElementById('community-checklist')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} /><ActionButton icon="⌖" label="My location" onClick={showLocation} /><ActionButton icon="▱" label="Risk map" onClick={() => onNavigate?.('dashboard')} />
+      <ActionButton icon="▤" label="Decision report" onClick={() => void generateReport()} /><ActionButton icon="▤" label="Community checklist" onClick={() => document.getElementById('community-checklist')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} /><ActionButton icon="⌖" label="My location" onClick={showLocation} /><ActionButton icon="▱" label="Risk map" onClick={() => onNavigate?.('dashboard')} />
     </section>
     <section className="preparedness-section" id="community-checklist" aria-labelledby="checklist-title">
       <header className="preparedness-section-heading"><div><span>COMMUNITY PREPAREDNESS</span><h2 id="checklist-title">Eight checks before an outage</h2></div><p>{complete} of {checklist.length} complete</p></header>
@@ -73,11 +82,11 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
         </section>
         <aside className="offline-readiness-panel">
           <div className="network-status"><i aria-hidden="true" />{network ? 'Online — network available' : 'Offline — no network detected'}</div>
-          <h3>NT emergency data pack</h3><p>Key maps, facility information and essential records can be kept on this device for offline use when connectivity is unavailable.</p>
-          <div className="offline-contents"><strong>Included in this pack:</strong><span>⌂ <b>Community locations</b></span><span>▦ <b>Essential facilities</b></span><span>◒ <b>TC Lam exercise track</b></span><span>▤ <b>Download log</b></span></div>
-          <button className="offline-save-button" onClick={() => void savePack()} type="button"><span aria-hidden="true">↓</span> Save for offline use</button>
-          <div className="offline-meta"><span>Last saved:</span><strong>{savedAt ? new Date(savedAt).toLocaleDateString('en-AU') : 'Not yet saved'}</strong><span>Map tiles:</span><strong>Require connectivity</strong></div>
-          <p className="offline-warning"><span aria-hidden="true">▲</span> Save the pack before travelling outside reliable coverage.</p>
+          <h3>Decision-support report</h3><p>Generate a PDF summary of the current exercise stage, modelled community priorities and your preparedness checklist.</p>
+          <div className="offline-contents"><strong>Included in this report:</strong><span>◒ <b>Exercise scenario and stage</b></span><span>⌂ <b>Community priorities and resources</b></span><span>▤ <b>Preparedness checklist status</b></span><span>▦ <b>Data and verification notes</b></span></div>
+          <button className="offline-save-button" onClick={() => void generateReport()} type="button"><span aria-hidden="true">▤</span> Download decision-support report</button>
+          <div className="offline-meta"><span>Format:</span><strong>PDF</strong><span>Data status:</span><strong>Simulated planning data</strong></div>
+          <p className="offline-warning"><span aria-hidden="true">▲</span> This report supports planning only. Verify current conditions locally.</p>
           {notice && <p className="offline-notice" role="status">{notice}</p>}
         </aside>
       </div>

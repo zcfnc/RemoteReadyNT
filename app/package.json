@@ -13,31 +13,33 @@
     "test:visual": "playwright test"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
     "@types/leaflet": "latest",
     "@types/node": "latest",
-    "vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "leaflet": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-leaflet": "latest"
+    "react-leaflet": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
     "@playwright/test": "latest",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
     "globals": "latest",
+    "jsdom": "latest",
     "typescript": "^6.0.0",
     "typescript-eslint": "latest",
-    "jsdom": "latest",
-    "vitest": "latest",
-    "vite-plugin-pwa": "latest"
+    "vite-plugin-pwa": "latest",
+    "vitest": "latest"
   }
 }

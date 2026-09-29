@@ -40,10 +40,25 @@ export interface FacilityProperties {
 
 export interface HistoricalTrackProperties {
   kind: 'historical-track' | 'historical-milestone';
+  trackId?: string;
   name?: string;
   label?: string;
   order?: number;
+  year?: number;
+  category?: string;
+  color?: string;
   source?: string;
+}
+
+export interface BomCycloneTrackProperties {
+  stormId: string;
+  name: string;
+  start: string;
+  end: string;
+  positions: number;
+  minCentralPressure?: number | null;
+  maxWindSpeed?: number | null;
+  source: string;
 }
 
 export type ExerciseStage =
@@ -62,6 +77,7 @@ export interface ExerciseCommunity {
   confidence: 'high' | 'medium' | 'low';
   recommended_resource: string;
   verify_locally: string[];
+  scenario_source?: 'official_exercise' | 'indicative_public_data';
 }
 
 export interface ExerciseScenario {

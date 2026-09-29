@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import type { ConnectivityProperties, FacilityProperties, FeatureCollection, GeoJsonFeature } from '../../types/data';
+import type { ConnectivityProperties, FacilityProperties, FeatureCollection, GeoJsonFeature, HistoricalTrackProperties } from '../../types/data';
 
 type MapFeature = GeoJsonFeature<ConnectivityProperties | FacilityProperties>;
 
@@ -9,9 +9,16 @@ type Props = {
   layers: Record<string, boolean>;
   onLayerChange: (name: string, value: boolean) => void;
   onSelect: (feature: MapFeature) => void;
+  historicalTracks?: GeoJsonFeature<HistoricalTrackProperties>[];
+  bomCycloneCount?: number;
+  bomCycloneYears?: string[];
+  selectedBomYear?: string;
+  onBomYearChange?: (year: string) => void;
+  selectedTrackId?: string;
+  onTrackChange?: (trackId: string) => void;
 };
 
-export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChange, onSelect }: Props) {
+export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChange, onSelect, historicalTracks = [], bomCycloneCount = 0, bomCycloneYears = [], selectedBomYear = 'all', onBomYearChange, selectedTrackId = 'all', onTrackChange }: Props) {
   const [query, setQuery] = useState('');
   const [searchMessage, setSearchMessage] = useState('');
   const [openGroups, setOpenGroups] = useState({ exercise: true, connectivity: true, services: true });
@@ -48,7 +55,7 @@ export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChan
       <div className="exercise-focus"><span>Exercise focus</span><div className="exercise-focus-actions"><button onClick={() => search('Galiwinku')} type="button">Galiwinku</button><button onClick={() => search('Milingimbi')} type="button">Milingimbi</button></div></div>
     </form>
     <LayerGroup expanded={openGroups.exercise} onToggle={() => toggleGroup('exercise')} title="Exercise context">
-      <Layer checked={layers.uncertainty} label="Scenario uncertainty" onChange={(value) => onLayerChange('uncertainty', value)} />
+      {bomCycloneCount > 0 && <label className="track-filter"><span>Historical cyclone track</span><select aria-label="Select historical cyclone track period" value={selectedBomYear} onChange={(event) => onBomYearChange?.(event.target.value)}>{bomCycloneYears.map((year) => <option key={year} value={year}>{year}</option>)}</select></label>}
     </LayerGroup>
     <LayerGroup expanded={openGroups.connectivity} onToggle={() => toggleGroup('connectivity')} title="Connectivity">
       <Layer checked={layers.community} count={communities.length} label="Remote communities" onChange={(value) => onLayerChange('community', value)} />
