@@ -62,7 +62,7 @@ function mapPadding() {
 
 function StageViewport({ stage, analysis }: { stage: ExerciseStage; analysis: boolean }) {
   const map = useMap();
-  useEffect(() => { map.fitBounds(analysis ? ntBounds : boundsForStage(stage), { ...mapPadding(), maxZoom: 7 }); }, [map, stage, analysis]);
+  useEffect(() => { map.fitBounds(ntBounds, { ...mapPadding(), maxZoom: 7 }); }, [map]);
   return null;
 }
 
@@ -89,7 +89,7 @@ function MapTools({ stage, analysis }: { stage: ExerciseStage; analysis: boolean
   return <div aria-label="Map tools" className="map-tools">
     <button aria-label="Zoom in" onClick={() => map.zoomIn()} type="button">+</button>
     <button aria-label="Zoom out" onClick={() => map.zoomOut()} type="button">−</button>
-    <button aria-label="Reset map extent" onClick={() => map.fitBounds(analysis ? ntBounds : boundsForStage(stage), { ...mapPadding(), maxZoom: 7 })} type="button">⌂</button>
+    <button aria-label="Reset map extent" onClick={() => map.fitBounds(ntBounds, { ...mapPadding(), maxZoom: 7 })} type="button">⌂</button>
     <button aria-label="Show my location" onClick={locate} type="button">◎</button>
     <button aria-label="View map fullscreen" onClick={toggleFullscreen} type="button">⛶</button>
   </div>;
@@ -261,16 +261,6 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, bomCyclon
         </Marker>)}
       </span>;
     })}
-    {!analysisMode && historicalTrack?.features.filter((feature) => feature.properties.kind === 'historical-track' && feature.geometry.type === 'LineString').map((feature) => {
-      const fullTrack = (feature.geometry.coordinates as [number, number][]).map(([longitude, latitude]) => [latitude, longitude] as LatLngExpression);
-      const visibleTrack = fullTrack.slice(0, Math.max(2, Math.ceil(fullTrack.length * trackStageFraction(stage))));
-      return <Polyline eventHandlers={{ click: () => onTrackSelect?.(feature) }} key={feature.properties.trackId ?? feature.properties.name} pathOptions={{ color: feature.properties.color ?? '#176f91', weight: selectedTrackId === feature.properties.trackId ? 6 : 4, opacity: 0.9 }} positions={visibleTrack}>
-        <Tooltip className="remote-node-tooltip" sticky>{feature.properties.name ?? 'TC Lam historical track'} · fixed exercise context</Tooltip>
-      </Polyline>;
-    })}
-    {!analysisMode && historicalTrack?.features.filter((feature) => feature.properties.kind === 'historical-milestone' && feature.geometry.type === 'Point' && (feature.properties.order ?? 0) <= Math.ceil(trackStageFraction(stage) * 3)).map((feature) => <Marker icon={milestoneIcon(feature.properties.order ?? 0)} key={`lam-milestone-${feature.properties.order}`} position={pointPosition(feature)}>
-      <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{feature.properties.label ?? 'TC Lam stage'}</Tooltip>
-    </Marker>)}
     {analysisMode && <CommunityExposureMarkers analysis={analysis} features={connectivity.features.filter((item) => item.properties.kind === 'community')} onSelect={onSelect} selectedFeature={selectedFeature} />}
     {!analysisMode && connectivity.features.filter((item) => enabledLayers[item.properties.kind]).map((item) => {
       const isPriority = !analysisMode && outcome && item.properties.id === priorityCommunityId;

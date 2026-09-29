@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { MapCanvas } from '../features/dashboard/MapCanvas';
 import { MapExplorerPanel } from '../features/dashboard/MapExplorerPanel';
-import { ExerciseTimeline } from '../features/dashboard/ExerciseTimeline';
 import { ExposurePanel } from '../features/dashboard/ExposurePanel';
 import { ResiliencePlanningSection } from '../features/dashboard/ResiliencePlanningSection';
 import { exposureResults, type ExposureFilter } from '../features/dashboard/exposure';
@@ -193,7 +192,6 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
         </aside>
         <div className="desktop-map-legend"><MapLegend /></div>
         </div>}
-        {mapMode === 'exercise' && <ExerciseTimeline onStageChange={(nextStage) => { setStage(nextStage); setSelectedBomTrackId(''); setSelected(undefined); }} stage={stage} />}
         {mapMode === 'exercise' && <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>}
         {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
         {mapMode === 'exercise' && priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
