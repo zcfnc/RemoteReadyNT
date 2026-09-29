@@ -24,7 +24,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
       <header className={`app-header portal-header ${activeView}-header`}>
         <div className="app-header-top">
           <div className="brand" aria-label="RemoteReady NT">
-            <span className="brand-mark" aria-hidden="true">RR</span>
+            <span className="brand-mark"><img src="/assets/remoteready-nt-icon.png" alt="" /></span>
             <span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span>
           </div>
           <h1 className="dashboard-page-title">{pageTitles[activeView]}</h1>
