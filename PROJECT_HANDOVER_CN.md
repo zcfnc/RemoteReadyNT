@@ -1,6 +1,6 @@
 # RemoteReady NT 项目交接
 
-> 更新日期：2026-09-26。当前产品为 React + TypeScript + Vite 应用；旧版原生 HTML/JavaScript 网站已移除。
+> 更新日期：2026-09-29。当前产品为 React + TypeScript + Vite 应用；旧版原生 HTML/JavaScript 网站已移除。
 
 ## 1. 项目定位
 
@@ -12,11 +12,13 @@ RemoteReady NT 是面向北领地偏远社区通信韧性与离线准备的演�
 
 | 页面 | 用途 |
 | --- | --- |
-| Dashboard | 地图、图层、历史路径、演练阶段与当前行动建议。 |
+| Dashboard | 同一张地图可切换 TC Lam 演练与社区历史气旋路径接近分析；包含图层、演练阶段、筛选和社区排名。 |
 | Preparedness | 八项断网前准备清单和本设备离线资料包。 |
 | Data sources | 数据来源、刷新状态、记录数量和数据边界。 |
 
 Dashboard 有四个演练阶段：48 小时前、24 小时前、12 小时前和模拟结果。
+
+地图标题栏的 `Historical proximity` 入口用于长期准备分析。它按选定年份和半径统计 BoM 热带气旋系统的历史路径接近社区次数，可从排名定位社区并高亮相关路径。桌面端排名位于地图右侧，移动端位于地图下方。产品口径见 [`CYCLONE_EXPOSURE_PRODUCT_CN.md`](CYCLONE_EXPOSURE_PRODUCT_CN.md)。
 
 - 阶段 1–3 显示历史演练背景和相应准备行动。
 - 阶段 4 显示模拟站点不可用；这不是现实网络故障。
@@ -47,6 +49,7 @@ RemoteReadyNT/
 │  └─ vite.config.ts
 ├─ data/                         # Python 输入、下载缓存、XLSX 与离线回退数据
 ├─ scripts/download_data.py      # 可选的数据刷新脚本
+├─ scripts/build_cyclone_exposure.py # 按需重新计算历史气旋路径接近排名
 ├─ README.md                     # 快速启动说明
 └─ PROJECT_HANDOVER_CN.md        # 本文档
 ```
@@ -82,6 +85,8 @@ React 运行时会请求以下路径：
 /data/download_log.json
 /data/tc-lam-track.geojson
 /data/lam-exercise-scenario.json
+/data/bom-tropical-cyclone-tracks.geojson
+/data/community-cyclone-exposure.json
 ```
 
 这些文件在 `app/public/data/` 中受版本控制。
@@ -101,6 +106,8 @@ python scripts/download_data.py
 ```
 
 脚本会生成 connectivity、facilities 和 source log 到 `app/public/data/`。它不需要、也不应在日常启动、构建或测试 React 时运行。历史轨迹和演练场景由 `app/public/data/` 中的受版本控制文件维护。
+
+社区点位或 BoM 轨迹更新后，再运行 `python3 scripts/build_cyclone_exposure.py` 更新 `community-cyclone-exposure.json`。这个统计不表示实际受灾或未来遭遇概率。
 
 ## 7. 验证命令
 

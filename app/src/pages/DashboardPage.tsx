@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { MapCanvas } from '../features/dashboard/MapCanvas';
 import { MapExplorerPanel } from '../features/dashboard/MapExplorerPanel';
+import { ExerciseTimeline } from '../features/dashboard/ExerciseTimeline';
+import { ExposurePanel } from '../features/dashboard/ExposurePanel';
+import { ResiliencePlanningSection } from '../features/dashboard/ResiliencePlanningSection';
+import { exposureResults, type ExposureFilter } from '../features/dashboard/exposure';
 import { priorityResults, stages } from '../features/dashboard/dashboard';
 import type { PriorityResult } from '../features/dashboard/dashboard';
 import { useDashboardData } from '../features/dashboard/useDashboardData';
@@ -32,7 +36,11 @@ function confidenceLabel(confidence: ExerciseCommunity['confidence']) {
 export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => void }) {
   const { core, optional, error } = useDashboardData();
   const [stage, setStage] = useState<ExerciseStage>('48_hours_before_simulated_impact');
+  const [mapMode, setMapMode] = useState<'exercise' | 'exposure'>('exercise');
+  const [exposureFilter, setExposureFilter] = useState<ExposureFilter>();
   const [selected, setSelected] = useState<Selected>();
+  const [exposurePopupId, setExposurePopupId] = useState<string>();
+  const [selectedResourceId, setSelectedResourceId] = useState<string>();
   const [priorityExplanationOpen, setPriorityExplanationOpen] = useState(false);
   const [mobileActionOpen, setMobileActionOpen] = useState(false);
   const [notice, setNotice] = useState('');
@@ -40,16 +48,32 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   const [updatesOpen, setUpdatesOpen] = useState(false);
   const [weatherOpen, setWeatherOpen] = useState(false);
   const [selectedTrackId, setSelectedTrackId] = useState('all');
-  const [selectedBomYear, setSelectedBomYear] = useState('');
+  const [selectedBomYear, setSelectedBomYear] = useState('2025-2026');
   const [selectedBomTrackId, setSelectedBomTrackId] = useState('');
   const [layers, setLayers] = useState<Record<string, boolean>>({ uncertainty: false, bomCyclones: true, community: true, 'small-cell': false, clinic: false, hospital: false, school: false, community_centre: false });
   const current = stages.find((item) => item.id === stage) ?? stages[0];
   const outcome = stage === 'simulated_impact_outcome';
   const priorities = useMemo(() => core && optional.scenario ? priorityResults(core.connectivity, optional.scenario.communities) : [], [core, optional.scenario]);
+  const activeExposureFilter = useMemo(() => exposureFilter ?? optional.cycloneExposure?.defaultFilter ?? { fromYear: 2007, toYear: 2026, radiusKm: 100 }, [exposureFilter, optional.cycloneExposure]);
+  const exposureRanking = useMemo(() => optional.cycloneExposure ? exposureResults(optional.cycloneExposure, activeExposureFilter) : [], [optional.cycloneExposure, activeExposureFilter]);
+  const simulationById = useMemo(() => new Map(optional.resilienceSimulation?.communities.map((item) => [item.communityId, item]) ?? []), [optional.resilienceSimulation]);
+  const selectedExposure = selected?.properties.kind === 'community' ? exposureRanking.find((item) => item.community.communityId === selected.properties.id) : undefined;
+  const exposureMap = useMemo(() => mapMode === 'exposure' && optional.cycloneExposure ? {
+    fromYear: activeExposureFilter.fromYear,
+    toYear: activeExposureFilter.toYear,
+    visibleStormIds: new Set(exposureRanking.flatMap((item) => item.encounters.map((encounter) => encounter.stormId))),
+    relatedStormIds: new Set(selectedExposure?.encounters.map((encounter) => encounter.stormId) ?? []),
+    communityCounts: new Map(exposureRanking.map((item) => [item.community.communityId, item.count])),
+    simulationById,
+    filter: activeExposureFilter,
+    selectedExposure,
+    popupCommunityId: exposurePopupId,
+    onPopupClose: (communityId: string) => setExposurePopupId((current) => current === communityId ? undefined : current),
+    onViewRecords: () => document.getElementById('resilience-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+  } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById]);
   const topPriority = priorities[0];
   const activePriority = selected?.properties.kind === 'community' ? priorities.find((item) => item.feature.properties.id === selected.properties.id) ?? topPriority : topPriority;
   const navigate = (view: View) => onNavigate?.(view);
-  const showPending = (label: string) => setNotice(`${label}（待实现）`);
   const generateReport = async () => {
     const selectedRecord = selected?.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined;
     const selectedPoint = selected?.properties.kind === 'community' && selected.geometry.type === 'Point' ? selected.geometry.coordinates as [number, number] : undefined;
@@ -86,7 +110,26 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   };
   // Keep all hooks above the loading/error returns so their order is stable.
   const bomCycloneYears = useMemo(() => ['2007-2009', '2010-2012', '2013-2015', '2016-2018', '2019-2021', '2022-2024', '2025-2026'], []);
-  useEffect(() => { if (!selectedBomYear) setSelectedBomYear(bomCycloneYears[bomCycloneYears.length - 1]); }, [bomCycloneYears, selectedBomYear]);
+
+  const switchMapMode = (mode: 'exercise' | 'exposure') => {
+    setMapMode(mode);
+    setSelected(undefined);
+    setExposurePopupId(undefined);
+    setSelectedResourceId(undefined);
+    setSelectedBomTrackId('');
+    setPriorityExplanationOpen(false);
+    setMobileActionOpen(false);
+  };
+  const selectExposureCommunity = (communityId: string) => {
+    const feature = core?.connectivity.features.find((item) => item.properties.kind === 'community' && item.properties.id === communityId);
+    if (feature) {
+      setSelected(feature);
+      setExposurePopupId(communityId);
+      setSelectedResourceId(undefined);
+      if (window.innerWidth <= 760) document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setSelectedBomTrackId('');
+  };
 
   if (error) return <section className="page page-dashboard"><div className="dashboard-error"><h1>Map unavailable</h1><p>{error}</p></div></section>;
   if (!core) return <section className="page page-dashboard"><div className="dashboard-loading">Loading map data…</div></section>;
@@ -98,10 +141,10 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   const historicalTracks = optional.historicalTrack?.features.filter((item) => item.properties.kind === 'historical-track') ?? [];
 
   return <section className="dashboard dashboard-redesign" aria-label="RemoteReady NT dashboard">
-    <header className={`simulation-banner ${outcome ? 'outcome' : ''}`}>
-      <span aria-hidden="true">{outcome ? '!' : '◒'}</span><strong>{outcome ? 'Simulation outcome' : 'Historical exercise'}</strong>
-      <b>{outcome ? 'Scenario communications site A reported unavailable' : 'Historical cyclone communications resilience exercise'}</b>
-      <p>{outcome ? 'Simulated unavailable report · not a real network fault.' : 'Historical cyclone context with clearly labelled exercise assumptions.'}</p>
+    <header className={`simulation-banner ${outcome && mapMode === 'exercise' ? 'outcome' : ''}`}>
+      <span aria-hidden="true">{mapMode === 'exposure' ? '◎' : outcome ? '!' : '◒'}</span><strong>{mapMode === 'exposure' ? 'Historical analysis' : outcome ? 'Simulation outcome' : 'Historical exercise'}</strong>
+      <b>{mapMode === 'exposure' ? 'Community cyclone track proximity' : outcome ? 'Scenario communications site A reported unavailable' : 'Historical cyclone communications resilience exercise'}</b>
+      <p>{mapMode === 'exposure' ? 'Historical path distance analysis · not a forecast or damage record.' : outcome ? 'Simulated unavailable report · not a real network fault.' : 'Historical cyclone context with clearly labelled exercise assumptions.'}</p>
     </header>
     <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
       <StripTile icon="⌂" label="Remote communities" tone="sand" />
@@ -124,11 +167,12 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     </section>
     {optional.warnings.length > 0 && <p className="data-warning">{optional.warnings.join(' ')}</p>}
     <section className="dashboard-map-section" id="map-section" aria-labelledby="map-section-title">
-      <div className="map-section-heading"><div><span className="eyebrow">OPERATIONAL MAP</span><h2 id="map-section-title">Map layers</h2></div><span className="map-section-context">TC Lam exercise · Stage {stages.findIndex((item) => item.id === stage) + 1} of 4</span></div>
-      <div className={`dashboard-map-workspace ${outcome ? 'has-simulated-outcome' : ''}`}>
-        <MapCanvas bomCycloneTracks={optional.bomCycloneTracks} connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onBomTrackSelect={(track) => { setSelectedBomTrackId(track.properties.stormId); setNotice(`${track.properties.name || 'Unnamed cyclone'} selected · impact range shown.`); }} onSelect={setSelected} priorityCommunityId={outcome && !selectedBomTrackId ? activePriority?.feature.properties.id : undefined} selectedBomTrackId={selectedBomTrackId} selectedBomYear={selectedBomYear} selectedFeature={selected} selectedTrackId={selectedTrackId} onTrackSelect={(track) => { const id = track.properties.trackId ?? track.properties.name ?? 'all'; setSelectedTrackId(id); setNotice(`${track.properties.name ?? 'Historical cyclone track'} selected.`); }} stage={stage} />
-        <MapExplorerPanel bomCycloneCount={optional.bomCycloneTracks?.features.length} bomCycloneYears={bomCycloneYears} connectivity={core.connectivity} facilities={core.facilities} historicalTracks={historicalTracks} layers={layers} onBomYearChange={(year) => { setSelectedBomYear(year); setSelectedBomTrackId(''); setLayers((currentLayers) => ({ ...currentLayers, uncertainty: false })); }} onLayerChange={(name, value) => setLayers((currentLayers) => ({ ...currentLayers, [name]: value }))} onSelect={setSelected} onTrackChange={setSelectedTrackId} selectedBomYear={selectedBomYear} selectedTrackId={selectedTrackId} />
-        <div className="priority-column">
+      <div className="map-section-heading"><div><span className="eyebrow">MAP ANALYSIS</span><h2 id="map-section-title">{mapMode === 'exposure' ? 'Coverage point proximity' : 'Map layers'}</h2></div><div className="map-heading-actions"><div className="map-mode-switch" aria-label="Map view"><button aria-pressed={mapMode === 'exercise'} onClick={() => switchMapMode('exercise')} type="button">TC Lam exercise</button><button aria-pressed={mapMode === 'exposure'} onClick={() => switchMapMode('exposure')} type="button">Historical proximity</button></div><span className="map-section-context">{mapMode === 'exposure' ? 'BoM historical tracks' : `TC Lam exercise · Stage ${stages.findIndex((item) => item.id === stage) + 1} of 4`}</span></div></div>
+      <div className={`dashboard-map-workspace ${outcome && mapMode === 'exercise' ? 'has-simulated-outcome' : ''} ${mapMode === 'exposure' ? 'is-exposure-view' : ''}`}>
+        <MapCanvas analysis={exposureMap} analysisMode={mapMode === 'exposure'} bomCycloneTracks={optional.bomCycloneTracks} connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onBomTrackSelect={(track) => { setSelectedBomTrackId(track.properties.stormId); if (mapMode === 'exercise') setNotice(`${track.properties.name || 'Unnamed cyclone'} selected · impact range shown.`); }} onSelect={(feature) => { setSelected(feature); if (mapMode === 'exposure') { setSelectedBomTrackId(''); setSelectedResourceId(undefined); setExposurePopupId(feature.properties.kind === 'community' ? feature.properties.id : undefined); } }} priorityCommunityId={mapMode === 'exercise' && outcome && !selectedBomTrackId ? activePriority?.feature.properties.id : undefined} selectedBomTrackId={selectedBomTrackId} selectedBomYear={selectedBomYear} selectedFeature={selected} selectedTrackId={selectedTrackId} onTrackSelect={(track) => { const id = track.properties.trackId ?? track.properties.name ?? 'all'; setSelectedTrackId(id); setNotice(`${track.properties.name ?? 'Historical cyclone track'} selected.`); }} stage={stage} />
+        {mapMode === 'exercise' && <MapExplorerPanel bomCycloneCount={optional.bomCycloneTracks?.features.length} bomCycloneYears={bomCycloneYears} connectivity={core.connectivity} facilities={core.facilities} historicalTracks={historicalTracks} layers={layers} onBomYearChange={(year) => { setSelectedBomYear(year); setSelectedBomTrackId(''); setLayers((currentLayers) => ({ ...currentLayers, uncertainty: false })); }} onLayerChange={(name, value) => setLayers((currentLayers) => ({ ...currentLayers, [name]: value }))} onSelect={setSelected} onTrackChange={setSelectedTrackId} selectedBomYear={selectedBomYear} selectedTrackId={selectedTrackId} />}
+        {mapMode === 'exposure' && <ExposurePanel data={optional.cycloneExposure} error={optional.exposureError} simulation={optional.resilienceSimulation} tracksUnavailable={optional.warnings.includes('BoM cyclone database unavailable.')} filter={activeExposureFilter} results={exposureRanking} selectedCommunityId={selected?.properties.kind === 'community' ? selected.properties.id : undefined} selectedStormId={selectedBomTrackId} onFilterChange={(filter) => { setExposureFilter(filter); setSelectedBomTrackId(''); }} onCommunitySelect={selectExposureCommunity} onStormSelect={(stormId) => { setSelectedBomTrackId(stormId); if (window.innerWidth <= 760) document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />}
+        {mapMode === 'exercise' && <div className="priority-column">
         <section className="exercise-context" aria-label="Exercise context">
           <div className="exercise-status"><span>SIMULATED EXERCISE</span><span>NOT LIVE</span></div>
           <strong>Historical cyclone communications resilience</strong>
@@ -148,12 +192,14 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
           </div>
         </aside>
         <div className="desktop-map-legend"><MapLegend /></div>
-        </div>
-        <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>
-        {selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
-        {priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
+        </div>}
+        {mapMode === 'exercise' && <ExerciseTimeline onStageChange={(nextStage) => { setStage(nextStage); setSelectedBomTrackId(''); setSelected(undefined); }} stage={stage} />}
+        {mapMode === 'exercise' && <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>}
+        {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
+        {mapMode === 'exercise' && priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
       </div>
-      <div className="mobile-map-legend"><MapLegend /></div>
+      {mapMode === 'exposure' && <ResiliencePlanningSection data={optional.resilienceSimulation} error={optional.resilienceError} feature={selected?.properties.kind === 'community' ? selected as GeoJsonFeature<ConnectivityProperties> : undefined} filter={activeExposureFilter} onResourceSelect={setSelectedResourceId} rank={selectedExposure ? exposureRanking.indexOf(selectedExposure) + 1 : 0} result={selectedExposure} selectedResourceId={selectedResourceId} />}
+      {mapMode === 'exercise' && <div className="mobile-map-legend"><MapLegend /></div>}
     </section>
     <section className="dashboard-info-grid" aria-label="RemoteReady NT information summary">
       <InfoCard icon="◉" title="Connectivity"><MetricPair value={String(core.connectivity.features.length)} label="remote locations monitored" /><MetricPair value={String(displayableFacilities.length)} label="essential facilities" /><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><a href="#map-section">View connectivity details →</a></InfoCard>
@@ -240,8 +286,7 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
   const isCommunity = properties.kind === 'community';
   const isConnectivity = properties.kind === 'community' || properties.kind === 'small-cell';
   const communityProperties = 'provider' in properties ? properties : undefined;
-  const indicativeRecord = !isCommunity ? facilityScenario(properties) : undefined;
-  const activeScenarioRecord = scenarioRecord ?? indicativeRecord;
+  const activeScenarioRecord = scenarioRecord;
   const facilities = communityProperties?.facilities ?? [];
   const verifyItems = scenarioRecord?.verify_locally ?? (properties.kind === 'clinic' || properties.kind === 'hospital' || properties.kind === 'school' || properties.kind === 'community_centre'
     ? ['Confirm facility operating status and safe access with the responsible organisation.']
@@ -284,7 +329,7 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
         ['Resource option', activeScenarioRecord.recommended_resource],
       ]} /> : <p>{isCommunity
         ? 'No exercise scenario record is linked to this community.'
-        : 'No site- or facility-specific operational, capacity or communications assumption is provided.'}</p>}
+        : 'No site- or facility-specific operating, capacity or communications assumption is provided.'}</p>}
       <p className="detail-note">Exercise inputs are simulated planning assumptions, not live reports or verified stock.</p>
     </DetailSection>
 
@@ -296,23 +341,6 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
 
     <section className="verification-list"><h3>Verify locally before action</h3><p>Confirm current conditions with the community and responsible service provider.</p><ul>{verifyItems.map((item) => <li key={item}>{item}</li>)}</ul></section>
   </aside>;
-}
-
-function facilityScenario(properties: ConnectivityProperties | FacilityProperties): ExerciseCommunity {
-  const kind = properties.kind;
-  const isFacility = kind === 'clinic' || kind === 'hospital' || kind === 'school' || kind === 'community_centre';
-  return {
-    community_id: properties.id,
-    exposure: isFacility ? 'medium' : 'medium_high',
-    essential_service_priority: kind === 'hospital' || kind === 'clinic' ? 'critical' : kind === 'community_centre' ? 'high' : 'medium',
-    redundancy: kind === 'small-cell' ? 'limited' : 'partial',
-    access: 'constrained',
-    historical_context: 'not_verified_by_reviewed_sources',
-    confidence: 'low',
-    recommended_resource: kind === 'small-cell' ? 'backup_power_kit' : 'portable_cell',
-    verify_locally: ['Current operating status', 'Safe access and power availability', 'Local communications need'],
-    scenario_source: 'indicative_public_data',
-  };
 }
 
 function DetailSection({ badge, children, title }: { badge: string; children: ReactNode; title: string }) {

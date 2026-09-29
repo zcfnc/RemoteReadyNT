@@ -5,6 +5,8 @@ import type {
   FeatureCollection,
   HistoricalTrackProperties,
   BomCycloneTrackProperties,
+  CycloneExposureData,
+  ResilienceSimulationData,
   SourceLog,
 } from '../types/data';
 
@@ -22,5 +24,7 @@ export const dataService = {
   loadSourceLog: () => fetchJson<SourceLog>('download_log.json'),
   loadHistoricalTrack: () => fetchJson<FeatureCollection<HistoricalTrackProperties>>('tc-lam-track.geojson'),
   loadBomCycloneTracks: () => fetchJson<FeatureCollection<BomCycloneTrackProperties>>('bom-tropical-cyclone-tracks.geojson'),
+  loadCycloneExposure: () => fetchJson<CycloneExposureData>('community-cyclone-exposure.json'),
+  loadResilienceSimulation: () => fetchJson<ResilienceSimulationData>('community-resilience-simulation.json'),
   loadExerciseScenario: () => fetchJson<ExerciseScenario>('lam-exercise-scenario.json'),
 };

@@ -61,6 +61,75 @@ export interface BomCycloneTrackProperties {
   source: string;
 }
 
+export interface CycloneEncounter {
+  stormId: string;
+  name: string;
+  year: number;
+  start: string;
+  end: string;
+  distanceKm: number;
+}
+
+export interface CommunityCycloneExposure {
+  communityId: string;
+  name: string;
+  coordinates: Position;
+  encounters: CycloneEncounter[];
+}
+
+export interface CycloneExposureData {
+  schemaVersion: number;
+  metric: 'historical_track_proximity';
+  notice: string;
+  availableYears: { from: number; to: number };
+  catalogRadiusKm: number;
+  defaultFilter: { fromYear: number; toYear: number; radiusKm: number };
+  counts: { communities: number; cyclones: number; excludedOtherSystems: number };
+  communities: CommunityCycloneExposure[];
+}
+
+export type ResilienceDimensionId = 'route_redundancy' | 'backup_power' | 'critical_service_continuity' | 'alerts_and_offline' | 'operational_readiness';
+
+export interface ResilienceDimensionDefinition {
+  label: string;
+  weight: number;
+  states: Array<{ id: string; level: number }>;
+}
+
+export interface ResilienceResourceOption {
+  id: string;
+  label: string;
+  targetDimension: ResilienceDimensionId;
+  prerequisites: Partial<Record<ResilienceDimensionId, number>>;
+  costUnits: number;
+  caveat: string;
+  sourceType: 'simulation';
+  effect: string;
+}
+
+export interface CommunityResilienceScenario {
+  communityId: string;
+  sourceType: 'simulation';
+  sourcePoint: { sourceType: 'published_source'; sourceFile: string; coordinateRole: string; reviewStatus: string; reviewReference: string | null; deploymentSiteConfirmed: false };
+  dimensions: Record<ResilienceDimensionId, { sourceType: 'simulation'; state: string; level: number; points: number }>;
+  baselineScore: number;
+  gapDimensions: ResilienceDimensionId[];
+  resourceEvaluations: Array<{ resourceId: string; sourceType: 'simulation'; planningEligible: boolean; deploymentEligible: false; blockedBy: string[]; targetDimension: ResilienceDimensionId; beforeState: string; afterState: string | null; scoreAfter: number | null; upliftPoints: number | null }>;
+}
+
+export interface ResilienceSimulationData {
+  schemaVersion: 1;
+  modelVersion: string;
+  sourceType: 'simulation';
+  notice: string;
+  sourceBoundaries: { communityPoints: { sourceType: 'published_source'; file: string; generatedAt: string | null; provider: string | null; upstreamRecordDate: string | null; dateCaveat: string }; cycloneProximity: { sourceType: 'published_derived'; file: string; metric: string; trackProvider: string | null; trackGeneratedAt: string | null }; capabilityAndResources: { sourceType: 'simulation'; modelVersion: string } };
+  method: { score: string; assumptionAssignment: string; resourceEffect: string; missingActualData: string; costUnits: string };
+  dimensions: Record<ResilienceDimensionId, ResilienceDimensionDefinition>;
+  resourceCatalog: ResilienceResourceOption[];
+  counts: { coveragePoints: number };
+  communities: CommunityResilienceScenario[];
+}
+
 export type ExerciseStage =
   | '48_hours_before_simulated_impact'
   | '24_hours_before_simulated_impact'

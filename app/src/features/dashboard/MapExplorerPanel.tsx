@@ -18,7 +18,7 @@ type Props = {
   onTrackChange?: (trackId: string) => void;
 };
 
-export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChange, onSelect, historicalTracks = [], bomCycloneCount = 0, bomCycloneYears = [], selectedBomYear = 'all', onBomYearChange, selectedTrackId = 'all', onTrackChange }: Props) {
+export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChange, onSelect, bomCycloneCount = 0, bomCycloneYears = [], selectedBomYear = 'all', onBomYearChange }: Props) {
   const [query, setQuery] = useState('');
   const [searchMessage, setSearchMessage] = useState('');
   const [openGroups, setOpenGroups] = useState({ exercise: true, connectivity: true, services: true });
