@@ -10,12 +10,14 @@ const navigation: Array<{ view: View; label: string }> = [
   { view: 'dashboard', label: 'Dashboard' },
   { view: 'preparedness', label: 'Preparedness' },
   { view: 'sources', label: 'Data sources' },
+  { view: 'about', label: 'About us' },
 ];
 
 const pageTitles: Record<View, string> = {
   dashboard: 'Disaster Dashboard',
   preparedness: 'Preparedness',
   sources: 'Data Sources',
+  about: 'About Us',
 };
 
 export function AppShell({ activeView, children, onViewChange }: AppShellProps) {
@@ -33,7 +35,7 @@ export function AppShell({ activeView, children, onViewChange }: AppShellProps) 
               <i aria-hidden="true" />
               <span><strong>Source catalogue refreshed</strong><small>18 Sept 2026, 8:58 pm</small></span>
             </div>
-            <button aria-label="About RemoteReady NT" className="help-button" title="About RemoteReady NT" type="button">?</button>
+            <button aria-label="About RemoteReady NT" className="help-button" onClick={() => onViewChange('about')} title="About RemoteReady NT" type="button">?</button>
           </div>
         </div>
         <nav className="primary-nav" aria-label="Primary navigation">

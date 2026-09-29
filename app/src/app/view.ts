@@ -1,4 +1,4 @@
-export const views = ['dashboard', 'preparedness', 'sources'] as const;
+export const views = ['dashboard', 'preparedness', 'sources', 'about'] as const;
 
 export type View = (typeof views)[number];
 
