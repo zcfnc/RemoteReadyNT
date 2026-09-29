@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { ConnectivityProperties, GeoJsonFeature, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
 import { capacityBand, planningReviewTier, resilienceDimensionIds, simulatedResourceOutcome } from './resilience';
@@ -28,6 +28,69 @@ function blockerLabel(value: string, data: ResilienceSimulationData) {
   return value === 'target_already_at_maximum' ? 'Already at maximum' : `${data.dimensions[value as keyof typeof data.dimensions]?.label ?? value} prerequisite not met`;
 }
 
+function useAnimatedNumber(target: number, duration = 800, delay = 0) {
+  const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
+  const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && window.matchMedia?.(reducedMotionQuery).matches);
+  const [value, setValue] = useState(() => reducedMotion ? target : 0);
+  const valueRef = useRef(value);
+
+  useEffect(() => {
+    const media = window.matchMedia?.(reducedMotionQuery);
+    if (!media) return;
+    const updatePreference = () => setReducedMotion(media.matches);
+    updatePreference();
+    media.addEventListener?.('change', updatePreference);
+    return () => media.removeEventListener?.('change', updatePreference);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      valueRef.current = target;
+      setValue(target);
+      return;
+    }
+
+    const startValue = valueRef.current;
+    let frame = 0;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - (1 - progress) ** 3;
+      const next = startValue + (target - startValue) * eased;
+      valueRef.current = next;
+      setValue(next);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    const begin = () => { frame = requestAnimationFrame(tick); };
+    timeout = delay ? setTimeout(begin, delay) : undefined;
+    if (!delay) begin();
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [delay, duration, reducedMotion, target]);
+
+  return value;
+}
+
+function AnimatedDimension({ label, points, weight, delay }: { label: string; points: number; weight: number; delay: number }) {
+  const animatedPoints = useAnimatedNumber(points, 720, delay);
+  const displayedPoints = Math.max(0, Math.min(weight, animatedPoints));
+  const percentage = Math.min(100, Math.max(0, displayedPoints / weight * 100));
+  return <div className="resilience-dimension-content"><div><strong>{label}</strong><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${label}, ${points} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
+}
+
+function AnimatedScore({ value, duration = 800 }: { value: number; duration?: number }) {
+  return <>{useAnimatedNumber(value, duration).toFixed(1)}</>;
+}
+
+function AnimatedUplift({ value }: { value?: number }) {
+  const animatedValue = useAnimatedNumber(value ?? 0, 550);
+  return <span className="resilience-resource-status resilience-uplift">+{animatedValue.toFixed(1)} score</span>;
+}
+
 function CapabilityIcon({ name }: { name: string }) {
   const glyphs: Record<string, string> = {
     cyclone: '<path d="M12 3c-4 0-6 4-3 6 2 1 4-1 3-3-1-1-3 0-2 2m5-4c5 2 5 7 1 8-2 0-3-2-1-3 1-1 3 1 2 2m-11 4c2-4 7-3 7 1 0 2-3 3-4 1-1-2 1-3 3-2m5 4c-4 2-8 0-7-4"/>',
@@ -49,6 +112,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
   const evaluation = scenario?.resourceEvaluations.find((item) => item.resourceId === selectedResourceId);
   const outcome = data && scenario && selectedOption ? simulatedResourceOutcome(data, scenario, selectedOption) : null;
   const review = result && scenario ? planningReviewTier(result, rank, scenario) : undefined;
+  const animatedBaseline = useAnimatedNumber(scenario?.baselineScore ?? 0);
 
   return <section aria-labelledby="resilience-section-title" className="resilience-planning-section" id="resilience-section">
     <header className="resilience-planning-header">
@@ -58,7 +122,7 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
     {data && !result && <p className="resilience-planning-state">Select a point on the map or in the ranking to review its score and resources.</p>}
     {data && result && !scenario && <p className="resilience-planning-state" role="alert">No resilience record is available for this point.</p>}
     {data && result && scenario && <>
-      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3><p>{pointReviewLabel(scenario.sourcePoint.reviewStatus)} · Installation site unconfirmed</p></div><span className={`resilience-capacity-tag ${capacityBand(scenario.baselineScore)}`}>{scenario.baselineScore.toFixed(1)} / 100</span></div>
+      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3><p>{pointReviewLabel(scenario.sourcePoint.reviewStatus)} · Installation site unconfirmed</p></div><span className={`resilience-capacity-tag ${capacityBand(scenario.baselineScore)}`}>{animatedBaseline.toFixed(1)} / 100</span></div>
       <div className="resilience-summary-grid">
         <article aria-label="Historical path proximity evidence" className="resilience-summary-card">
           <h4>Path history</h4>
@@ -70,11 +134,11 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         <article aria-label="Resilience score breakdown" className="resilience-summary-card">
           <div className="resilience-score-heading"><div><h4>Resilience score</h4>
           <p className="resilience-card-source">Score by capability dimension</p>
-          </div><div className={`resilience-score-ring ${capacityBand(scenario.baselineScore)}`} style={{ '--score-pct': `${scenario.baselineScore}%` } as CSSProperties} aria-label={`Total score ${scenario.baselineScore.toFixed(1)} out of 100`}><span><strong>{scenario.baselineScore.toFixed(1)}</strong><small>/ 100</small></span></div></div>
-          <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key) => {
+          </div><div className={`resilience-score-ring ${capacityBand(scenario.baselineScore)}`} style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`Total score ${scenario.baselineScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
+          <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key, index) => {
             const definition = data.dimensions[key];
             const dimension = scenario.dimensions[key];
-            return <li key={key}><CapabilityIcon name={key}/><div className="resilience-dimension-content"><div><strong>{definition.label}</strong><span>{dimension.points.toFixed(1)} / {definition.weight}</span></div><div aria-label={`${definition.label}, ${dimension.points} of ${definition.weight}`} aria-valuemax={definition.weight} aria-valuemin={0} aria-valuenow={dimension.points} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${Math.min(100, Math.max(0, dimension.points / definition.weight * 100))}%` }}/></div></div></li>;
+            return <li key={`${scenario.communityId}-${key}`}><CapabilityIcon name={key}/><AnimatedDimension delay={index * 90} label={definition.label} points={dimension.points} weight={definition.weight}/></li>;
           })}</ol>
         </article>
       </div>
@@ -83,11 +147,11 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
         <div className="resilience-resource-grid">{data.resourceCatalog.map((resource) => {
           const option = scenario.resourceEvaluations.find((item) => item.resourceId === resource.id);
           const available = Boolean(option?.planningEligible);
-          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><CapabilityIcon name={resource.id === 'independent_satellite_backup' ? resource.id : resource.targetDimension}/><strong>{resource.label}</strong><span className="resilience-resource-status">{available ? `+${option?.upliftPoints?.toFixed(1)} score` : 'Unavailable'}</span><span className="resilience-resource-cost">{resource.costUnits} cost {resource.costUnits === 1 ? 'unit' : 'units'}</span><small>{available ? 'Compare' : 'View requirements'} <b aria-hidden="true">→</b></small></button>;
+          return <button aria-pressed={selectedResourceId === resource.id} className={`resilience-resource-option ${available ? 'eligible' : 'blocked'}`} key={resource.id} onClick={() => onResourceSelect(resource.id)} type="button"><CapabilityIcon name={resource.id === 'independent_satellite_backup' ? resource.id : resource.targetDimension}/><strong>{resource.label}</strong>{available ? <AnimatedUplift value={option?.upliftPoints}/> : <span className="resilience-resource-status">Unavailable</span>}<span className="resilience-resource-cost">{resource.costUnits} cost {resource.costUnits === 1 ? 'unit' : 'units'}</span><small>{available ? 'Compare' : 'View requirements'} <b aria-hidden="true">→</b></small></button>;
         })}</div>
         {selectedOption && evaluation && <article aria-label={`${selectedOption.label} comparison`} className="resilience-comparison" role="status">
           <h5>{selectedOption.label}</h5>
-          {outcome && evaluation.planningEligible ? <><div className="resilience-before-after"><span><small>Current</small><strong>{scenario.baselineScore.toFixed(1)} / 100</strong></span><span aria-hidden="true">→</span><span><small>With {selectedOption.label}</small><strong>{outcome.scoreAfter.toFixed(1)} / 100</strong></span></div><p>{data.dimensions[selectedOption.targetDimension].label}: {outcome.beforeState.replaceAll('_', ' ')} → {outcome.afterState.replaceAll('_', ' ')}.</p></> : <p>Unavailable: {evaluation.blockedBy.map((item) => blockerLabel(item, data)).join('; ')}.</p>}
+          {outcome && evaluation.planningEligible ? <><div className="resilience-before-after"><span><small>Current</small><strong><AnimatedScore value={scenario.baselineScore}/> / 100</strong></span><span aria-hidden="true">→</span><span><small>With {selectedOption.label}</small><strong><AnimatedScore value={outcome.scoreAfter}/> / 100</strong></span></div><p>{data.dimensions[selectedOption.targetDimension].label}: {outcome.beforeState.replaceAll('_', ' ')} → {outcome.afterState.replaceAll('_', ' ')}.</p></> : <p>Unavailable: {evaluation.blockedBy.map((item) => blockerLabel(item, data)).join('; ')}.</p>}
           <p>Prerequisites: {Object.keys(selectedOption.prerequisites).length ? Object.entries(selectedOption.prerequisites).map(([key, level]) => `${data.dimensions[key as keyof typeof data.dimensions].label} ≥ ${level}`).join('; ') : 'None in the simulation model'}.</p>
           <small>Cost: {selectedOption.costUnits} units</small>
         </article>}
