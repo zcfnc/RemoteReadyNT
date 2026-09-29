@@ -44,14 +44,14 @@ describe('simulated resilience planning data', () => {
     expect(validateResilienceSimulation(changed, connectivity, exposure)).toBe(false);
   });
 
-  it('shows source-supported states and concise explanations without website links', () => {
+  it('shows concise explanations without source badges or website links', () => {
     const filter = exposure.defaultFilter;
     const result = exposureResults(exposure, filter).find((item) => item.community.communityId === 'galiwinku')!;
     const feature = connectivity.features.find((item) => item.properties.id === result.community.communityId)!;
     render(createElement(ResiliencePlanningSection, { data: simulation, filter, result, rank: 1, feature, onResourceSelect: () => undefined }));
 
-    expect(screen.getAllByText('Simulated')).toHaveLength(4);
-    expect(screen.getAllByText('Source data')).toHaveLength(1);
+    expect(screen.queryByText('Simulated', { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByText('Source data', { exact: true })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'More about Backup communication route' }));
     expect(screen.getByText(/Shepherdson College is listed for public access 0.5 km/i)).toBeInTheDocument();
     expect(screen.getByText(/not been independently verified in the field/i)).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('simulated resilience planning data', () => {
 
     expect(screen.getByLabelText('Simulated scenario score 82.5 out of 100')).toBeInTheDocument();
     expect(screen.getByText('Simulated preview · Critical-service comms kit')).toBeInTheDocument();
-    expect(screen.getByText('Simulated preview')).toBeInTheDocument();
+    expect(screen.queryByText('Simulated preview', { exact: true })).not.toBeInTheDocument();
     expect(screen.getByText('Critical service communications plan: partial plan → tested plan. This is a modelled change, not a guaranteed outcome.')).toBeInTheDocument();
   });
 });
