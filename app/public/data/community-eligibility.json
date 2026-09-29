@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 1,
+  "scope": "first_release_community_view",
+  "sources": {
+    "demoCommunities": "data/communities.json",
+    "coveragePoints": "connectivity.geojson",
+    "historicalExposure": "community-cyclone-exposure.json",
+    "resilienceScores": "community-resilience-simulation.json"
+  },
+  "counts": {
+    "coveragePoints": 64,
+    "includedDemoCommunities": 6,
+    "excludedAreas": 1,
+    "unreviewed": 57
+  },
+  "records": [
+    {
+      "coveragePointId": "adelaide-river",
+      "name": "Adelaide River",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "ali-curung",
+      "name": "Ali Curung",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "ali_curung",
+      "reason": "Included in the six-community demonstration set."
+    },
+    {
+      "coveragePointId": "alyangula",
+      "name": "Alyangula",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "amoonguna",
+      "name": "Amoonguna",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "ampilatwatja",
+      "name": "Ampilatwatja",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "angurugu",
+      "name": "Angurugu",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "arlparra",
+      "name": "Arlparra",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "atitjere",
+      "name": "Atitjere",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "barkly-homestead",
+      "name": "Barkly Homestead",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "barrow-creek",
+      "name": "Barrow Creek",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "barunga",
+      "name": "Barunga",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "batchelor",
+      "name": "Batchelor",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "beswick",
+      "name": "Beswick",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "borroloola",
+      "name": "Borroloola",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "borroloola",
+      "reason": "Included in the six-community demonstration set."
+    },
+    {
+      "coveragePointId": "bulman",
+      "name": "Bulman",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "bynoe",
+      "name": "Bynoe",
+      "status": "area",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Bynoe is treated as an area, not a community entity."
+    },
+    {
+      "coveragePointId": "daguragu",
+      "name": "Daguragu",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "daly-river",
+      "name": "Daly River",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "daly-waters",
+      "name": "Daly Waters",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "elliott",
+      "name": "Elliott",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "erldunda",
+      "name": "Erldunda",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "galiwinku",
+      "name": "Galiwinku",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "gapuwiyak",
+      "name": "Gapuwiyak",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "gunbalanya",
+      "name": "Gunbalanya",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "hermannsburg",
+      "name": "Hermannsburg",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "jabiru",
+      "name": "Jabiru",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "kalkaringi",
+      "name": "Kalkaringi",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "kaltukatjara",
+      "name": "Kaltukatjara",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "kintore",
+      "name": "Kintore",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "lajamanu",
+      "name": "Lajamanu",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "maningrida",
+      "name": "Maningrida",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "manyallaluk",
+      "name": "Manyallaluk",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "mataranka",
+      "name": "Mataranka",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "mcarthur-river",
+      "name": "McArthur River",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "milikapiti",
+      "name": "Milikapiti",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "milingimbi",
+      "name": "Milingimbi",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "minjilang",
+      "name": "Minjilang",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "minyerri",
+      "name": "Minyerri",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "mount-liebig",
+      "name": "Mount Liebig",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "mutitjulu",
+      "name": "Mutitjulu",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "newcastle-waters",
+      "name": "Newcastle Waters",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "nganmarriyanga",
+      "name": "Nganmarriyanga",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "ngukurr",
+      "name": "Ngukurr",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "ngukurr",
+      "reason": "Included in the six-community demonstration set."
+    },
+    {
+      "coveragePointId": "nturiya",
+      "name": "Nturiya",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "numbulwar",
+      "name": "Numbulwar",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "papunya",
+      "name": "Papunya",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "papunya",
+      "reason": "Included in the six-community demonstration set."
+    },
+    {
+      "coveragePointId": "peppimenarti",
+      "name": "Peppimenarti",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "pine-creek",
+      "name": "Pine Creek",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "pirlangimpi",
+      "name": "Pirlangimpi",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "ramingining",
+      "name": "Ramingining",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "santa-teresa",
+      "name": "Santa Teresa",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "tanami",
+      "name": "Tanami",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "timber-creek",
+      "name": "Timber Creek",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "titjikala",
+      "name": "Titjikala",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "umbakumba",
+      "name": "Umbakumba",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "wadeye",
+      "name": "Wadeye",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "wadeye",
+      "reason": "Included in the six-community demonstration set."
+    },
+    {
+      "coveragePointId": "wallace-rockhole",
+      "name": "Wallace Rockhole",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "warruwi",
+      "name": "Warruwi",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "weemol",
+      "name": "Weemol",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "wurrumiyanga",
+      "name": "Wurrumiyanga",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "yarralin",
+      "name": "Yarralin",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "yirrkala",
+      "name": "Yirrkala",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "yuendumu",
+      "name": "Yuendumu",
+      "status": "unreviewed",
+      "communityViewEligible": false,
+      "demoCommunityId": null,
+      "reason": "Coverage point is outside the demonstration set; community identity has not been reviewed."
+    },
+    {
+      "coveragePointId": "yulara",
+      "name": "Yulara",
+      "status": "demo_community",
+      "communityViewEligible": true,
+      "demoCommunityId": "yulara",
+      "reason": "Included in the six-community demonstration set."
+    }
+  ]
+}

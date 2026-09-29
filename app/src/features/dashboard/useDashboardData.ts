@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { dataService } from '../../services/dataService';
-import type { BomCycloneTrackProperties, ExerciseCommunity, ExerciseScenario, FacilityProperties, FeatureCollection, HistoricalTrackProperties, ConnectivityProperties, SourceLog } from '../../types/data';
+import type { BomCycloneTrackProperties, CycloneExposureData, ExerciseCommunity, ExerciseScenario, FacilityProperties, FeatureCollection, HistoricalTrackProperties, ConnectivityProperties, ResilienceSimulationData, SourceLog } from '../../types/data';
+import { validateResilienceSimulation } from './resilience';
 
 type CoreData = { connectivity: FeatureCollection<ConnectivityProperties>; facilities: FeatureCollection<FacilityProperties>; sourceLog: SourceLog };
-type OptionalData = { historicalTrack?: FeatureCollection<HistoricalTrackProperties>; bomCycloneTracks?: FeatureCollection<BomCycloneTrackProperties>; scenario?: ExerciseScenario; warnings: string[] };
+type OptionalData = { historicalTrack?: FeatureCollection<HistoricalTrackProperties>; bomCycloneTracks?: FeatureCollection<BomCycloneTrackProperties>; cycloneExposure?: CycloneExposureData; exposureError?: string; resilienceSimulation?: ResilienceSimulationData; resilienceError?: string; scenario?: ExerciseScenario; warnings: string[] };
 
 function deriveIndicativeRecords(connectivity: FeatureCollection<ConnectivityProperties>, scenario: ExerciseScenario): ExerciseScenario {
   const existing = new Set(scenario.communities.map((item) => item.community_id));
@@ -42,11 +43,23 @@ export function useDashboardData() {
     void Promise.all([dataService.loadConnectivity(), dataService.loadFacilities(), dataService.loadSourceLog()])
       .then(([connectivity, facilities, sourceLog]) => active && setCore({ connectivity, facilities, sourceLog }))
       .catch(() => active && setError('Core map data could not be loaded. Check the data files and reload.'));
-    void Promise.allSettled([dataService.loadHistoricalTrack(), dataService.loadExerciseScenario(), dataService.loadBomCycloneTracks(), dataService.loadConnectivity()]).then(([track, scenario, bomCyclones, connectivity]) => {
+    void Promise.allSettled([dataService.loadHistoricalTrack(), dataService.loadExerciseScenario(), dataService.loadBomCycloneTracks(), dataService.loadConnectivity(), dataService.loadCycloneExposure(), dataService.loadResilienceSimulation()]).then(([track, scenario, bomCyclones, connectivity, exposure, resilience]) => {
       if (!active) return;
+      let resilienceValid = false;
+      if (resilience.status === 'fulfilled' && connectivity.status === 'fulfilled' && exposure.status === 'fulfilled') {
+        try {
+          resilienceValid = validateResilienceSimulation(resilience.value, connectivity.value, exposure.value);
+        } catch {
+          resilienceValid = false;
+        }
+      }
       setOptional({
         historicalTrack: track.status === 'fulfilled' ? track.value : undefined,
         bomCycloneTracks: bomCyclones.status === 'fulfilled' ? bomCyclones.value : undefined,
+        cycloneExposure: exposure.status === 'fulfilled' ? exposure.value : undefined,
+        exposureError: exposure.status === 'rejected' ? 'Historical proximity data could not be loaded.' : undefined,
+        resilienceSimulation: resilienceValid && resilience.status === 'fulfilled' ? resilience.value : undefined,
+        resilienceError: resilienceValid ? undefined : 'Simulated resilience data is unavailable or does not match the current community and cyclone files.',
         scenario: scenario.status === 'fulfilled' && connectivity.status === 'fulfilled' ? deriveIndicativeRecords(connectivity.value, scenario.value) : undefined,
         warnings: [track, scenario, bomCyclones].flatMap((result, index) => result.status === 'rejected' ? [index === 0 ? 'Historical track unavailable.' : index === 1 ? 'Exercise scenario unavailable.' : 'BoM cyclone database unavailable.'] : []),
       });
