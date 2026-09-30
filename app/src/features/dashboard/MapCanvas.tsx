@@ -25,7 +25,7 @@ type MapCanvasProps = {
   onTrackSelect?: (feature: GeoJsonFeature<HistoricalTrackProperties>) => void;
   onSelect: (feature: MapFeature) => void;
   analysisMode?: boolean;
-  analysis?: { fromYear: number; toYear: number; visibleStormIds: Set<string>; relatedStormIds: Set<string>; communityCounts: Map<string, number>; simulationById: Map<string, CommunityResilienceScenario>; filter: ExposureFilter; selectedExposure?: ExposureResult; popupCommunityId?: string; onPopupClose: (communityId: string) => void; onViewRecords: () => void };
+  analysis?: { fromYear: number; toYear: number; visibleStormIds: Set<string>; relatedStormIds: Set<string>; communityCounts: Map<string, number>; simulationById: Map<string, CommunityResilienceScenario>; filter: ExposureFilter; selectedExposure?: ExposureResult; popupCommunityId?: string; onPopupClose: (communityId: string) => void; onViewRecords: () => void; onExportReport: (communityId: string) => void };
 };
 
 const ntBounds: LatLngBoundsExpression = [[-26.1, 129], [-10.8, 138.1]];
@@ -216,6 +216,7 @@ function CommunityExposurePopup({ feature, analysis }: { feature: GeoJsonFeature
       <div className="exposure-popup-metrics"><span><strong>{result?.count ?? 0}</strong>path approaches</span><span><strong>{result?.nearestDistanceKm == null ? 'No record' : `${Math.round(result.nearestDistanceKm)} km`}</strong>nearest path</span></div>
       <dl><div><dt>Provider</dt><dd>{exposureValue(feature.properties.provider)}</dd></div><div><dt>Mobile coverage</dt><dd>{exposureValue(feature.properties.coverage)}</dd></div><div><dt>Backhaul</dt><dd>{exposureValue(feature.properties.backhaul)}</dd></div><div><dt>Resilience score</dt><dd>{simulation ? `${simulation.baselineScore.toFixed(1)}/100` : 'Unavailable'}</dd></div></dl>
       <button aria-label={`View ${feature.properties.name} resilience score breakdown`} className="exposure-popup-link" onClick={analysis.onViewRecords} type="button"><span><strong>Explore resilience score</strong><small>See capability gaps and planning options</small></span><b aria-hidden="true">→</b></button>
+      <button aria-label={`Export ${feature.properties.name} Situation summary as PDF`} className="exposure-popup-link exposure-popup-link-secondary" onClick={() => analysis.onExportReport(feature.properties.id)} type="button"><span><strong>Export Situation summary</strong><small>Download this community’s PDF report</small></span><b aria-hidden="true">↓</b></button>
     </article>
   </Popup>;
 }
@@ -233,7 +234,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, bomCyclon
     <StageViewport analysis={analysisMode} stage={stage} />
     <SelectedLocation feature={selectedFeature} />
     <MapTools analysis={analysisMode} stage={stage} />
-    {analysisMode && <div aria-label="Communities info" className="resilience-map-legend"><strong>COMMUNITIES INFO</strong><ul><li><i className="lower" />Early planning &lt;40</li><li><i className="middle" />Developing planning 40–69</li><li><i className="higher" />Strong planning ≥70</li></ul></div>}
+    {analysisMode && <div aria-label="Communities info" className="resilience-map-legend"><strong>COMMUNITIES INFO</strong><ul><li><i className="lower" />Early planning capability &lt;40</li><li><i className="middle" />Developing planning capability 40–69</li><li><i className="higher" />Strong planning capability ≥70</li></ul></div>}
     <TileLayer attribution="Tiles © Esri — Source: Esri, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" />
     {selectedBomEnd && <Circle center={[selectedBomEnd[1], selectedBomEnd[0]]} radius={62000} pathOptions={{ color: '#d46b2c', weight: 4, dashArray: '13 10', fillColor: '#d46b2c', fillOpacity: 0.12 }} />}
     {bomCycloneTracks?.features.filter((track) => {

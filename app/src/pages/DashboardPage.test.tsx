@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from './DashboardPage';
 import { useDashboardData } from '../features/dashboard/useDashboardData';
+import { downloadDecisionSupportReport } from '../services/decisionReport';
 import type { ConnectivityProperties, CycloneExposureData, FacilityProperties, GeoJsonFeature } from '../types/data';
 
 const testSchool: GeoJsonFeature<FacilityProperties> = { type: 'Feature', geometry: { type: 'Point', coordinates: [134.9, -12.1] }, properties: { id: 'school-1', name: 'Milingimbi School', kind: 'school', label: 'School', source: 'OpenStreetMap contributors' } };
@@ -9,8 +10,9 @@ const testSchool: GeoJsonFeature<FacilityProperties> = { type: 'Feature', geomet
 afterEach(cleanup);
 
 vi.mock('../features/dashboard/useDashboardData', () => ({ useDashboardData: vi.fn() }));
+vi.mock('../services/decisionReport', () => ({ downloadDecisionSupportReport: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('../features/dashboard/MapCanvas', () => ({
-  MapCanvas: ({ selectedFeature, selectedBomTrackId, analysisMode, onSelect }: { selectedFeature?: { properties: { name: string } }; selectedBomTrackId?: string; analysisMode?: boolean; onSelect: (feature: GeoJsonFeature<ConnectivityProperties>) => void }) => <div data-mode={analysisMode ? 'exposure' : 'exercise'} data-selected={selectedFeature?.properties.name ?? ''} data-storm={selectedBomTrackId ?? ''} data-testid="map-canvas">{analysisMode && <button onClick={() => onSelect(milingimbi)} type="button">Select Milingimbi on map</button>}</div>,
+  MapCanvas: ({ selectedFeature, selectedBomTrackId, analysisMode, analysis, onSelect }: { selectedFeature?: { properties: { name: string } }; selectedBomTrackId?: string; analysisMode?: boolean; analysis?: { popupCommunityId?: string; onExportReport: (communityId: string) => void }; onSelect: (feature: GeoJsonFeature<ConnectivityProperties>) => void }) => <div data-mode={analysisMode ? 'exposure' : 'exercise'} data-selected={selectedFeature?.properties.name ?? ''} data-storm={selectedBomTrackId ?? ''} data-testid="map-canvas">{analysisMode && <button onClick={() => onSelect(milingimbi)} type="button">Select Milingimbi on map</button>}{analysis?.popupCommunityId && <button onClick={() => analysis.onExportReport(analysis.popupCommunityId!)} type="button">Export selected Situation summary</button>}</div>,
 }));
 vi.mock('../features/dashboard/MapExplorerPanel', () => ({ MapExplorerPanel: ({ onSelect }: { onSelect: (feature: GeoJsonFeature<ConnectivityProperties | FacilityProperties>) => void }) => <aside><button onClick={() => onSelect(testSchool)} type="button">Select test school</button><button onClick={() => onSelect(milingimbi)} type="button">Select test community</button></aside> }));
 
@@ -32,6 +34,66 @@ const exposureData: CycloneExposureData = {
 };
 
 describe('DashboardPage priority action', () => {
+  it('keeps the top Situation summary as an all-community report in both map views', async () => {
+    vi.mocked(downloadDecisionSupportReport).mockClear();
+    vi.mocked(useDashboardData).mockReturnValue({
+      core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [] }, sourceLog: {} },
+      optional: { warnings: [], cycloneExposure: exposureData, scenario: { exercise_id: 'test', updated_at: '2026-09-25', notice: 'test', communities: [
+        { community_id: 'galiwinku', exposure: 'high', essential_service_priority: 'critical', redundancy: 'limited', access: 'constrained', historical_context: 'officially_documented_impact', confidence: 'medium', recommended_resource: 'satellite_terminal', verify_locally: [] },
+        { community_id: 'milingimbi', exposure: 'high', essential_service_priority: 'high', redundancy: 'limited', access: 'constrained', historical_context: 'officially_documented_impact_context', confidence: 'medium', recommended_resource: 'portable_cell', verify_locally: [] },
+      ] } },
+      error: undefined,
+    });
+
+    render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Situation summary' }));
+    await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledTimes(1));
+    expect(downloadDecisionSupportReport).toHaveBeenNthCalledWith(1, expect.objectContaining({ selectedCommunity: undefined }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Community analysis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select Milingimbi on map' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Situation summary' }));
+    await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledTimes(2));
+    expect(downloadDecisionSupportReport).toHaveBeenNthCalledWith(2, expect.objectContaining({ selectedCommunity: undefined }));
+  });
+
+  it('exports the popup community as a single-community Situation summary', async () => {
+    vi.mocked(downloadDecisionSupportReport).mockClear();
+    vi.mocked(useDashboardData).mockReturnValue({
+      core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [] }, sourceLog: {} },
+      optional: { warnings: [], cycloneExposure: exposureData },
+      error: undefined,
+    });
+
+    render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Community analysis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select Milingimbi on map' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Export selected Situation summary' }));
+
+    await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledWith(expect.objectContaining({
+      selectedCommunity: expect.objectContaining({ id: 'milingimbi', name: 'Milingimbi' }),
+    })));
+  });
+
+  it('exports the community opened in Cyclone path analysis details', async () => {
+    vi.mocked(downloadDecisionSupportReport).mockClear();
+    vi.mocked(useDashboardData).mockReturnValue({
+      core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [testSchool] }, sourceLog: {} },
+      optional: { warnings: [] },
+      error: undefined,
+    });
+
+    render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Export Milingimbi Situation summary as PDF' }));
+    await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledWith(expect.objectContaining({
+      selectedCommunity: expect.objectContaining({ id: 'milingimbi', name: 'Milingimbi' }),
+    })));
+    fireEvent.click(screen.getByRole('button', { name: 'Close details' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select test school' }));
+    expect(screen.queryByRole('button', { name: /Export .* Situation summary as PDF/ })).not.toBeInTheDocument();
+  });
   it('keeps review and priority explanation as separate actions', () => {
     vi.mocked(useDashboardData).mockReturnValue({
       core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [] }, sourceLog: {} },
@@ -151,6 +213,9 @@ describe('DashboardPage priority action', () => {
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Galiwinku');
     fireEvent.click(within(panel).getByRole('button', { name: /Lam.*20 km/ }));
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-storm', 'lam');
+    fireEvent.click(screen.getByRole('button', { name: 'Select Milingimbi on map' }));
+    expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Milingimbi');
+    expect(within(panel).getByRole('button', { name: /Milingimbi/ })).toHaveAttribute('aria-current', 'true');
 
     fireEvent.change(within(panel).getByLabelText('Proximity radius'), { target: { value: '50' } });
     expect(within(panel).getByText('2015–2026 · within 50 km · 1 point with records')).toBeInTheDocument();

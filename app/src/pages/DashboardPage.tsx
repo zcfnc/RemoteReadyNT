@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { MapCanvas } from '../features/dashboard/MapCanvas';
 import { MapExplorerPanel } from '../features/dashboard/MapExplorerPanel';
@@ -54,6 +54,46 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   const current = stages.find((item) => item.id === stage) ?? stages[0];
   const outcome = stage === 'simulated_impact_outcome';
   const priorities = useMemo(() => core && optional.scenario ? priorityResults(core.connectivity, optional.scenario.communities) : [], [core, optional.scenario]);
+  const generateReport = useCallback(async (reportCommunity: GeoJsonFeature<ConnectivityProperties> | null) => {
+    if (!reportCommunity && priorities.length === 0) {
+      setNotice('All-communities report unavailable: review-priority data have not loaded.');
+      return;
+    }
+    const selectedRecord = reportCommunity ? optional.scenario?.communities.find((record) => record.community_id === reportCommunity.properties.id) : undefined;
+    const selectedPoint = reportCommunity?.geometry.type === 'Point' ? reportCommunity.geometry.coordinates as [number, number] : undefined;
+    const nearbyFacilities = selectedPoint ? (core?.facilities.features ?? [])
+      .filter((facility) => facility.geometry.type === 'Point' && facility.properties.name && !facility.properties.name.startsWith('Unnamed'))
+      .map((facility) => {
+        const [longitude, latitude] = facility.geometry.coordinates as [number, number];
+        const kilometres = Math.hypot((longitude - selectedPoint[0]) * Math.cos(selectedPoint[1] * Math.PI / 180), latitude - selectedPoint[1]) * 111;
+        return { facility, kilometres };
+      })
+      .filter((item) => item.kilometres <= 25)
+      .sort((a, b) => a.kilometres - b.kilometres)
+      .slice(0, 5)
+      .map((item) => `${item.facility.properties.name} (${item.facility.properties.label}, ${item.kilometres.toFixed(1)} km)`) : [];
+    await downloadDecisionSupportReport({
+      stage: current.label,
+      scenario: optional.scenario,
+      priorities,
+      resilienceSimulation: optional.resilienceSimulation,
+      selectedCommunity: reportCommunity ? {
+        id: reportCommunity.properties.id,
+        name: reportCommunity.properties.name,
+        region: reportCommunity.properties.region,
+        provider: reportCommunity.properties.provider,
+        coverage: reportCommunity.properties.coverage,
+        backhaul: reportCommunity.properties.backhaul,
+        facilities: reportCommunity.properties.facilities?.length ? reportCommunity.properties.facilities : nearbyFacilities,
+        record: selectedRecord,
+      } : undefined,
+      checklist: ['Download the local map and community pack', 'Confirm emergency contacts', 'Test backup power', 'Test satellite or radio backup', 'Confirm the community meeting point', 'Review road and air access', 'Prepare essential health information', 'Run a no-signal drill'].map((title, index) => ({
+        title,
+        done: Boolean(loadChecklist()[['local-map', 'contacts', 'power', 'backup-comms', 'meeting-point', 'access', 'health', 'drill'][index]]),
+      })),
+    });
+    setNotice('Decision-support report downloaded as a PDF.');
+  }, [core?.facilities.features, current.label, optional.resilienceSimulation, optional.scenario, priorities]);
   const activeExposureFilter = useMemo(() => exposureFilter ?? optional.cycloneExposure?.defaultFilter ?? { fromYear: 2007, toYear: 2026, radiusKm: 100 }, [exposureFilter, optional.cycloneExposure]);
   const exposureRanking = useMemo(() => optional.cycloneExposure ? exposureResults(optional.cycloneExposure, activeExposureFilter) : [], [optional.cycloneExposure, activeExposureFilter]);
   const simulationById = useMemo(() => new Map(optional.resilienceSimulation?.communities.map((item) => [item.communityId, item]) ?? []), [optional.resilienceSimulation]);
@@ -73,44 +113,14 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
       setScoreAnimationVersion((version) => version + 1);
       document.getElementById('resilience-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
-  } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById]);
+    onExportReport: (communityId: string) => {
+      const feature = core?.connectivity.features.find((item) => item.properties.kind === 'community' && item.properties.id === communityId);
+      if (feature) void generateReport(feature);
+    },
+  } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById, core?.connectivity.features, generateReport]);
   const topPriority = priorities[0];
   const activePriority = selected?.properties.kind === 'community' ? priorities.find((item) => item.feature.properties.id === selected.properties.id) ?? topPriority : topPriority;
   const navigate = (view: View) => onNavigate?.(view);
-  const generateReport = async () => {
-    const selectedRecord = selected?.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined;
-    const selectedPoint = selected?.properties.kind === 'community' && selected.geometry.type === 'Point' ? selected.geometry.coordinates as [number, number] : undefined;
-    const nearbyFacilities = selectedPoint ? (core?.facilities.features ?? [])
-      .filter((facility) => facility.geometry.type === 'Point' && facility.properties.name && !facility.properties.name.startsWith('Unnamed'))
-      .map((facility) => {
-        const [longitude, latitude] = facility.geometry.coordinates as [number, number];
-        const kilometres = Math.hypot((longitude - selectedPoint[0]) * Math.cos(selectedPoint[1] * Math.PI / 180), latitude - selectedPoint[1]) * 111;
-        return { facility, kilometres };
-      })
-      .filter((item) => item.kilometres <= 25)
-      .sort((a, b) => a.kilometres - b.kilometres)
-      .slice(0, 5)
-      .map((item) => `${item.facility.properties.name} (${item.facility.properties.label}, ${item.kilometres.toFixed(1)} km)`) : [];
-    await downloadDecisionSupportReport({
-      stage: current.label,
-      scenario: optional.scenario,
-      priorities,
-      selectedCommunity: selected?.properties.kind === 'community' ? {
-        name: selected.properties.name,
-        region: selected.properties.region,
-        provider: selected.properties.provider,
-        coverage: selected.properties.coverage,
-        backhaul: selected.properties.backhaul,
-        facilities: selected.properties.facilities?.length ? selected.properties.facilities : nearbyFacilities,
-        record: selectedRecord,
-      } : undefined,
-      checklist: ['Download the local map and community pack', 'Confirm emergency contacts', 'Test backup power', 'Test satellite or radio backup', 'Confirm the community meeting point', 'Review road and air access', 'Prepare essential health information', 'Run a no-signal drill'].map((title, index) => ({
-        title,
-        done: Boolean(loadChecklist()[['local-map', 'contacts', 'power', 'backup-comms', 'meeting-point', 'access', 'health', 'drill'][index]]),
-      })),
-    });
-    setNotice('Decision-support report downloaded as a PDF.');
-  };
   // Keep all hooks above the loading/error returns so their order is stable.
   const bomCycloneYears = useMemo(() => ['2007-2009', '2010-2012', '2013-2015', '2016-2018', '2019-2021', '2022-2024', '2025-2026'], []);
 
@@ -163,7 +173,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     </div>
     <section className="quick-actions" aria-label="Dashboard quick actions">
       <QuickAction icon="!" label="Emergency updates" onClick={() => setUpdatesOpen(true)} />
-      <QuickAction icon="▤" label="Situation summary" onClick={generateReport} />
+      <QuickAction icon="▤" label="Situation summary" onClick={() => void generateReport(null)} />
       <QuickAction icon="↓" label="Offline pack" onClick={() => navigate('preparedness')} />
       <QuickAction icon="☎" label="Useful contacts" onClick={() => setContactsOpen(true)} />
     </section>
@@ -171,7 +181,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     <section className="dashboard-map-section" id="map-section" aria-labelledby="map-section-title">
       <div className="map-section-heading"><div><span className="eyebrow">MAP ANALYSIS</span><h2 id="map-section-title">{mapMode === 'exposure' ? 'Coverage point proximity' : 'Map layers'}</h2></div><div className="map-heading-actions"><div className="map-mode-switch" aria-label="Map view"><button aria-pressed={mapMode === 'exercise'} onClick={() => switchMapMode('exercise')} type="button">Cyclone path analysis</button><button aria-pressed={mapMode === 'exposure'} onClick={() => switchMapMode('exposure')} type="button">Community analysis</button></div></div></div>
       <div className={`dashboard-map-workspace ${outcome && mapMode === 'exercise' ? 'has-simulated-outcome' : ''} ${mapMode === 'exposure' ? 'is-exposure-view' : ''}`}>
-        <MapCanvas analysis={exposureMap} analysisMode={mapMode === 'exposure'} bomCycloneTracks={optional.bomCycloneTracks} connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onBomTrackSelect={(track) => { setSelectedBomTrackId(track.properties.stormId); if (mapMode === 'exercise') setNotice(`${track.properties.name || 'Unnamed cyclone'} selected · impact range shown.`); }} onSelect={(feature) => { setSelected(feature); if (mapMode === 'exposure') { setSelectedBomTrackId(''); setSelectedResourceId(undefined); setExposurePopupId(feature.properties.kind === 'community' ? feature.properties.id : undefined); } }} priorityCommunityId={mapMode === 'exercise' && outcome && !selectedBomTrackId ? activePriority?.feature.properties.id : undefined} selectedBomTrackId={selectedBomTrackId} selectedBomYear={selectedBomYear} selectedFeature={selected} selectedTrackId={selectedTrackId} onTrackSelect={(track) => { const id = track.properties.trackId ?? track.properties.name ?? 'all'; setSelectedTrackId(id); setNotice(`${track.properties.name ?? 'Historical cyclone track'} selected.`); }} stage={stage} />
+        <MapCanvas analysis={exposureMap} analysisMode={mapMode === 'exposure'} bomCycloneTracks={optional.bomCycloneTracks} connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onBomTrackSelect={(track) => { setSelectedBomTrackId(track.properties.stormId); if (mapMode === 'exercise') setNotice(`${track.properties.name || 'Unnamed cyclone'} selected · impact range shown.`); }} onSelect={(feature) => { if (mapMode === 'exposure' && feature.properties.kind === 'community') { selectExposureCommunity(feature.properties.id); return; } setSelected(feature); if (mapMode === 'exposure') { setSelectedBomTrackId(''); setSelectedResourceId(undefined); setExposurePopupId(undefined); } }} priorityCommunityId={mapMode === 'exercise' && outcome && !selectedBomTrackId ? activePriority?.feature.properties.id : undefined} selectedBomTrackId={selectedBomTrackId} selectedBomYear={selectedBomYear} selectedFeature={selected} selectedTrackId={selectedTrackId} onTrackSelect={(track) => { const id = track.properties.trackId ?? track.properties.name ?? 'all'; setSelectedTrackId(id); setNotice(`${track.properties.name ?? 'Historical cyclone track'} selected.`); }} stage={stage} />
         {mapMode === 'exercise' && <MapExplorerPanel bomCycloneCount={optional.bomCycloneTracks?.features.length} bomCycloneYears={bomCycloneYears} connectivity={core.connectivity} facilities={core.facilities} historicalTracks={historicalTracks} layers={layers} onBomYearChange={(year) => { setSelectedBomYear(year); setSelectedBomTrackId(''); setLayers((currentLayers) => ({ ...currentLayers, uncertainty: false })); }} onLayerChange={(name, value) => setLayers((currentLayers) => ({ ...currentLayers, [name]: value }))} onSelect={setSelected} onTrackChange={setSelectedTrackId} selectedBomYear={selectedBomYear} selectedTrackId={selectedTrackId} />}
         {mapMode === 'exposure' && <ExposurePanel data={optional.cycloneExposure} error={optional.exposureError} simulation={optional.resilienceSimulation} tracksUnavailable={optional.warnings.includes('BoM cyclone database unavailable.')} filter={activeExposureFilter} results={exposureRanking} selectedCommunityId={selected?.properties.kind === 'community' ? selected.properties.id : undefined} selectedStormId={selectedBomTrackId} onFilterChange={(filter) => { setExposureFilter(filter); setSelectedBomTrackId(''); }} onCommunitySelect={selectExposureCommunity} onStormSelect={(stormId) => { setSelectedBomTrackId(stormId); if (window.innerWidth <= 760) document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />}
         {mapMode === 'exercise' && <div className="priority-column">
@@ -196,17 +206,17 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
         <div className="desktop-map-legend"><MapLegend /></div>
         </div>}
         {mapMode === 'exercise' && <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>}
-        {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
+        {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} onExportReport={selected.properties.kind === 'community' ? () => void generateReport(selected as GeoJsonFeature<ConnectivityProperties>) : undefined} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
         {mapMode === 'exercise' && priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
       </div>
       {mapMode === 'exposure' && <ResiliencePlanningSection key={scoreAnimationVersion} data={optional.resilienceSimulation} error={optional.resilienceError} feature={selected?.properties.kind === 'community' ? selected as GeoJsonFeature<ConnectivityProperties> : undefined} filter={activeExposureFilter} onResourceSelect={setSelectedResourceId} rank={selectedExposure ? exposureRanking.indexOf(selectedExposure) + 1 : 0} result={selectedExposure} selectedResourceId={selectedResourceId} />}
       {mapMode === 'exercise' && <div className="mobile-map-legend"><MapLegend /></div>}
     </section>
-    <section className="dashboard-info-grid" aria-label="RemoteReady NT information summary">
+    {mapMode === 'exercise' && <section className="dashboard-info-grid" aria-label="RemoteReady NT information summary">
       <InfoCard icon="◉" title="Connectivity"><MetricPair value={String(core.connectivity.features.length)} label="remote locations monitored" /><MetricPair value={String(displayableFacilities.length)} label="essential facilities" /><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><a href="#map-section">View connectivity details →</a></InfoCard>
       <InfoCard icon="▤" title="Readiness"><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><MetricPair value="4" label="scenario stages" /><MetricPair value="1" label="simulation in progress" /><button className="info-link" onClick={() => navigate('preparedness')} type="button">View preparedness information →</button></InfoCard>
       <InfoCard icon="☁" title="Weather and warnings"><MetricPair value="26°C" label="Darwin current weather" /><MetricPair value="Low" label="warning level" /><p className="weather-card-status"><span className="status-dot" />No active emergency warning in demo data</p><button className="info-link" onClick={() => setWeatherOpen(true)} type="button">View weather and warnings →</button></InfoCard>
-    </section>
+    </section>}
     <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
     {updatesOpen && <InfoOverlay title="Emergency updates" onClose={() => setUpdatesOpen(false)}><div className="static-update"><strong>Historical exercise notice</strong><span>TC Lam communications resilience exercise</span><small>Simulation context only · not a live emergency warning</small></div><div className="static-update"><strong>Connectivity planning reminder</strong><span>Confirm current access, communications and local conditions before dispatch.</span><small>Source: RemoteReady NT exercise information</small></div></InfoOverlay>}
     {contactsOpen && <InfoOverlay title="Useful contacts" onClose={() => setContactsOpen(false)}><div className="contacts-list">{contacts.map((contact) => <div className="contact-row" key={contact.name}><span><strong>{contact.name}</strong><small>{contact.category}</small></span><a href={`tel:${contact.phone.replaceAll(' ', '')}`}>{contact.phone}</a></div>)}</div></InfoOverlay>}
@@ -282,7 +292,7 @@ function MapLegend() {
   </div>;
 }
 
-function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => void; properties: ConnectivityProperties | FacilityProperties; scenarioRecord?: ExerciseCommunity }) {
+function DetailDrawer({ onClose, onExportReport, properties, scenarioRecord }: { onClose: () => void; onExportReport?: () => void; properties: ConnectivityProperties | FacilityProperties; scenarioRecord?: ExerciseCommunity }) {
   const details = featureDetails(properties);
   const isCommunity = properties.kind === 'community';
   const isConnectivity = properties.kind === 'community' || properties.kind === 'small-cell';
@@ -298,6 +308,7 @@ function DetailDrawer({ onClose, properties, scenarioRecord }: { onClose: () => 
     <p className="eyebrow">{isCommunity ? 'COMMUNITY DETAILS' : properties.kind === 'small-cell' ? 'SMALL CELL SITE' : 'ESSENTIAL FACILITY'}</p>
     <h2>{properties.name}</h2>
     <p className="detail-subtitle">{details.region} · {details.type}</p>
+    {isCommunity && onExportReport && <div className="detail-report-action"><button aria-label={`Export ${properties.name} Situation summary as PDF`} className="exposure-popup-link detail-report-button" onClick={onExportReport} type="button"><span><strong>Export Situation summary</strong><small>Download this community’s PDF report</small></span><b aria-hidden="true">↓</b></button></div>}
 
     <DetailSection badge="Published data" title="Published location record">
       {isConnectivity && communityProperties ? <DetailRows rows={[

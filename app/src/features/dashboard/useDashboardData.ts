@@ -6,7 +6,7 @@ import { validateResilienceSimulation } from './resilience';
 type CoreData = { connectivity: FeatureCollection<ConnectivityProperties>; facilities: FeatureCollection<FacilityProperties>; sourceLog: SourceLog };
 type OptionalData = { historicalTrack?: FeatureCollection<HistoricalTrackProperties>; bomCycloneTracks?: FeatureCollection<BomCycloneTrackProperties>; cycloneExposure?: CycloneExposureData; exposureError?: string; resilienceSimulation?: ResilienceSimulationData; resilienceError?: string; scenario?: ExerciseScenario; warnings: string[] };
 
-function deriveIndicativeRecords(connectivity: FeatureCollection<ConnectivityProperties>, scenario: ExerciseScenario): ExerciseScenario {
+export function deriveIndicativeRecords(connectivity: FeatureCollection<ConnectivityProperties>, scenario: ExerciseScenario): ExerciseScenario {
   const existing = new Set(scenario.communities.map((item) => item.community_id));
   const derived = connectivity.features
     .filter((item) => item.properties.kind === 'community' && !existing.has(item.properties.id))

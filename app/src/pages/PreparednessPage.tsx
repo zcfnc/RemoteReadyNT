@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import type { View } from '../app/view';
 import { loadChecklist, saveChecklist } from '../services/storage';
 import { downloadDecisionSupportReport } from '../services/decisionReport';
-import type { ExerciseScenario } from '../types/data';
+import { dataService } from '../services/dataService';
+import { deriveIndicativeRecords } from '../features/dashboard/useDashboardData';
+import { priorityResults } from '../features/dashboard/dashboard';
 
 const checklist = [
   ['local-map', 'Download the local map and community pack', 'Save key maps, facility locations and reference information to this device.'],
@@ -36,20 +38,23 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
 
   const generateReport = async () => {
     try {
-      const response = await fetch('/data/lam-exercise-scenario.json');
-      const scenario = response.ok ? await response.json() as ExerciseScenario : undefined;
+      const [connectivity, originalScenario, resilienceSimulation] = await Promise.all([
+        dataService.loadConnectivity(), dataService.loadExerciseScenario(), dataService.loadResilienceSimulation(),
+      ]);
+      const scenario = deriveIndicativeRecords(connectivity, originalScenario);
+      const priorities = priorityResults(connectivity, scenario.communities);
+      if (priorities.length !== connectivity.features.filter((item) => item.properties.kind === 'community').length) {
+        throw new Error('Community priority data are incomplete.');
+      }
       await downloadDecisionSupportReport({
         stage: 'Preparedness planning',
         scenario,
-        checklist: checklist.map(([key, title]) => ({ title, done: Boolean(checks[key]) })),
+        priorities,
+        resilienceSimulation,
       });
-      setNotice('Decision-support report downloaded as a PDF.');
+      setNotice('All-communities decision-support report downloaded as a PDF.');
     } catch {
-      await downloadDecisionSupportReport({
-        stage: 'Preparedness planning',
-        checklist: checklist.map(([key, title]) => ({ title, done: Boolean(checks[key]) })),
-      });
-      setNotice('Decision-support report downloaded as a PDF.');
+      setNotice('Report unavailable: community planning data could not be loaded. Please try again when the data are available.');
     }
   };
 
@@ -82,8 +87,8 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
         </section>
         <aside className="offline-readiness-panel">
           <div className="network-status"><i aria-hidden="true" />{network ? 'Online — network available' : 'Offline — no network detected'}</div>
-          <h3>Decision-support report</h3><p>Generate a PDF summary of the current exercise stage, modelled community priorities and your preparedness checklist.</p>
-          <div className="offline-contents"><strong>Included in this report:</strong><span>◒ <b>Exercise scenario and stage</b></span><span>⌂ <b>Community priorities and resources</b></span><span>▤ <b>Preparedness checklist status</b></span><span>▦ <b>Data and verification notes</b></span></div>
+          <h3>Decision-support report</h3><p>Generate an all-communities PDF with modelled review priorities, planning capability and data limitations. Your device checklist is not included.</p>
+          <div className="offline-contents"><strong>Included in this report:</strong><span>◒ <b>Exercise scenario and stage</b></span><span>⌂ <b>Community priorities and resources</b></span><span>▤ <b>Planning capability overview</b></span><span>▦ <b>Data and verification notes</b></span></div>
           <button className="offline-save-button" onClick={() => void generateReport()} type="button"><span aria-hidden="true">▤</span> Download decision-support report</button>
           <div className="offline-meta"><span>Format:</span><strong>PDF</strong><span>Data status:</span><strong>Simulated planning data</strong></div>
           <p className="offline-warning"><span aria-hidden="true">▲</span> This report supports planning only. Verify current conditions locally.</p>

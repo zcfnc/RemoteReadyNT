@@ -19,9 +19,9 @@ function distanceLabel(value: number | null) {
 }
 
 function capacityLabel(score: number) {
-  if (score < 40) return 'Early planning';
-  if (score < 70) return 'Developing planning';
-  return 'Strong planning';
+  if (score < 40) return 'Early planning capability';
+  if (score < 70) return 'Developing planning capability';
+  return 'Strong planning capability';
 }
 
 function blockerLabel(value: string, data: ResilienceSimulationData) {
