@@ -45,15 +45,17 @@ describe('DashboardPage priority action', () => {
       error: undefined,
     });
 
-    render(<DashboardPage />);
+    let exportReport: (() => void) | undefined;
+    render(<DashboardPage onRegisterExport={(handler) => { exportReport = handler; }} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Situation summary' }));
+    exportReport?.();
     await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledTimes(1));
     expect(downloadDecisionSupportReport).toHaveBeenNthCalledWith(1, expect.objectContaining({ selectedCommunity: undefined }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Community analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select Milingimbi on map' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Situation summary' }));
+    exportReport?.();
     await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledTimes(2));
     expect(downloadDecisionSupportReport).toHaveBeenNthCalledWith(2, expect.objectContaining({ selectedCommunity: undefined }));
   });
@@ -85,16 +87,18 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
     fireEvent.click(screen.getByRole('button', { name: 'Export Milingimbi Situation summary as PDF' }));
     await waitFor(() => expect(downloadDecisionSupportReport).toHaveBeenCalledWith(expect.objectContaining({
       selectedCommunity: expect.objectContaining({ id: 'milingimbi', name: 'Milingimbi' }),
     })));
     fireEvent.click(screen.getByRole('button', { name: 'Close details' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test school' }));
     expect(screen.queryByRole('button', { name: /Export .* Situation summary as PDF/ })).not.toBeInTheDocument();
   });
-  it('keeps review and priority explanation as separate actions', () => {
+  it('removes exercise panels while preserving the legend and community details', () => {
     vi.mocked(useDashboardData).mockReturnValue({
       core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [] }, sourceLog: {} },
       optional: { historicalTrack: undefined, scenario: { exercise_id: 'test', updated_at: '2026-09-25', notice: 'test', communities: [
@@ -105,37 +109,25 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
-    const quickActions = within(screen.getByRole('region', { name: 'Dashboard quick actions' }));
-    expect(quickActions.queryByRole('button', { name: 'Cyclone track' })).not.toBeInTheDocument();
-    expect(quickActions.queryByRole('button', { name: 'Data sources' })).not.toBeInTheDocument();
-    expect(quickActions.queryByRole('button', { name: 'Radio and satellite' })).not.toBeInTheDocument();
-    expect(quickActions.queryByRole('button', { name: 'Preparedness checklist' })).not.toBeInTheDocument();
-    expect(quickActions.getByRole('button', { name: 'Offline pack' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'How it works' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     expect(screen.queryByRole('heading', { name: /Local radio stations/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Fire danger rating' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /^Weather$/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Bushfire' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Social media' })).not.toBeInTheDocument();
-    expect(within(screen.getByRole('region', { name: 'Exercise context' })).getByText('Stage 1 of 4 · 48 hours before')).toBeInTheDocument();
-    expect(screen.getByText('CURRENT EXERCISE ACTION')).toBeInTheDocument();
-    expect(screen.queryByText('Modelled recommendation')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('tab', { name: /simulated outcome/i }));
-
-    expect(within(screen.getByRole('region', { name: 'Exercise context' })).getByText('Stage 4 of 4 · Simulated outcome')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Verify conditions in Galiwinku' })).toBeInTheDocument();
-    expect(screen.getByText('Modelled recommendation')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Open assessment overview' })).toHaveTextContent('Assessment Overview');
-    fireEvent.click(screen.getByRole('button', { name: 'Open assessment overview' }));
-    expect(screen.getByRole('dialog', { name: 'Galiwinku' })).toBeInTheDocument();
-    expect(screen.getByText('Indicative Priority Score: 91.0 / 100')).toBeInTheDocument();
-    expect(screen.getByText('#1 Galiwinku')).toBeInTheDocument();
-    expect(screen.getByText('Scenario exposure')).toBeInTheDocument();
-    expect(screen.getByText('Historical context')).toBeInTheDocument();
-    expect(screen.getByText('Confidence penalty')).toBeInTheDocument();
-    const milingimbiCandidate = screen.getByRole('button', { name: /Select Milingimbi, rank 2/ });
-    expect((milingimbiCandidate as HTMLButtonElement).tabIndex).toBe(0);
-    fireEvent.click(milingimbiCandidate);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Exercise context' })).not.toBeInTheDocument();
+    expect(screen.queryByText('SIMULATED EXERCISE')).not.toBeInTheDocument();
+    expect(screen.queryByText('CURRENT EXERCISE ACTION')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Next action/ })).not.toBeInTheDocument();
+    const legend = screen.getByLabelText('Map symbol legend');
+    expect(within(legend).getByText('Published facilities')).toBeInTheDocument();
+    expect(within(legend).getByText('Location; status unconfirmed')).toBeInTheDocument();
+    expect(legend.parentElement).toHaveClass('dashboard-map-legend');
+    const tabs = within(screen.getByLabelText('Map view')).getAllByRole('button');
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['Community analysis', 'Cyclone path analysis']);
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Milingimbi');
     expect(screen.getByRole('heading', { name: 'Milingimbi' })).toBeInTheDocument();
     expect(screen.getByText('COMMUNITY DETAILS')).toBeInTheDocument();
@@ -149,14 +141,7 @@ describe('DashboardPage priority action', () => {
     expect(screen.getByText('Essential-service priority')).toBeInTheDocument();
     expect(screen.getByText('No linked facility references are recorded for this community. Nearby map points are not assumed to belong to it.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close details' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Open assessment overview' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Close priority explanation' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Review Galiwinku →' }));
-    expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Galiwinku');
-    expect(screen.getByText('COMMUNITY DETAILS')).toBeInTheDocument();
-    expect(screen.getByText('Network service status')).toBeInTheDocument();
   });
 
   it('shows facility source details without inventing community scenario data', () => {
@@ -167,6 +152,7 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test school' }));
 
     expect(screen.getByRole('heading', { name: 'Milingimbi School' })).toBeInTheDocument();
@@ -176,7 +162,7 @@ describe('DashboardPage priority action', () => {
     expect(screen.queryByText('Mapped essential-service references')).not.toBeInTheDocument();
   });
 
-  it('shows a linked community exercise record before the simulated outcome', () => {
+  it('shows a linked community exercise record after switching map views', () => {
     vi.mocked(useDashboardData).mockReturnValue({
       core: { connectivity: { type: 'FeatureCollection', features: [galiwinku, milingimbi] }, facilities: { type: 'FeatureCollection', features: [] }, sourceLog: {} },
       optional: { warnings: [], scenario: { exercise_id: 'test', updated_at: '2026-09-25', notice: 'test', communities: [
@@ -186,11 +172,14 @@ describe('DashboardPage priority action', () => {
     });
 
     render(<DashboardPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
     expect(screen.getByText('Exposure')).toBeInTheDocument();
     expect(screen.getByText('Exercise assumption')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('tab', { name: /24 hours before/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Community analysis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     fireEvent.click(screen.getByRole('button', { name: 'Select test community' }));
     expect(screen.getByRole('heading', { name: 'Milingimbi' })).toBeInTheDocument();
     expect(screen.getByText('limited')).toBeInTheDocument();
@@ -227,6 +216,7 @@ describe('DashboardPage priority action', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cyclone path analysis' }));
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-mode', 'exercise');
     expect(screen.queryByRole('complementary', { name: 'Historical cyclone proximity analysis' })).not.toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /simulated outcome/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Map symbol legend')).toBeInTheDocument();
+    expect(screen.queryByText('CURRENT EXERCISE ACTION')).not.toBeInTheDocument();
   });
 });

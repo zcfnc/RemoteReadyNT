@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from '../components/layout/AppShell';
 import { PwaUpdateNotice } from '../components/PwaUpdateNotice';
 import { DashboardPage } from '../pages/DashboardPage';
@@ -14,15 +14,20 @@ function initialView(): View {
 
 export function App() {
   const [activeView, setActiveView] = useState<View>(initialView);
+  const [exportDashboardReport, setExportDashboardReport] = useState<(() => void) | undefined>();
 
   useEffect(() => {
     window.history.replaceState(null, '', `#${activeView}`);
   }, [activeView]);
 
+  const registerDashboardExport = useCallback((handler?: () => void) => {
+    setExportDashboardReport(() => handler);
+  }, []);
+
   return (
     <>
-      <AppShell activeView={activeView} onViewChange={setActiveView}>
-        {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} />}
+      <AppShell activeView={activeView} onViewChange={setActiveView} onExportReport={exportDashboardReport}>
+        {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} onRegisterExport={registerDashboardExport} />}
         {activeView === 'preparedness' && <PreparednessPage onNavigate={setActiveView} />}
         {activeView === 'sources' && <DataSourcesPage />}
         {activeView === 'about' && <AboutPage />}

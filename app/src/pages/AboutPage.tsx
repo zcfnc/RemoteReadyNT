@@ -13,13 +13,6 @@ const principles = [
 
 export function AboutPage() {
   return <section className="about-page" aria-labelledby="about-team-title">
-    <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
-      <StripTile icon="◒" label="Cyclones and severe weather" tone="storm" />
-      <StripTile icon="✈" label="Access and supply" tone="access" />
-      <StripTile icon="◉" label="Communications" tone="comms" />
-      <StripTile icon="✦" label="Stronger, safer communities" tone="water" />
-    </div>
-
     <header className="about-section-heading">
       <span>OUR TEAM</span>
       <h2 id="about-team-title">Meet the RemoteReady NT team</h2>
@@ -38,10 +31,6 @@ export function AboutPage() {
     <section className="about-facts" aria-label="Project facts"><Fact value="4" label="team members" /><Fact value="8" label="public data sources" /><Fact value="64" label="remote communities" /><Fact value="1" label="shared goal" /></section>
     <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span><span>CDU IT Code Fair · Data Innovation Challenge</span></footer>
   </section>;
-}
-
-function StripTile({ icon, label, tone }: { icon: string; label: string; tone: string }) {
-  return <div className={`strip-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{label}</strong></div>;
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

@@ -65,9 +65,6 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
 
   return <section className="preparedness preparedness-redesign" aria-labelledby="preparedness-title">
     <h1 className="visually-hidden" id="preparedness-title">Preparedness</h1>
-    <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
-      <StripTile icon="◒" label="Cyclones and severe weather" tone="storm" /><StripTile icon="✈" label="Access and supply" tone="access" /><StripTile icon="◉" label="Communications" tone="comms" /><StripTile icon="✦" label="Stronger, safer communities" tone="water" />
-    </div>
     <div className="dashboard-status-grid" aria-label="Preparedness summary">
       <StatusTile icon="☑" value={`${complete} / ${checklist.length}`} label="Checks complete" note={`${checklist.length - complete} actions remaining`} tone="red" />
       <StatusTile icon="▥" value={network ? 'Online' : 'Offline'} label="Device status" note={network ? 'Network available' : 'No network detected'} tone="blue" />
@@ -105,7 +102,6 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
   </section>;
 }
 
-function StripTile({ icon, label, tone }: { icon: string; label: string; tone: string }) { return <div className={`strip-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{label}</strong></div>; }
 function StatusTile({ icon, label, note, tone, value }: { icon: string; label: string; note: string; tone: string; value: string }) { return <article className={`status-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{value}</strong><div><b>{label}</b><small>{note}</small></div></article>; }
 function ActionButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) { return <button className="quick-action" onClick={onClick} type="button"><span aria-hidden="true">{icon}</span><strong>{label}</strong></button>; }
 function FieldTool({ icon, title, copy, label, onClick }: { icon: string; title: string; copy: string; label: string; onClick: () => void }) { return <article className="field-tool-card"><span className="field-tool-icon" aria-hidden="true">{icon}</span><h3>{title}</h3><p>{copy}</p><button onClick={onClick} type="button">{label}</button></article>; }

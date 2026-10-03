@@ -1,12 +1,6 @@
 import type { SourceLog, SourceRecord } from '../types/data';
 import { useSourceData } from '../features/sources/useSourceData';
 
-const focusAreas = [
-  { icon: '☁', label: 'Cyclones and severe weather', tone: 'storm' },
-  { icon: '+', label: 'Essential infrastructure', tone: 'access' },
-  { icon: '◉', label: 'Communications', tone: 'comms' },
-  { icon: '▥', label: 'Open data for a safer NT', tone: 'water' },
-];
 
 const dataUseCards = [
   { icon: '⌖', title: 'Published locations', copy: 'Community, facility and communications locations come from listed public datasets and support situational awareness.' },
@@ -85,10 +79,6 @@ export function DataSourcesPage() {
 
   return <section className="sources-page sources-redesign" aria-labelledby="sources-title">
     <h2 className="visually-hidden" id="sources-title">Data sources and freshness</h2>
-    <div className="dashboard-visual-strip source-visual-strip" aria-label="RemoteReady NT data themes">
-      {focusAreas.map((item) => <div className={`strip-tile ${item.tone}`} key={item.label}><span aria-hidden="true">{item.icon}</span><strong>{item.label}</strong></div>)}
-    </div>
-
     <section className="dashboard-status-grid source-status-grid" aria-label="Data source summary">
       <SourceMetric icon="▤" label="Auto sources available" note={`of ${totalSources || '—'} checked at refresh`} tone="red" value={sourceLog ? String(available) : '—'} />
       <SourceMetric icon="●" label="Connectivity records" note="in latest dataset" tone="blue" value={String(sourceLog?.counts?.connectivity ?? '—')} />

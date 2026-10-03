@@ -96,7 +96,7 @@ function AnimatedDimension({ id, dimension, weight, delay, preview }: { id: Resi
   const displayedPoints = Math.max(0, Math.min(weight, animatedPoints));
   const percentage = Math.min(100, Math.max(0, displayedPoints / weight * 100));
   const isSimulated = dimension.sourceType === 'simulation';
-  return <div className="resilience-dimension-content"><div><span className="resilience-dimension-label"><strong>{copy.label}</strong><ScoreHelp label={copy.label}><span>{copy.question} {copy.explanation} Maximum contribution: {weight} points. Current status: {displayedState.replaceAll('_', ' ')}.</span><p className="resilience-evidence-reason">{preview ? 'Illustrative resource scenario only; this is not a real-world upgrade or verified outcome.' : isSimulated ? 'Illustrative planning value only. Missing real-world information is not treated as zero.' : `${dimension.evidenceSummary ?? 'A published record supports this status.'} This record has not been independently verified in the field.`}</p></ScoreHelp></span><span>{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${copy.label}, ${displayedPoints} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={displayedPoints} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
+  return <div className="resilience-dimension-content"><div><span className="resilience-dimension-label"><strong>{copy.label}</strong><ScoreHelp label={copy.label}><span>{copy.question} {copy.explanation} Maximum contribution: {weight} points. Current status: {displayedState.replaceAll('_', ' ')}.</span><p className="resilience-evidence-reason">{preview ? 'Illustrative resource scenario only; this is not a real-world upgrade or verified outcome.' : isSimulated ? 'Illustrative planning value only. Missing real-world information is not treated as zero.' : `${dimension.evidenceSummary ?? 'A published record supports this status.'} This record has not been independently verified in the field.`}</p></ScoreHelp></span><span className="resilience-dimension-value">{displayedPoints.toFixed(1)} / {weight}</span></div><div aria-label={`${copy.label}, ${displayedPoints} of ${weight}`} aria-valuemax={weight} aria-valuemin={0} aria-valuenow={displayedPoints} className="resilience-dimension-track" role="progressbar"><span style={{ width: `${percentage}%` }}/></div></div>;
 }
 
 function AnimatedScore({ value, duration = 800 }: { value: number; duration?: number }) {
@@ -112,6 +112,7 @@ function CapabilityIcon({ name }: { name: string }) {
   const glyphs: Record<string, string> = {
     cyclone: '<path d="M12 3c-4 0-6 4-3 6 2 1 4-1 3-3-1-1-3 0-2 2m5-4c5 2 5 7 1 8-2 0-3-2-1-3 1-1 3 1 2 2m-11 4c2-4 7-3 7 1 0 2-3 3-4 1-1-2 1-3 3-2m5 4c-4 2-8 0-7-4"/>',
     location: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+    warning: '<circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/>',
     record: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6m-6 4h4"/>',
     route_redundancy: '<path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z"/><path d="M8 12h8M12 8v8"/>',
     backup_power: '<rect x="4" y="7" width="16" height="11" rx="2"/><path d="M9 7V5h6v2m-3 3-2 3h3l-1 3 3-4h-3l1-2"/>',
@@ -137,25 +138,25 @@ export function ResiliencePlanningSection({ data, error, filter, result, rank, f
 
   return <section aria-labelledby="resilience-section-title" className="resilience-planning-section" id="resilience-section">
     <header className="resilience-planning-header">
-      <div><h2 id="resilience-section-title">Community resilience</h2><p>Historical cyclone paths and communication capability</p></div>
+      <div><h2 id="resilience-section-title">COMMUNITY DETAIL</h2></div>
     </header>
     {!data && <p className="resilience-planning-state" role="status">{error ?? 'Loading resilience data…'} Historical proximity remains available above.</p>}
     {data && !result && <p className="resilience-planning-state">Select a point on the map or in the ranking to review its score and resources.</p>}
     {data && result && !scenario && <p className="resilience-planning-state" role="alert">No resilience record is available for this point.</p>}
     {data && result && scenario && <>
-      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3></div><span className={`resilience-capacity-label ${capacityBand(displayedScore)}`}>{capacityLabel(displayedScore)}</span></div>
+      <div className="resilience-selected-heading"><div><h3>{result.community.name}</h3><p>Historical cyclone paths and communication capability</p></div><span className={`resilience-capacity-label ${capacityBand(displayedScore)}`}>{capacityLabel(displayedScore)}</span></div>
       <div className="resilience-summary-grid">
         <article aria-label="Historical path proximity evidence" className="resilience-summary-card">
           <h4>Path history</h4>
           <p className="resilience-card-source">{filter.fromYear}–{filter.toYear} · within {filter.radiusKm} km</p>
           <div className="resilience-compact-metrics"><span><CapabilityIcon name="cyclone"/><strong>{result.count}</strong>path approaches</span><span><CapabilityIcon name="location"/><strong>{distanceLabel(result.nearestDistanceKm)}</strong>nearest path</span></div>
-          {feature && <p className="resilience-card-source resilience-published-record"><CapabilityIcon name="record"/><span>Published location record: {feature.properties.provider || 'provider not supplied'} · {feature.properties.backhaul || 'backhaul not supplied'}</span></p>}
-          <p className="resilience-review-next"><strong>{review?.label}</strong><span> · {review?.reason}</span></p>
+          {feature && <p className="resilience-card-source resilience-published-record"><CapabilityIcon name="record"/><span><span className="resilience-status-title">Published location record</span><span>{feature.properties.provider || 'provider not supplied'} · {feature.properties.backhaul || 'backhaul not supplied'}</span></span></p>}
+          <p className="resilience-review-next"><CapabilityIcon name="warning"/><span><strong className="resilience-status-title">{review?.label}</strong><span>{review?.reason}</span></span></p>
         </article>
-        <article aria-label="Resilience score breakdown" className="resilience-summary-card">
+        <article aria-label="Resilience score breakdown" className="resilience-summary-card resilience-score-card">
           <div className="resilience-score-heading"><div><h4>Communications resilience score <ScoreHelp label="Communications resilience score">This is a planning score, not a verified assessment of this community. {simulatedDimensionCount} of 5 dimensions use simulated values and {evidenceDimensionCount} use matched published records; each state contributes 0%, 50% or 100% of that area's maximum points, for a total of 100. Historical cyclone approaches are not included. Red is below 40, yellow is 40–69, and green is 70 or above; green does not mean risk-free.</ScoreHelp></h4>
           <p className="resilience-card-source">{previewActive ? `Simulated preview · ${selectedOption?.label}` : simulatedDimensionCount ? `Planning score · ${simulatedDimensionCount} simulated, ${evidenceDimensionCount} source-supported` : 'Source-supported planning score · not field verified'}</p>
-          </div><div className={`resilience-score-ring ${capacityBand(displayedScore)}`} style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`${previewActive ? 'Simulated scenario score' : 'Total score'} ${displayedScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
+          </div><div className="resilience-score-ring" style={{ '--score-pct': `${animatedBaseline}%` } as CSSProperties} aria-label={`${previewActive ? 'Simulated scenario score' : 'Total score'} ${displayedScore.toFixed(1)} out of 100`}><span><strong>{animatedBaseline.toFixed(1)}</strong><small>/ 100</small></span></div></div>
           <ol className="resilience-dimension-list">{resilienceDimensionIds.map((key, index) => {
             const dimension = scenario.dimensions[key];
             const preview = previewActive && selectedOption?.targetDimension === key ? { points: dimension.points + outcome!.upliftPoints, state: outcome!.afterState } : undefined;

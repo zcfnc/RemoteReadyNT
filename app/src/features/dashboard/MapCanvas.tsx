@@ -208,7 +208,7 @@ function exposureValue(value: string | null | undefined) {
 function CommunityExposurePopup({ feature, analysis }: { feature: GeoJsonFeature<ConnectivityProperties>; analysis: NonNullable<MapCanvasProps['analysis']> }) {
   const result = analysis.selectedExposure?.community.communityId === feature.properties.id ? analysis.selectedExposure : undefined;
   const simulation = analysis.simulationById.get(feature.properties.id);
-  return <Popup autoPan closeOnClick={false} eventHandlers={{ remove: () => analysis.onPopupClose(feature.properties.id) }} key={feature.properties.id} keepInView maxWidth={300} minWidth={250} position={pointPosition(feature)}>
+  return <Popup autoPan closeOnClick={false} eventHandlers={{ remove: () => analysis.onPopupClose(feature.properties.id) }} key={feature.properties.id} keepInView maxWidth={300} minWidth={250} offset={[0, -48]} position={pointPosition(feature)}>
     <article aria-label={`${feature.properties.name} coverage point details`} className="exposure-popup-card">
       <span className="exposure-popup-eyebrow">COVERAGE POINT · HISTORICAL PROXIMITY</span>
       <h3>{feature.properties.name}</h3>

@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import dashboardHeroImage from '../image.png';
 import type { ReactNode } from 'react';
 import { MapCanvas } from '../features/dashboard/MapCanvas';
 import { MapExplorerPanel } from '../features/dashboard/MapExplorerPanel';
@@ -6,13 +7,11 @@ import { ExposurePanel } from '../features/dashboard/ExposurePanel';
 import { ResiliencePlanningSection } from '../features/dashboard/ResiliencePlanningSection';
 import { exposureResults, type ExposureFilter } from '../features/dashboard/exposure';
 import { priorityResults, stages } from '../features/dashboard/dashboard';
-import type { PriorityResult } from '../features/dashboard/dashboard';
 import { useDashboardData } from '../features/dashboard/useDashboardData';
 import type { ConnectivityProperties, ExerciseCommunity, ExerciseStage, FacilityProperties, GeoJsonFeature } from '../types/data';
 import type { View } from '../app/view';
 import { downloadDecisionSupportReport } from '../services/decisionReport';
 import { loadChecklist } from '../services/storage';
-import contacts from '../data/useful-contacts.json';
 
 type Selected = GeoJsonFeature<ConnectivityProperties | FacilityProperties> | undefined;
 
@@ -28,24 +27,16 @@ function featureDetails(properties: ConnectivityProperties | FacilityProperties)
   return { region: properties.label, type: properties.label, source: properties.source };
 }
 
-function confidenceLabel(confidence: ExerciseCommunity['confidence']) {
-  return `${confidence.slice(0, 1).toUpperCase()}${confidence.slice(1)}`;
-}
-
-export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => void }) {
+export function DashboardPage({ onNavigate, onRegisterExport }: { onNavigate?: (view: View) => void; onRegisterExport?: (handler?: () => void) => void }) {
   const { core, optional, error } = useDashboardData();
-  const [stage, setStage] = useState<ExerciseStage>('48_hours_before_simulated_impact');
-  const [mapMode, setMapMode] = useState<'exercise' | 'exposure'>('exercise');
+  const [stage] = useState<ExerciseStage>('48_hours_before_simulated_impact');
+  const [mapMode, setMapMode] = useState<'exercise' | 'exposure'>('exposure');
   const [exposureFilter, setExposureFilter] = useState<ExposureFilter>();
   const [selected, setSelected] = useState<Selected>();
   const [exposurePopupId, setExposurePopupId] = useState<string>();
   const [selectedResourceId, setSelectedResourceId] = useState<string>();
   const [scoreAnimationVersion, setScoreAnimationVersion] = useState(0);
-  const [priorityExplanationOpen, setPriorityExplanationOpen] = useState(false);
-  const [mobileActionOpen, setMobileActionOpen] = useState(false);
   const [notice, setNotice] = useState('');
-  const [contactsOpen, setContactsOpen] = useState(false);
-  const [updatesOpen, setUpdatesOpen] = useState(false);
   const [weatherOpen, setWeatherOpen] = useState(false);
   const [selectedTrackId, setSelectedTrackId] = useState('all');
   const [selectedBomYear, setSelectedBomYear] = useState('2025-2026');
@@ -94,6 +85,10 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     });
     setNotice('Decision-support report downloaded as a PDF.');
   }, [core?.facilities.features, current.label, optional.resilienceSimulation, optional.scenario, priorities]);
+  useEffect(() => {
+    onRegisterExport?.(() => { void generateReport(null); });
+    return () => onRegisterExport?.(undefined);
+  }, [generateReport, onRegisterExport]);
   const activeExposureFilter = useMemo(() => exposureFilter ?? optional.cycloneExposure?.defaultFilter ?? { fromYear: 2007, toYear: 2026, radiusKm: 100 }, [exposureFilter, optional.cycloneExposure]);
   const exposureRanking = useMemo(() => optional.cycloneExposure ? exposureResults(optional.cycloneExposure, activeExposureFilter) : [], [optional.cycloneExposure, activeExposureFilter]);
   const simulationById = useMemo(() => new Map(optional.resilienceSimulation?.communities.map((item) => [item.communityId, item]) ?? []), [optional.resilienceSimulation]);
@@ -117,7 +112,7 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
       const feature = core?.connectivity.features.find((item) => item.properties.kind === 'community' && item.properties.id === communityId);
       if (feature) void generateReport(feature);
     },
-  } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById, core?.connectivity.features, generateReport]);
+  } : undefined, [mapMode, optional.cycloneExposure, activeExposureFilter, exposureRanking, selectedExposure, exposurePopupId, simulationById, core?.connectivity, generateReport]);
   const topPriority = priorities[0];
   const activePriority = selected?.properties.kind === 'community' ? priorities.find((item) => item.feature.properties.id === selected.properties.id) ?? topPriority : topPriority;
   const navigate = (view: View) => onNavigate?.(view);
@@ -130,8 +125,6 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
     setExposurePopupId(undefined);
     setSelectedResourceId(undefined);
     setSelectedBomTrackId('');
-    setPriorityExplanationOpen(false);
-    setMobileActionOpen(false);
   };
   const selectExposureCommunity = (communityId: string) => {
     const feature = core?.connectivity.features.find((item) => item.properties.kind === 'community' && item.properties.id === communityId);
@@ -148,93 +141,98 @@ export function DashboardPage({ onNavigate }: { onNavigate?: (view: View) => voi
   if (!core) return <section className="page page-dashboard"><div className="dashboard-loading">Loading map data…</div></section>;
 
   const displayableFacilities = core.facilities.features.filter((item) => item.properties.name && !item.properties.name.startsWith('Unnamed') && item.properties.kind !== 'shelter');
-  const safePointCount = core.facilities.features.filter((item) => ['community_centre', 'shelter'].includes(item.properties.kind) && item.properties.name && !item.properties.name.startsWith('Unnamed')).length;
-  const constrainedAccess = optional.scenario?.communities.filter((item) => item.access.includes('constrained')).length ?? 0;
-  const sourceWarnings = optional.warnings.length;
+  const sources = Object.values(core.sourceLog.sources ?? {});
   const historicalTracks = optional.historicalTrack?.features.filter((item) => item.properties.kind === 'historical-track') ?? [];
 
   return <section className="dashboard dashboard-redesign" aria-label="RemoteReady NT dashboard">
-    <header className={`simulation-banner ${outcome && mapMode === 'exercise' ? 'outcome' : ''}`}>
-      <span aria-hidden="true">{mapMode === 'exposure' ? '◎' : outcome ? '!' : '◒'}</span><strong>{mapMode === 'exposure' ? 'Historical analysis' : outcome ? 'Simulation outcome' : 'Historical exercise'}</strong>
-      <b>{mapMode === 'exposure' ? 'Community cyclone track proximity' : outcome ? 'Scenario communications site A reported unavailable' : 'Historical cyclone communications resilience exercise'}</b>
-      <p>{mapMode === 'exposure' ? 'Historical path distance analysis · not a forecast or damage record.' : outcome ? 'Simulated unavailable report · not a real network fault.' : 'Historical cyclone context with clearly labelled exercise assumptions.'}</p>
-    </header>
-    <div className="dashboard-visual-strip" aria-label="RemoteReady NT focus areas">
-      <StripTile icon="◒" label="Cyclones and severe weather" tone="storm" />
-      <StripTile icon="✈" label="Access and supply" tone="access" />
-      <StripTile icon="◉" label="Communications" tone="comms" />
-      <StripTile icon="✦" label="Stronger, safer communities" tone="water" />
-    </div>
-    <div className="dashboard-status-grid" aria-label="Current readiness summary">
-      <StatusTile icon="!" label="Connectivity alerts" value={String(sourceWarnings)} note="Source warnings" tone="red" />
-      <StatusTile icon="▰" label="Road and air access" value={String(constrainedAccess)} note="Communities to verify" tone="blue" />
-      <StatusTile icon="⌂" label="Community safe points" value={String(safePointCount)} note="Mapped facilities" tone="orange" />
-      <StatusTile icon="ϟ" label="Power and battery" value="—" note="Not modelled" tone="green" />
-    </div>
-    <section className="quick-actions" aria-label="Dashboard quick actions">
-      <QuickAction icon="!" label="Emergency updates" onClick={() => setUpdatesOpen(true)} />
-      <QuickAction icon="▤" label="Situation summary" onClick={() => void generateReport(null)} />
-      <QuickAction icon="↓" label="Offline pack" onClick={() => navigate('preparedness')} />
-      <QuickAction icon="☎" label="Useful contacts" onClick={() => setContactsOpen(true)} />
+    <section className="dashboard-hero" aria-labelledby="dashboard-hero-title" style={{ backgroundImage: `linear-gradient(90deg, rgb(4 27 43 / 91%) 0%, rgb(4 27 43 / 75%) 37%, rgb(4 27 43 / 25%) 100%), url("${dashboardHeroImage}")` }}>
+      <div className="dashboard-container dashboard-hero-inner">
+      <div className="dashboard-hero-content">
+        <span className="dashboard-hero-kicker">RemoteReady NT</span>
+        <span className="dashboard-hero-subkicker">Emergency connectivity and preparedness</span>
+        <h1 id="dashboard-hero-title">Turn community data into <br />preparedness decisions</h1>
+        <p>Identify communities that may need verification, compare available connectivity and access evidence, and investigate preparedness gaps.</p>
+        <div className="dashboard-hero-actions" aria-label="Dashboard actions">
+          <button className="hero-primary-action" onClick={() => document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} type="button">Explore priority communities <span aria-hidden="true">→</span></button>
+        </div>
+        <small className="dashboard-hero-disclaimer">Historical and planning information · Verify local conditions</small>
+      </div>
+      <div className="dashboard-status-grid" aria-label="Available evidence summary">
+        <StatusTile icon={<HeroMetricIcon kind="signal" />} label="Communities" value={String(core.connectivity.features.filter((item) => item.properties.kind === 'community').length)} note="Mapped records" tone="blue" />
+        <StatusTile icon={<HeroMetricIcon kind="aircraft" />} label="Small cells" value={String(core.connectivity.features.filter((item) => item.properties.kind === 'small-cell').length)} note="Published locations" tone="blue" />
+        <StatusTile icon={<HeroMetricIcon kind="building" />} label="Facilities" value={displayableFacilities.length.toLocaleString('en-AU')} note="Named public records" tone="blue" />
+        <StatusTile icon={<HeroMetricIcon kind="battery" />} label="Data sources" value={sources.length ? String(sources.length) : '—'} note={sources.length ? `${sources.filter((source) => source.status === 'ok').length} recorded available · ${sources.filter((source) => source.status === 'unavailable').length} source warnings` : 'No source log linked'} tone="blue" />
+      </div>
+      </div>
     </section>
+    <div className="dashboard-container dashboard-workspace">
     {optional.warnings.length > 0 && <p className="data-warning">{optional.warnings.join(' ')}</p>}
     <section className="dashboard-map-section" id="map-section" aria-labelledby="map-section-title">
-      <div className="map-section-heading"><div><span className="eyebrow">MAP ANALYSIS</span><h2 id="map-section-title">{mapMode === 'exposure' ? 'Coverage point proximity' : 'Map layers'}</h2></div><div className="map-heading-actions"><div className="map-mode-switch" aria-label="Map view"><button aria-pressed={mapMode === 'exercise'} onClick={() => switchMapMode('exercise')} type="button">Cyclone path analysis</button><button aria-pressed={mapMode === 'exposure'} onClick={() => switchMapMode('exposure')} type="button">Community analysis</button></div></div></div>
+      <div className="map-section-heading"><span className="eyebrow" id="map-section-title">MAP ANALYSIS</span><div className="map-heading-actions"><div className="map-mode-switch" aria-label="Map view"><button aria-pressed={mapMode === 'exposure'} onClick={() => switchMapMode('exposure')} type="button">Community analysis</button><button aria-pressed={mapMode === 'exercise'} onClick={() => switchMapMode('exercise')} type="button">Cyclone path analysis</button></div></div></div>
       <div className={`dashboard-map-workspace ${outcome && mapMode === 'exercise' ? 'has-simulated-outcome' : ''} ${mapMode === 'exposure' ? 'is-exposure-view' : ''}`}>
         <MapCanvas analysis={exposureMap} analysisMode={mapMode === 'exposure'} bomCycloneTracks={optional.bomCycloneTracks} connectivity={core.connectivity} enabledLayers={layers} facilities={core.facilities} historicalTrack={optional.historicalTrack} onBomTrackSelect={(track) => { setSelectedBomTrackId(track.properties.stormId); if (mapMode === 'exercise') setNotice(`${track.properties.name || 'Unnamed cyclone'} selected · impact range shown.`); }} onSelect={(feature) => { if (mapMode === 'exposure' && feature.properties.kind === 'community') { selectExposureCommunity(feature.properties.id); return; } setSelected(feature); if (mapMode === 'exposure') { setSelectedBomTrackId(''); setSelectedResourceId(undefined); setExposurePopupId(undefined); } }} priorityCommunityId={mapMode === 'exercise' && outcome && !selectedBomTrackId ? activePriority?.feature.properties.id : undefined} selectedBomTrackId={selectedBomTrackId} selectedBomYear={selectedBomYear} selectedFeature={selected} selectedTrackId={selectedTrackId} onTrackSelect={(track) => { const id = track.properties.trackId ?? track.properties.name ?? 'all'; setSelectedTrackId(id); setNotice(`${track.properties.name ?? 'Historical cyclone track'} selected.`); }} stage={stage} />
         {mapMode === 'exercise' && <MapExplorerPanel bomCycloneCount={optional.bomCycloneTracks?.features.length} bomCycloneYears={bomCycloneYears} connectivity={core.connectivity} facilities={core.facilities} historicalTracks={historicalTracks} layers={layers} onBomYearChange={(year) => { setSelectedBomYear(year); setSelectedBomTrackId(''); setLayers((currentLayers) => ({ ...currentLayers, uncertainty: false })); }} onLayerChange={(name, value) => setLayers((currentLayers) => ({ ...currentLayers, [name]: value }))} onSelect={setSelected} onTrackChange={setSelectedTrackId} selectedBomYear={selectedBomYear} selectedTrackId={selectedTrackId} />}
         {mapMode === 'exposure' && <ExposurePanel data={optional.cycloneExposure} error={optional.exposureError} simulation={optional.resilienceSimulation} tracksUnavailable={optional.warnings.includes('BoM cyclone database unavailable.')} filter={activeExposureFilter} results={exposureRanking} selectedCommunityId={selected?.properties.kind === 'community' ? selected.properties.id : undefined} selectedStormId={selectedBomTrackId} onFilterChange={(filter) => { setExposureFilter(filter); setSelectedBomTrackId(''); }} onCommunitySelect={selectExposureCommunity} onStormSelect={(stormId) => { setSelectedBomTrackId(stormId); if (window.innerWidth <= 760) document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />}
-        {mapMode === 'exercise' && <div className="priority-column">
-        <section className="exercise-context" aria-label="Exercise context">
-          <div className="exercise-status"><span>SIMULATED EXERCISE</span><span>NOT LIVE</span></div>
-          <strong>Historical cyclone communications resilience</strong>
-          <small>Stage {stages.findIndex((item) => item.id === stage) + 1} of 4 · {current.label}</small>
-        </section>
-        <aside className={`priority-card ${mobileActionOpen ? 'mobile-open' : ''}`}>
-          <button aria-label="Close next action" className="mobile-action-close" onClick={() => setMobileActionOpen(false)} type="button">×</button>
-          <span>{outcome ? 'NEXT STEP' : 'CURRENT EXERCISE ACTION'}</span>
-          <h1 aria-label={outcome && activePriority ? `Verify conditions in ${activePriority.feature.properties.name}` : undefined} className={outcome ? 'outcome-action-title' : 'stage-action-title'}>{outcome && activePriority ? <><span>Verify conditions</span><strong>{activePriority.feature.properties.name}</strong></> : outcome ? 'Verify local conditions' : current.action}</h1>
-          <p>{outcome ? 'Confirm network status, safe access and community need before considering communications support.' : current.copy}</p>
-          {outcome && activePriority && <>
-            <div className="priority-context"><span>{activePriority === topPriority ? 'Modelled recommendation' : 'Selected community assessment'}</span><span>{confidenceLabel(activePriority.record.confidence)} confidence · Verify locally</span></div>
-          </>}
-          <div className="priority-actions">
-            <button onClick={() => activePriority && setSelected(activePriority.feature)} type="button">{outcome ? `Review ${activePriority?.feature.properties.name ?? 'community'} →` : 'Explore map →'}</button>
-            {outcome && topPriority && <button aria-label="Open assessment overview" className="why-priority" onClick={() => setPriorityExplanationOpen(true)} type="button">Assessment Overview</button>}
-          </div>
-        </aside>
-        <div className="desktop-map-legend"><MapLegend /></div>
-        </div>}
-        {mapMode === 'exercise' && <button aria-expanded={mobileActionOpen} className="mobile-action-toggle" onClick={() => setMobileActionOpen((isOpen) => !isOpen)} type="button"><span aria-hidden="true">!</span> Next action</button>}
+        {mapMode === 'exercise' && <div className="dashboard-map-legend"><MapLegend /></div>}
         {mapMode === 'exercise' && selected && <DetailDrawer onClose={() => setSelected(undefined)} onExportReport={selected.properties.kind === 'community' ? () => void generateReport(selected as GeoJsonFeature<ConnectivityProperties>) : undefined} properties={selected.properties} scenarioRecord={selected.properties.kind === 'community' ? optional.scenario?.communities.find((record) => record.community_id === selected.properties.id) : undefined} />}
-        {mapMode === 'exercise' && priorityExplanationOpen && topPriority && <PriorityExplanation onClose={() => setPriorityExplanationOpen(false)} onSelectCommunity={(feature) => { setSelected(feature); setPriorityExplanationOpen(false); }} priorities={priorities} />}
       </div>
       {mapMode === 'exposure' && <ResiliencePlanningSection key={scoreAnimationVersion} data={optional.resilienceSimulation} error={optional.resilienceError} feature={selected?.properties.kind === 'community' ? selected as GeoJsonFeature<ConnectivityProperties> : undefined} filter={activeExposureFilter} onResourceSelect={setSelectedResourceId} rank={selectedExposure ? exposureRanking.indexOf(selectedExposure) + 1 : 0} result={selectedExposure} selectedResourceId={selectedResourceId} />}
-      {mapMode === 'exercise' && <div className="mobile-map-legend"><MapLegend /></div>}
     </section>
     {mapMode === 'exercise' && <section className="dashboard-info-grid" aria-label="RemoteReady NT information summary">
       <InfoCard icon="◉" title="Connectivity"><MetricPair value={String(core.connectivity.features.length)} label="remote locations monitored" /><MetricPair value={String(displayableFacilities.length)} label="essential facilities" /><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><a href="#map-section">View connectivity details →</a></InfoCard>
       <InfoCard icon="▤" title="Readiness"><MetricPair value={String(optional.scenario?.communities.length ?? 0)} label="exercise communities" /><MetricPair value="4" label="scenario stages" /><MetricPair value="1" label="simulation in progress" /><button className="info-link" onClick={() => navigate('preparedness')} type="button">View preparedness information →</button></InfoCard>
       <InfoCard icon="☁" title="Weather and warnings"><MetricPair value="26°C" label="Darwin current weather" /><MetricPair value="Low" label="warning level" /><p className="weather-card-status"><span className="status-dot" />No active emergency warning in demo data</p><button className="info-link" onClick={() => setWeatherOpen(true)} type="button">View weather and warnings →</button></InfoCard>
     </section>}
-    <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
-    {updatesOpen && <InfoOverlay title="Emergency updates" onClose={() => setUpdatesOpen(false)}><div className="static-update"><strong>Historical exercise notice</strong><span>TC Lam communications resilience exercise</span><small>Simulation context only · not a live emergency warning</small></div><div className="static-update"><strong>Connectivity planning reminder</strong><span>Confirm current access, communications and local conditions before dispatch.</span><small>Source: RemoteReady NT exercise information</small></div></InfoOverlay>}
-    {contactsOpen && <InfoOverlay title="Useful contacts" onClose={() => setContactsOpen(false)}><div className="contacts-list">{contacts.map((contact) => <div className="contact-row" key={contact.name}><span><strong>{contact.name}</strong><small>{contact.category}</small></span><a href={`tel:${contact.phone.replaceAll(' ', '')}`}>{contact.phone}</a></div>)}</div></InfoOverlay>}
     {weatherOpen && <InfoOverlay title="Weather and warnings" onClose={() => setWeatherOpen(false)}><div className="weather-detail"><div><span>Darwin, Northern Territory</span><strong>26°C · Partly cloudy</strong><small>Wind 18 km/h · Humidity 68%</small></div><div className="weather-warning-clear"><span className="status-dot" />No active emergency warning</div><p>Demonstration weather data for the competition prototype. Verify current conditions with official Bureau of Meteorology warnings before taking action.</p><small>Last updated: 29 September 2026 · Source: RemoteReady NT demo dataset</small></div></InfoOverlay>}
+    </div>
+    <footer className="dashboard-footer"><div className="dashboard-container dashboard-footer-inner"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></div></footer>
     {notice && <button className="dashboard-notice" onClick={() => setNotice('')} type="button">{notice} · 点击关闭</button>}
   </section>;
 }
 
-function StripTile({ icon, label, tone }: { icon: string; label: string; tone: string }) {
-  return <div className={`strip-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{label}</strong></div>;
+function StatusTile({ icon, label, note, tone, value }: { icon: ReactNode; label: string; note: string; tone: string; value: string }) {
+  return <article className={`status-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong aria-label={value}><AnimatedMetric value={value} /></strong><div><b>{label}</b>{note && <small>{note}</small>}</div></article>;
 }
 
-function StatusTile({ icon, label, note, tone, value }: { icon: string; label: string; note: string; tone: string; value: string }) {
-  return <article className={`status-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{value}</strong><div><b>{label}</b><small>{note}</small></div></article>;
+function AnimatedMetric({ value }: { value: string }) {
+  const target = Number(value.replaceAll(',', ''));
+  const [count, setCount] = useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? target : 0);
+
+  useEffect(() => {
+    if (!Number.isFinite(target)) return;
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = media?.matches ? 1 : Math.min(1, (now - start) / 1100);
+      setCount(Math.round(target * (1 - (1 - progress) ** 3)));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    const finishForReducedMotion = () => {
+      if (media?.matches) {
+        cancelAnimationFrame(frame);
+        setCount(target);
+      }
+    };
+    frame = requestAnimationFrame(tick);
+    media?.addEventListener('change', finishForReducedMotion);
+    return () => {
+      cancelAnimationFrame(frame);
+      media?.removeEventListener('change', finishForReducedMotion);
+    };
+  }, [target]);
+
+  return <span aria-hidden="true">{Number.isFinite(target) ? count.toLocaleString('en-AU') : value}</span>;
 }
 
-function QuickAction({ icon, label, onClick, pending = false }: { icon: string; label: string; onClick: () => void; pending?: boolean }) {
-  return <button className={`quick-action ${pending ? 'pending' : ''}`} onClick={onClick} type="button"><span aria-hidden="true">{icon}</span><strong>{label}{pending ? '（待实现）' : ''}</strong></button>;
+function HeroMetricIcon({ kind }: { kind: 'signal' | 'aircraft' | 'building' | 'battery' }) {
+  const paths = {
+    signal: <><circle cx="12" cy="14" r="1.5" /><path d="M12 16v5M7.8 9.8a6 6 0 0 0 0 8.4M16.2 9.8a6 6 0 0 1 0 8.4M4.6 6.6a10.5 10.5 0 0 0 0 14.8M19.4 6.6a10.5 10.5 0 0 1 0 14.8" /></>,
+    aircraft: <path d="m12 2 2.2 8.3 6.3 3.7v2l-6.7-1.8L13 21h-2l-.8-6.8L3.5 16v-2l6.3-3.7L12 2Z" />,
+    building: <><path d="M4 21V4h16v17M2 21h20M8 8h2m4 0h2M8 12h2m4 0h2M10 21v-4h4v4" /></>,
+    battery: <><rect x="3" y="7" width="17" height="11" rx="2" /><path d="M22 10v5M11 9l-2 4h4l-2 3" /></>,
+  };
+  return <svg className={`hero-metric-icon ${kind}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>;
 }
 
 function InfoOverlay({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
@@ -247,38 +245,6 @@ function InfoCard({ children, icon, pending = false, title }: { children: ReactN
 
 function MetricPair({ label, value }: { label: string; value: string }) {
   return <div className="metric-pair"><strong>{value}</strong><span>{label}</span></div>;
-}
-
-function PriorityExplanation({ onClose, onSelectCommunity, priorities }: { onClose: () => void; onSelectCommunity: (feature: PriorityResult['feature']) => void; priorities: PriorityResult[] }) {
-  const topPriority = priorities[0];
-  if (!topPriority) return null;
-  const communityName = topPriority.feature.properties.name;
-  const confidence = topPriority.record.confidence;
-  const confidenceLabel = confidence === 'low' ? 'Verify first' : `${confidence.slice(0, 1).toUpperCase()}${confidence.slice(1)} confidence`;
-  return <div className="priority-explanation-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section aria-labelledby="priority-explanation-title" aria-modal="true" className="priority-explanation" role="dialog">
-      <button aria-label="Close priority explanation" className="priority-explanation-close" onClick={onClose} type="button">×</button>
-      <p className="eyebrow">MODELLED PRIORITY</p>
-      <h2 id="priority-explanation-title">{communityName}</h2>
-      <p className="priority-explanation-subtitle">Rank #1 of {priorities.length} · scenario-based recommendation</p>
-      <div className="priority-score"><strong>Indicative Priority Score: {topPriority.score.toFixed(1)} / 100</strong><span>Overall confidence: {confidence}. The score combines five labelled scenario dimensions and a confidence penalty.</span></div>
-      <h3>Modelled candidate ranking</h3>
-      <ol className="priority-ranking">{priorities.map((item, index) => <li key={item.record.community_id}>
-        <button aria-label={`Select ${item.feature.properties.name}, rank ${index + 1}, ${item.score.toFixed(1)} out of 100`} onClick={() => onSelectCommunity(item.feature)} type="button">
-          <strong>#{index + 1} {item.feature.properties.name}</strong><span>{item.score.toFixed(1)} / 100 · {item.record.confidence === 'low' ? 'Verify first' : `${item.record.confidence} confidence`}</span>
-        </button>
-      </li>)}</ol>
-      <h3>What influenced this priority</h3>
-      {topPriority.breakdown.factors.map((factor) => <section className="priority-factor" key={factor.id}>
-        <h4>{factor.title}</h4><strong>{factor.score.toFixed(1)} <small>of {factor.maximum}</small></strong>
-        <dl><dt>Input</dt><dd>{factor.input}</dd><dt>Effect</dt><dd>{factor.effect}</dd></dl>
-      </section>)}
-      <section className="priority-factor confidence-factor">
-        <h4>Confidence penalty</h4><strong>{topPriority.breakdown.confidencePenalty < 0 ? '−' : ''}{Math.abs(topPriority.breakdown.confidencePenalty).toFixed(1)} <small>up to −{topPriority.breakdown.confidenceMaximum}</small></strong>
-        <dl><dt>Input</dt><dd>{confidence}</dd><dt>Effect</dt><dd>{confidence === 'high' ? 'High-confidence exercise inputs receive no confidence penalty.' : `${confidenceLabel} exercise inputs reduce priority until they are verified locally.`}</dd></dl>
-      </section>
-    </section>
-  </div>;
 }
 
 function MapLegend() {
