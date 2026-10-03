@@ -1,3 +1,5 @@
+import { PageHero } from '../components/layout/PageHero';
+
 const members = [
   { id: '01', name: 'SURESH BHANDARI', role: 'Data Research & Validation', program: 'Master of IT', contribution: 'Public dataset research, source documentation and data validation.', tone: 'blue', photo: '/assets/team-member-1-v3.jpeg' },
   { id: '02', name: 'SIHAO CUI', role: 'Frontend Engineering', program: 'Master of IT', contribution: 'React interface development, responsive layouts and offline-ready features.', tone: 'red', photo: '/assets/team-member-2.jpeg' },
@@ -12,11 +14,9 @@ const principles = [
 ] as const;
 
 export function AboutPage() {
-  return <section className="about-page" aria-labelledby="about-team-title">
-    <header className="about-section-heading">
-      <span>OUR TEAM</span>
-      <h2 id="about-team-title">Meet the RemoteReady NT team</h2>
-    </header>
+  return <section className="inner-page" aria-labelledby="about-team-title">
+    <PageHero kicker="OUR TEAM" title="Meet the RemoteReady NT team" titleId="about-team-title" />
+    <div className="about-page dashboard-container inner-page-content">
     <p className="about-introduction">We are four students who created RemoteReady NT for the <strong>CDU IT Code Fair Data Innovation Challenge.</strong><br />Our project combines public data, interactive mapping and decision support for emergency connectivity and preparedness across remote Northern Territory communities.</p>
 
     <div className="about-team-grid">
@@ -30,6 +30,7 @@ export function AboutPage() {
 
     <section className="about-facts" aria-label="Project facts"><Fact value="4" label="team members" /><Fact value="8" label="public data sources" /><Fact value="64" label="remote communities" /><Fact value="1" label="shared goal" /></section>
     <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span><span>CDU IT Code Fair · Data Innovation Challenge</span></footer>
+    </div>
   </section>;
 }
 

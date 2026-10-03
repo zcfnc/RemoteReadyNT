@@ -512,7 +512,7 @@ body { background: #fff; }
    government-portal hierarchy rather than a modern display typeface. */
 :root { font-family: Arial, Helvetica, sans-serif; }
 body, button, input, textarea, select, table { font-family: Arial, Helvetica, sans-serif; }
-.dashboard-header, .dashboard-redesign { font-family: Arial, Helvetica, sans-serif; }
+.portal-header, .dashboard-redesign { font-family: Arial, Helvetica, sans-serif; }
 .portal-header .brand strong { font-size: 22px; font-weight: 700; letter-spacing: 0; }
 .portal-header .brand-mark { display: grid; place-items: center; overflow: hidden; background: #fff; }
 .portal-header .brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -897,6 +897,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 
 @media (max-width: 980px) {
   .sources-redesign { width: calc(100% - 24px); }
+  .source-record-grid { grid-template-columns: minmax(0, 1fr); }
   .source-record { grid-template-columns: minmax(0, 1fr) 142px; }
   .source-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -1118,12 +1119,12 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 }
 
 /* Dashboard workspace: one fluid alignment grid, with full-width hero background. */
-.dashboard-shell { --dashboard-gutter: 48px; }
-.dashboard-shell .dashboard-container { width: calc(100% - var(--dashboard-gutter) * 2); max-width: 1440px; margin-inline: auto; }
+.app-shell { --dashboard-gutter: 48px; }
+.app-shell .dashboard-container { width: calc(100% - var(--dashboard-gutter) * 2); max-width: 1440px; margin-inline: auto; }
 .dashboard-shell .dashboard-redesign { width: 100%; background: #fff; }
-.dashboard-shell .dashboard-header { min-height: 78px; }
-.dashboard-shell .dashboard-header .app-header-top { min-height: 78px; padding: 0; grid-template-columns: minmax(300px, 1fr) auto minmax(145px, 1fr); grid-template-rows: 78px; }
-.dashboard-shell .primary-nav button:focus-visible { outline: 3px solid #176fa3; outline-offset: -4px; }
+.app-shell .portal-header { min-height: 78px; }
+.app-shell .portal-header .app-header-top { min-height: 78px; padding: 0; grid-template-columns: minmax(300px, 1fr) auto minmax(145px, 1fr); grid-template-rows: 78px; }
+.app-shell .primary-nav button:focus-visible { outline: 3px solid #176fa3; outline-offset: -4px; }
 .dashboard-redesign .dashboard-hero { display: block; min-height: 400px; padding: 48px 0; background-color: #082b43; background-size: cover; background-position: center; color: #fff; }
 .dashboard-hero-inner { display: grid; grid-template-columns: minmax(0, .48fr) minmax(0, .52fr); align-items: center; gap: 40px; }
 .dashboard-redesign .dashboard-hero-content { min-width: 0; max-width: 650px; }
@@ -1144,14 +1145,14 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 .dashboard-redesign .dashboard-hero .status-tile b { font-size: 14px; line-height: 1.3; }
 .dashboard-redesign .dashboard-hero .status-tile small { margin-top: 5px; color: #526a7b; font-size: 12px; line-height: 1.4; opacity: 1; }
 @media (max-width: 1200px) {
-  .dashboard-shell { --dashboard-gutter: 24px; }
+  .app-shell { --dashboard-gutter: 24px; }
   .dashboard-hero-inner { gap: 28px; }
   .dashboard-redesign .dashboard-hero h1 { font-size: 38px; }
   .dashboard-redesign .dashboard-hero .dashboard-status-grid { gap: 10px; }
   .dashboard-redesign .dashboard-hero .status-tile { padding: 12px; }
 }
 @media (min-width: 761px) and (max-width: 1100px) {
-  .dashboard-shell .dashboard-header .app-header-top { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 66px 42px; }
+  .app-shell .portal-header .app-header-top { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 66px 42px; }
   .dashboard-redesign .dashboard-hero h1 { font-size: 34px; }
 }
 @media (max-width: 1000px) {
@@ -1161,13 +1162,13 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
   .dashboard-redesign .dashboard-hero .status-tile { min-height: 155px; }
 }
 @media (max-width: 760px) {
-  .dashboard-shell { --dashboard-gutter: 16px; }
-  .dashboard-shell .dashboard-header .app-header-top { min-height: 66px; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 66px; gap: 8px; }
-  .dashboard-shell .dashboard-header { min-height: 66px; }
-  .dashboard-shell .brand small { max-width: 165px; font-size: 9px; }
-  .dashboard-shell .brand strong { font-size: 16px; }
-  .dashboard-shell .brand-mark { width: 36px; height: 36px; }
-  .dashboard-shell .header-export-button { padding-inline: 8px; font-size: 11px; }
+  .app-shell { --dashboard-gutter: 16px; }
+  .app-shell .portal-header .app-header-top { min-height: 66px; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 66px; gap: 8px; }
+  .app-shell .portal-header { min-height: 66px; }
+  .app-shell .brand small { max-width: 165px; font-size: 9px; }
+  .app-shell .brand strong { font-size: 16px; }
+  .app-shell .brand-mark { width: 36px; height: 36px; }
+  .app-shell .header-export-button { padding-inline: 8px; font-size: 11px; }
   .dashboard-redesign .dashboard-hero h1 { font-size: clamp(29px, 7.5vw, 38px); }
   .dashboard-redesign .dashboard-hero h1 br { display: none; }
   .dashboard-redesign .hero-primary-action { width: 100%; justify-content: center; font-size: 14px; }
@@ -1239,4 +1240,22 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
   .dashboard-redesign .dashboard-map-workspace.is-exposure-view .leaflet-map { height: 430px; }
   .dashboard-redesign .resilience-map-legend { top: auto; right: auto; bottom: 16px; left: 12px; max-width: 215px; font-size: 9px; }
   .dashboard-redesign .dashboard-map-legend { bottom: 16px; left: 10px; }
+}
+
+/* Shared compact inner-page hero; Dashboard keeps its existing hero sizing. */
+.inner-page { width: 100%; background: #fff; }
+.page-hero { display: flex; align-items: center; min-height: 120px; padding: 12px 0; background-color: #082b43; background-size: cover; background-position: center; color: #fff; font-family: Arial, Helvetica, sans-serif; }
+.page-hero-kicker { display: block; color: #dce7ed; font-size: 14px; font-weight: 700; letter-spacing: .08em; }
+.page-hero h2 { max-width: 900px; margin: 6px 0 0; color: #fff; font-size: clamp(24px, 2.3vw, 30px); line-height: 1.15; letter-spacing: -.025em; overflow-wrap: break-word; }
+.page-hero-status { margin: 6px 0 0; color: #f1f5f7; font-size: 16px; line-height: 1.5; }
+.app-shell .inner-page-content { padding-top: 24px; min-height: 0; }
+.inner-page-content > .preparedness-section:first-child,
+.inner-page-content > .source-catalogue-redesign { margin-top: 0; }
+.inner-page-content .about-introduction { padding: 0 0 20px; }
+@media (max-width: 760px) {
+  .page-hero { min-height: 120px; padding-block: 8px; }
+  .page-hero-kicker { font-size: 12px; }
+  .page-hero h2 { margin-top: 4px; font-size: 20px; }
+  .page-hero-status { margin-top: 4px; font-size: 12px; }
+  .app-shell .inner-page-content { padding-top: 16px; }
 }

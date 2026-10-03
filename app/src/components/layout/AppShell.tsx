@@ -25,7 +25,7 @@ export function AppShell({ activeView, children, onViewChange, onExportReport }:
   return (
     <div className={`app-shell ${activeView === 'dashboard' ? 'dashboard-shell' : ''}`}>
       <header className={`app-header portal-header ${activeView}-header`}>
-        <div className={`app-header-top ${activeView === 'dashboard' ? 'dashboard-container' : ''}`}>
+        <div className="app-header-top dashboard-container">
           <div className="brand" aria-label="RemoteReady NT">
             <span className="brand-mark"><img src="/assets/remoteready-nt-icon.png" alt="" /></span>
             <span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span>

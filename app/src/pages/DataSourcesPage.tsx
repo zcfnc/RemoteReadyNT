@@ -1,3 +1,4 @@
+import { PageHero } from '../components/layout/PageHero';
 import type { SourceLog, SourceRecord } from '../types/data';
 import { useSourceData } from '../features/sources/useSourceData';
 
@@ -55,51 +56,20 @@ const importedDatasets = [
 ];
 
 export function DataSourcesPage() {
-  const { sourceLog, facilities, optionalWarnings, error } = useSourceData();
+  const { sourceLog, optionalWarnings, error } = useSourceData();
   if (error) return <section className="page page-sources"><div className="sources-error"><h1>Source catalogue unavailable</h1><p>{error}</p></div></section>;
 
   const sources = Object.values(sourceLog?.sources ?? {}).sort((left, right) => sourceSortOrder(left) - sourceSortOrder(right));
   const available = sources.filter((source) => source.status === 'ok').length;
   const totalSources = sources.length;
-  const facilityCount = sourceLog?.counts?.facilities ?? facilities?.features.length;
-  const displayedFacilities = facilities?.features.filter((item) => item.properties.name && !item.properties.name.startsWith('Unnamed') && item.properties.kind !== 'shelter').length;
-  const refreshed = formatRefresh(sourceLog);
 
-  const downloadLog = () => {
-    if (!sourceLog) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(sourceLog, null, 2)], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'remoteready-nt-source-log.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const jumpTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  return <section className="sources-page sources-redesign" aria-labelledby="sources-title">
+  return <section className="inner-page" aria-labelledby="sources-title">
     <h2 className="visually-hidden" id="sources-title">Data sources and freshness</h2>
-    <section className="dashboard-status-grid source-status-grid" aria-label="Data source summary">
-      <SourceMetric icon="▤" label="Auto sources available" note={`of ${totalSources || '—'} checked at refresh`} tone="red" value={sourceLog ? String(available) : '—'} />
-      <SourceMetric icon="●" label="Connectivity records" note="in latest dataset" tone="blue" value={String(sourceLog?.counts?.connectivity ?? '—')} />
-      <SourceMetric icon="▦" label="Essential facilities" note={displayedFacilities === undefined ? 'Loading facility data' : `${displayedFacilities.toLocaleString('en-AU')} displayable records`} tone="orange" value={facilityCount?.toLocaleString('en-AU') ?? '—'} />
-      <SourceMetric icon="◷" label="Last refreshed" note={refreshed.detail} tone="green" value={refreshed.short} />
-    </section>
-
-    <section className="quick-actions source-actions" aria-label="Data source actions">
-      <SourceAction icon="↓" label="Download source log" onClick={downloadLog} />
-      <SourceAction icon="↗" label="Official sources" onClick={() => jumpTo('source-catalogue')} />
-      <SourceAction icon="⚙" label="Methodology" onClick={() => jumpTo('data-methodology')} />
-      <SourceAction icon="!" label="Data limitations" onClick={() => jumpTo('data-boundaries')} />
-    </section>
-
+    <PageHero kicker="DATA CATALOGUE" title="Imported and reference datasets" titleId="source-catalogue-title" status={sourceLog ? `${available} of ${totalSources} automated sources available · ${importedDatasets.length} local imports` : `${importedDatasets.length} local imports · Loading source status`} />
+    <div className="sources-page sources-redesign dashboard-container inner-page-content">
     {optionalWarnings.length > 0 && <p className="source-warning">{optionalWarnings.join(' ')} Core public data remains available.</p>}
 
     <section className="source-catalogue-redesign" id="source-catalogue" aria-labelledby="source-catalogue-title">
-      <header className="source-section-heading">
-        <div><span>DATA CATALOGUE</span><h2 id="source-catalogue-title">Imported and reference datasets</h2></div>
-        <p>{sourceLog ? `${available} of ${totalSources} automated sources available · ${importedDatasets.length} local imports` : `${importedDatasets.length} local imports · Loading source status`}</p>
-      </header>
       <div className="source-record-grid">
         {sources.map((source) => <SourceRecordCard key={`${source.title}-${source.url}`} log={sourceLog} source={source} />)}
         {importedDatasets.map((dataset) => <ImportedDatasetCard key={dataset.id} dataset={dataset} />)}
@@ -115,15 +85,8 @@ export function DataSourcesPage() {
     </section>
 
     <footer className="dashboard-footer source-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
+    </div>
   </section>;
-}
-
-function SourceMetric({ icon, label, note, tone, value }: { icon: string; label: string; note: string; tone: string; value: string }) {
-  return <article className={`status-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{value}</strong><div><b>{label}</b><small>{note}</small></div></article>;
-}
-
-function SourceAction({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
-  return <button className="quick-action" onClick={onClick} type="button"><span aria-hidden="true">{icon}</span><strong>{label}</strong></button>;
 }
 
 function SourceRecordCard({ log, source }: { log?: SourceLog; source: SourceRecord }) {
@@ -271,12 +234,4 @@ function formatDate(value?: string) {
   if (!value) return 'Loading';
   const parsed = new Date(`${value}T00:00:00`);
   return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-function formatRefresh(log?: SourceLog) {
-  if (!log?.last_attempt) return { short: '—', detail: 'Loading refresh details' };
-  const parsed = new Date(`${log.last_attempt}T00:00:00`);
-  const short = Number.isNaN(parsed.valueOf()) ? log.last_attempt : parsed.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
-  const time = log.generated_at ? new Date(log.generated_at).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', timeZone: 'Australia/Darwin' }) : '';
-  return { short, detail: `${parsed.getFullYear()}${time ? ` · ${time} ACST` : ''}` };
 }

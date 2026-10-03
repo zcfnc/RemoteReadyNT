@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import dashboardHeroImage from '../image.png';
+import { heroBackground } from '../components/layout/heroBackground';
 import type { ReactNode } from 'react';
 import { MapCanvas } from '../features/dashboard/MapCanvas';
 import { MapExplorerPanel } from '../features/dashboard/MapExplorerPanel';
@@ -145,7 +145,7 @@ export function DashboardPage({ onNavigate, onRegisterExport }: { onNavigate?: (
   const historicalTracks = optional.historicalTrack?.features.filter((item) => item.properties.kind === 'historical-track') ?? [];
 
   return <section className="dashboard dashboard-redesign" aria-label="RemoteReady NT dashboard">
-    <section className="dashboard-hero" aria-labelledby="dashboard-hero-title" style={{ backgroundImage: `linear-gradient(90deg, rgb(4 27 43 / 91%) 0%, rgb(4 27 43 / 75%) 37%, rgb(4 27 43 / 25%) 100%), url("${dashboardHeroImage}")` }}>
+    <section className="dashboard-hero" aria-labelledby="dashboard-hero-title" style={{ backgroundImage: heroBackground }}>
       <div className="dashboard-container dashboard-hero-inner">
       <div className="dashboard-hero-content">
         <span className="dashboard-hero-kicker">RemoteReady NT</span>

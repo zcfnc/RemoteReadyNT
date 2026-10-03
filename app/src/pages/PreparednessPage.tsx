@@ -1,3 +1,4 @@
+import { PageHero } from '../components/layout/PageHero';
 import { useEffect, useMemo, useState } from 'react';
 import type { View } from '../app/view';
 import { loadChecklist, saveChecklist } from '../services/storage';
@@ -63,19 +64,11 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
     navigator.geolocation.getCurrentPosition(() => setNotice('Your current location is available to the map.'), () => setNotice('Location access was not available.'));
   };
 
-  return <section className="preparedness preparedness-redesign" aria-labelledby="preparedness-title">
+  return <section className="inner-page" aria-labelledby="preparedness-title">
     <h1 className="visually-hidden" id="preparedness-title">Preparedness</h1>
-    <div className="dashboard-status-grid" aria-label="Preparedness summary">
-      <StatusTile icon="☑" value={`${complete} / ${checklist.length}`} label="Checks complete" note={`${checklist.length - complete} actions remaining`} tone="red" />
-      <StatusTile icon="▥" value={network ? 'Online' : 'Offline'} label="Device status" note={network ? 'Network available' : 'No network detected'} tone="blue" />
-      <StatusTile icon="▤" value="Ready" label="Decision report" note="PDF summary available" tone="orange" />
-      <StatusTile icon="◇" value={`${percentage}%`} label="Preparedness" note="Checklist progress" tone="green" />
-    </div>
-    <section className="quick-actions preparedness-actions" aria-label="Preparedness quick actions">
-      <ActionButton icon="▤" label="Decision report" onClick={() => void generateReport()} /><ActionButton icon="▤" label="Community checklist" onClick={() => document.getElementById('community-checklist')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} /><ActionButton icon="⌖" label="My location" onClick={showLocation} /><ActionButton icon="▱" label="Risk map" onClick={() => onNavigate?.('dashboard')} />
-    </section>
+    <PageHero kicker="COMMUNITY PREPAREDNESS" title="Eight checks before an outage" titleId="checklist-title" status={`${complete} of ${checklist.length} complete`} />
+    <div className="preparedness preparedness-redesign dashboard-container inner-page-content">
     <section className="preparedness-section" id="community-checklist" aria-labelledby="checklist-title">
-      <header className="preparedness-section-heading"><div><span>COMMUNITY PREPAREDNESS</span><h2 id="checklist-title">Eight checks before an outage</h2></div><p>{complete} of {checklist.length} complete</p></header>
       <div className="preparedness-workspace">
         <section className="readiness-checklist-panel">
           <div className="panel-title-row"><h3>Community readiness checklist</h3><strong>{percentage}% complete</strong></div>
@@ -99,9 +92,8 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
     </section>
     <p className="preparedness-boundary-warning"><span aria-hidden="true">▲</span><strong>Preparedness information supports planning only. Confirm current conditions and emergency advice with local authorities.</strong></p>
     <footer className="dashboard-footer preparedness-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
+    </div>
   </section>;
 }
 
-function StatusTile({ icon, label, note, tone, value }: { icon: string; label: string; note: string; tone: string; value: string }) { return <article className={`status-tile ${tone}`}><span aria-hidden="true">{icon}</span><strong>{value}</strong><div><b>{label}</b><small>{note}</small></div></article>; }
-function ActionButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) { return <button className="quick-action" onClick={onClick} type="button"><span aria-hidden="true">{icon}</span><strong>{label}</strong></button>; }
 function FieldTool({ icon, title, copy, label, onClick }: { icon: string; title: string; copy: string; label: string; onClick: () => void }) { return <article className="field-tool-card"><span className="field-tool-icon" aria-hidden="true">{icon}</span><h3>{title}</h3><p>{copy}</p><button onClick={onClick} type="button">{label}</button></article>; }
