@@ -84,7 +84,7 @@ export function DataSourcesPage() {
       <p className="source-boundary-warning" id="data-boundaries"><span aria-hidden="true">▲</span><strong>Published location data does not confirm current service availability. Exercise priorities are simulated and must be verified locally.</strong></p>
     </section>
 
-    <footer className="dashboard-footer source-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
+    <footer className="dashboard-footer source-footer"><div className="dashboard-container dashboard-footer-inner"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></div></footer>
     </div>
   </section>;
 }

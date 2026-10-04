@@ -28,14 +28,9 @@ export function AboutPage() {
 
     <section className="about-working" aria-labelledby="working-title"><h2 id="working-title">How we worked</h2><div>{principles.map((item) => <article className={item.tone} key={item.title}><span aria-hidden="true">{item.icon}</span><div><h3>{item.title}</h3><p>{item.copy}</p></div></article>)}</div></section>
 
-    <section className="about-facts" aria-label="Project facts"><Fact value="4" label="team members" /><Fact value="8" label="public data sources" /><Fact value="64" label="remote communities" /><Fact value="1" label="shared goal" /></section>
-    <footer className="dashboard-footer"><span><strong>RemoteReady NT</strong><small>Emergency connectivity and preparedness</small></span><span>CDU IT Code Fair · Data Innovation Challenge</span></footer>
+    <footer className="dashboard-footer"><div className="dashboard-container dashboard-footer-inner"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></div></footer>
     </div>
   </section>;
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return <div><strong>{value}</strong><span>{label}</span></div>;
 }
 
 function DetailIcon({ kind }: { kind: 'program' | 'contribution' }) {

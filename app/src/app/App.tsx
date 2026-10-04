@@ -27,8 +27,10 @@ export function App() {
   return (
     <>
       <AppShell activeView={activeView} onViewChange={setActiveView} onExportReport={exportDashboardReport}>
-        {activeView === 'dashboard' && <DashboardPage onNavigate={setActiveView} onRegisterExport={registerDashboardExport} />}
-        {activeView === 'preparedness' && <PreparednessPage onNavigate={setActiveView} />}
+        <div className="app-view" hidden={activeView !== 'dashboard'}>
+          <DashboardPage onNavigate={setActiveView} onRegisterExport={registerDashboardExport} />
+        </div>
+        {activeView === 'preparedness' && <PreparednessPage />}
         {activeView === 'sources' && <DataSourcesPage />}
         {activeView === 'about' && <AboutPage />}
       </AppShell>

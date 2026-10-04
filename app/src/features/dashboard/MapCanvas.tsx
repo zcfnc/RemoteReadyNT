@@ -66,6 +66,27 @@ function StageViewport({ stage, analysis }: { stage: ExerciseStage; analysis: bo
   return null;
 }
 
+function MapResizeObserver() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    if (typeof ResizeObserver === 'undefined') return;
+
+    let frame = 0;
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry || entry.contentRect.width === 0 || entry.contentRect.height === 0) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => map.invalidateSize({ pan: false, animate: false }));
+    });
+    observer.observe(container);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [map]);
+  return null;
+}
+
 function SelectedLocation({ feature }: { feature?: MapFeature }) {
   const map = useMap();
   useEffect(() => {
@@ -231,6 +252,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, bomCyclon
   });
 
   return <MapContainer bounds={ntBounds} className="leaflet-map" zoomControl={false}>
+    <MapResizeObserver />
     <StageViewport analysis={analysisMode} stage={stage} />
     <SelectedLocation feature={selectedFeature} />
     <MapTools analysis={analysisMode} stage={stage} />

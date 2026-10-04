@@ -1,6 +1,5 @@
 import { PageHero } from '../components/layout/PageHero';
 import { useEffect, useMemo, useState } from 'react';
-import type { View } from '../app/view';
 import { loadChecklist, saveChecklist } from '../services/storage';
 import { downloadDecisionSupportReport } from '../services/decisionReport';
 import { dataService } from '../services/dataService';
@@ -18,9 +17,7 @@ const checklist = [
   ['drill', 'Run a no-signal drill', 'Practise response steps when there is no network coverage.'],
 ] as const;
 
-type PreparednessProps = { onNavigate?: (view: View) => void };
-
-export function PreparednessPage({ onNavigate }: PreparednessProps) {
+export function PreparednessPage() {
   const [checks, setChecks] = useState<Record<string, boolean>>(loadChecklist);
   const [network, setNetwork] = useState(navigator.onLine);
   const [notice, setNotice] = useState<string>();
@@ -59,11 +56,6 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
     }
   };
 
-  const showLocation = () => {
-    if (!navigator.geolocation) { setNotice('Location is not available in this browser.'); return; }
-    navigator.geolocation.getCurrentPosition(() => setNotice('Your current location is available to the map.'), () => setNotice('Location access was not available.'));
-  };
-
   return <section className="inner-page" aria-labelledby="preparedness-title">
     <h1 className="visually-hidden" id="preparedness-title">Preparedness</h1>
     <PageHero kicker="COMMUNITY PREPAREDNESS" title="Eight checks before an outage" titleId="checklist-title" status={`${complete} of ${checklist.length} complete`} />
@@ -86,14 +78,8 @@ export function PreparednessPage({ onNavigate }: PreparednessProps) {
         </aside>
       </div>
     </section>
-    <section className="preparedness-section field-tools-section" aria-labelledby="field-tools-title">
-      <header className="preparedness-section-heading"><div><span>FIELD TOOLS</span><h2 id="field-tools-title">Fast access when conditions change</h2></div></header>
-      <div className="field-tools-grid"><FieldTool icon="⌖" title="My location" copy="Use this device to find your current position." label="Open tool →" onClick={showLocation} /><FieldTool icon="▱" title="Risk map" copy="Review communities, facilities and cyclone context." label="Open tool →" onClick={() => onNavigate?.('dashboard')} /><FieldTool icon="☎" title="Emergency contacts" copy="Confirm local and regional contact details." label="Review steps →" onClick={() => setNotice('Confirm local and regional contact details.')} /><FieldTool icon="◉" title="No-signal drill" copy="Practise the steps to follow when communications fail." label="Review steps →" onClick={() => document.getElementById('community-checklist')?.scrollIntoView({ behavior: 'smooth' })} /></div>
-    </section>
     <p className="preparedness-boundary-warning"><span aria-hidden="true">▲</span><strong>Preparedness information supports planning only. Confirm current conditions and emergency advice with local authorities.</strong></p>
-    <footer className="dashboard-footer preparedness-footer"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></footer>
+    <footer className="dashboard-footer preparedness-footer"><div className="dashboard-container dashboard-footer-inner"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></div></footer>
     </div>
   </section>;
 }
-
-function FieldTool({ icon, title, copy, label, onClick }: { icon: string; title: string; copy: string; label: string; onClick: () => void }) { return <article className="field-tool-card"><span className="field-tool-icon" aria-hidden="true">{icon}</span><h3>{title}</h3><p>{copy}</p><button onClick={onClick} type="button">{label}</button></article>; }
