@@ -799,17 +799,19 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 
 .source-section-heading {
   display: flex;
-  min-height: 54px;
+  min-height: 82px;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 6px 14px;
-  background: #555;
-  color: #fff;
+  border-bottom: 1px solid #d7e0e4;
+  border-left: 4px solid #174e73;
+  padding: 10px 18px;
+  background: #fff;
+  color: #073f66;
 }
-.source-section-heading span { color: #c6e3ee; font-size: 9px; font-weight: 700; letter-spacing: .08em; line-height: 1; }
-.source-section-heading h2 { margin: 2px 0 0; color: #fff; font-size: 17px; font-weight: 700; line-height: 1.15; }
-.source-section-heading p { margin: 0; color: #f2f2f2; font-size: 12px; }
+.source-section-heading span { color: #236990; font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.2; }
+.source-section-heading h2 { margin: 5px 0 0; color: #073f66; font-size: 22px; font-weight: 700; line-height: 1.25; }
+.source-section-heading p { margin: 0; color: #506875; font-size: 12px; }
 
 .source-record-grid {
   display: grid;
@@ -857,13 +859,17 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 .source-import-details small { display: block; overflow-y: auto; max-height: 56px; color: #536d82; font-size: 10px; line-height: 1.3; }
 .source-record.imported .source-record-updated > span:last-child { color: #405a68; font-size: 13px; line-height: 1.25; }
 
-.source-method-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; padding-top: 8px; }
-.source-method-grid article { height: 170px; min-height: 170px; overflow: hidden; border: 1px solid #d7e0e4; padding: 14px; background: #fff; text-align: center; }
-.source-method-grid article > span { display: block; color: #073f66; font-size: 30px; line-height: 1; }
-.source-method-grid h3 { margin: 10px 0 6px; color: #073f66; font-size: 14px; }
-.source-method-grid p { margin: 0; color: #506875; font-size: 10.5px; line-height: 1.35; text-align: left; }
-.source-boundary-warning { display: flex; align-items: center; gap: 13px; margin: 8px 0 0; border: 1px solid #efbf63; padding: 11px 18px; background: #fff4da; color: #704312; font-size: 13px; line-height: 1.4; scroll-margin-top: 12px; }
-.source-boundary-warning > span { font-size: 23px; }
+.source-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 18px 0 0; list-style: none; }
+.source-method-grid li { min-width: 0; border: 1px solid #d7e0e4; padding: 18px 22px 20px; background: #fff; }
+.source-method-card-heading { display: flex; align-items: center; gap: 14px; }
+.source-method-number { display: grid; width: 42px; height: 42px; flex: none; place-items: center; border-radius: 50%; background: #dff1fa; color: #073f66; font-size: 20px; font-weight: 700; }
+.source-method-grid h3 { margin: 0; color: #073f66; font-size: 17px; line-height: 1.25; }
+.source-method-grid p { margin: 12px 0 0; color: #506875; font-size: 14px; line-height: 1.5; }
+.source-boundary-warning { display: flex; align-items: flex-start; gap: 16px; margin: 18px 0 0; border: 1px solid #efbf63; padding: 16px 20px; background: #fff4da; color: #704312; scroll-margin-top: 12px; }
+.source-boundary-warning > span { flex: none; font-size: 24px; line-height: 1.2; }
+.source-boundary-warning h3 { margin: 0 0 5px; font-size: 16px; line-height: 1.3; }
+.source-boundary-warning p { margin: 0; font-size: 14px; line-height: 1.45; }
+.source-boundary-warning small { display: block; margin-top: 7px; font-size: 12px; line-height: 1.4; }
 .source-footer { width: 100%; margin-top: 43px; }
 
 @media (max-width: 1400px) and (min-width: 761px) {
@@ -891,7 +897,7 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
   .sources-redesign { width: calc(100% - 24px); }
   .source-record-grid { grid-template-columns: minmax(0, 1fr); }
   .source-record { grid-template-columns: minmax(0, 1fr) 142px; }
-  .source-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .source-method-grid { gap: 12px; }
 }
 
 @media (max-width: 760px) {
@@ -909,16 +915,16 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
   .sources-redesign .status-tile b { font-size: 10px; }
   .sources-redesign .status-tile small { font-size: 8.5px; }
   .sources-redesign .source-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .source-section-heading { min-height: 66px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 5px; }
-  .source-section-heading h2 { font-size: 16px; }
+  .source-section-heading { min-height: 0; padding: 13px 14px; }
+  .source-section-heading h2 { font-size: 20px; }
   .source-record-grid { grid-template-columns: 1fr; }
   .source-record { min-height: 0; aspect-ratio: auto; grid-template-columns: 1fr; }
   .source-record { height: auto; }
   .source-record-status { border-top: 1px solid #dce5e8; border-left: 0; }
   .source-record-status a { margin-top: 0; }
   .source-method-grid { grid-template-columns: 1fr; }
-  .source-method-grid article { height: auto; min-height: 0; }
-  .source-boundary-warning { align-items: flex-start; margin-right: 8px; margin-left: 8px; }
+  .source-method-grid li { padding: 18px; }
+  .source-boundary-warning { padding: 14px; }
   .source-footer { margin-top: 28px; }
 }
 

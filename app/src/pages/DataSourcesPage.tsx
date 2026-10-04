@@ -4,10 +4,9 @@ import { useSourceData } from '../features/sources/useSourceData';
 
 
 const dataUseCards = [
-  { icon: '⌖', title: 'Published locations', copy: 'Community, facility and communications locations come from listed public datasets and support situational awareness.' },
-  { icon: '◷', title: 'Historical context', copy: 'Historical weather, cyclone and connectivity records help identify risks and inform exercise planning.' },
-  { icon: '⌁', title: 'Modelled exercise', copy: 'Published data is combined with scenario assumptions to explore possible service outages and support needs.' },
-  { icon: '▤', title: 'Verify locally', copy: 'Network, access and service conditions must be confirmed with local organisations and community contacts.' },
+  { title: 'Published locations', copy: 'Community, facility and communications locations come from listed public datasets and support situational awareness.' },
+  { title: 'Historical context', copy: 'Historical weather, cyclone and connectivity records help identify risks and inform exercise planning.' },
+  { title: 'Modelled exercise', copy: 'Published data is combined with scenario assumptions to explore possible service outages and support needs.' },
 ];
 
 const importedDatasets = [
@@ -78,10 +77,10 @@ export function DataSourcesPage() {
 
     <section className="source-methodology" id="data-methodology" aria-labelledby="data-methodology-title">
       <header className="source-section-heading"><div><span>HOW THE DATA IS USED</span><h2 id="data-methodology-title">From source data to preparedness information</h2></div></header>
-      <div className="source-method-grid">
-        {dataUseCards.map((card) => <article key={card.title}><span aria-hidden="true">{card.icon}</span><h3>{card.title}</h3><p>{card.copy}</p></article>)}
-      </div>
-      <p className="source-boundary-warning" id="data-boundaries"><span aria-hidden="true">▲</span><strong>Published location data does not confirm current service availability. Exercise priorities are simulated and must be verified locally.</strong></p>
+      <ol className="source-method-grid">
+        {dataUseCards.map((card, index) => <li key={card.title}><div className="source-method-card-heading"><span className="source-method-number">{index + 1}</span><h3>{card.title}</h3></div><p>{card.copy}</p></li>)}
+      </ol>
+      <aside className="source-boundary-warning" id="data-boundaries" aria-labelledby="source-verify-title"><span aria-hidden="true">▲</span><div><h3 id="source-verify-title">Verify locally</h3><p>Network, access and service conditions must be confirmed with local organisations and community contacts.</p><small>Published location data does not confirm current service availability. Exercise priorities are simulated.</small></div></aside>
     </section>
 
     <footer className="dashboard-footer source-footer"><div className="dashboard-container dashboard-footer-inner"><span><strong>RemoteReady NT</strong><small>Emergency communications and preparedness</small></span><span>Prototype only · Verify emergency information locally</span></div></footer>
