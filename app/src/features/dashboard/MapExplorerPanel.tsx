@@ -44,7 +44,7 @@ export function MapExplorerPanel({ connectivity, facilities, layers, onLayerChan
   };
 
   return <aside className="map-explorer" aria-label="Map exploration controls">
-    <p className="eyebrow">MAP EXPLORATION</p>
+    <p className="eyebrow">CYCLONE DETAIL</p>
     <form className="map-search" onSubmit={(event) => { event.preventDefault(); search(); }}>
       <label htmlFor="map-search-input">Search communities, sites or facilities</label>
       <div>

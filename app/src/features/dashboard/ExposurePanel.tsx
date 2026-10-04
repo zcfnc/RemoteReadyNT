@@ -34,7 +34,7 @@ export function ExposurePanel({ data, error, simulation, tracksUnavailable = fal
   const radii = [50, 100, 150, 200, 300].filter((radius) => radius <= (data?.catalogRadiusKm ?? 300));
 
   return <aside className="exposure-panel" aria-label="Historical cyclone proximity analysis">
-    <header className="exposure-panel-header"><span>HISTORICAL ANALYSIS</span><h3>Coverage point proximity</h3></header>
+    <header className="exposure-panel-header"><span>HISTORICAL ANALYSIS</span></header>
     {!data && !error && <p className="exposure-state" role="status">Loading historical proximity data…</p>}
     {error && <p className="exposure-state exposure-error" role="alert">{error} Check the data file and reload.</p>}
     {data && <>
