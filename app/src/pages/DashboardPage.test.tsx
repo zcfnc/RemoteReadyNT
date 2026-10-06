@@ -204,7 +204,7 @@ describe('DashboardPage priority action', () => {
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-storm', 'lam');
     fireEvent.click(screen.getByRole('button', { name: 'Select Milingimbi on map' }));
     expect(screen.getByTestId('map-canvas')).toHaveAttribute('data-selected', 'Milingimbi');
-    expect(within(panel).getByRole('button', { name: /Milingimbi/ })).toHaveAttribute('aria-current', 'true');
+    expect(within(panel.querySelector('.exposure-ranking') as HTMLElement).getByRole('button', { name: /Milingimbi/ })).toHaveAttribute('aria-current', 'true');
 
     fireEvent.change(within(panel).getByLabelText('Proximity radius'), { target: { value: '50' } });
     expect(within(panel).getByText('2015–2026 · within 50 km · 1 point with records')).toBeInTheDocument();

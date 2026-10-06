@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import type { CycloneExposureData, ResilienceSimulationData } from '../../types/data';
 import type { ExposureFilter, ExposureResult } from './exposure';
 import { capacityBand } from './resilience';
@@ -23,6 +24,9 @@ function distanceLabel(distance: number | null) {
 
 export function ExposurePanel({ data, error, simulation, tracksUnavailable = false, filter, results, selectedCommunityId, selectedStormId, onFilterChange, onCommunitySelect, onStormSelect }: Props) {
   const [showAll, setShowAll] = useState(false);
+  const [communityQuery, setCommunityQuery] = useState('');
+  const [showCommunitySuggestions, setShowCommunitySuggestions] = useState(false);
+  const [searchMessage, setSearchMessage] = useState('');
   const selected = results.find((item) => item.community.communityId === selectedCommunityId);
   const selectedRank = selected ? results.indexOf(selected) + 1 : 0;
   const ranked = results.filter((item) => item.count > 0);
@@ -32,12 +36,53 @@ export function ExposurePanel({ data, error, simulation, tracksUnavailable = fal
   ];
   const years = data ? Array.from({ length: data.availableYears.to - data.availableYears.from + 1 }, (_, index) => data.availableYears.from + index) : [];
   const radii = [50, 100, 150, 200, 300].filter((radius) => radius <= (data?.catalogRadiusKm ?? 300));
+  const communityMatches = communityQuery.trim()
+    ? results.filter((item) => item.community.name.toLocaleLowerCase().includes(communityQuery.trim().toLocaleLowerCase())).slice(0, 6)
+    : [];
+  const selectCommunity = (communityId: string) => {
+    const match = results.find((item) => item.community.communityId === communityId);
+    if (!match) return;
+    setCommunityQuery(match.community.name);
+    setShowCommunitySuggestions(false);
+    setSearchMessage(`Showing ${match.community.name}.`);
+    onCommunitySelect(communityId);
+  };
+  const selectExerciseCommunity = (name: string) => {
+    const match = results.find((item) => item.community.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+    if (!match) {
+      setSearchMessage(`${name} is not available in the current community data.`);
+      return;
+    }
+    selectCommunity(match.community.communityId);
+  };
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!communityQuery.trim()) {
+      setSearchMessage('Enter a community name.');
+      return;
+    }
+    if (communityMatches.length === 0) {
+      setSearchMessage(`No community found for “${communityQuery.trim()}”.`);
+      return;
+    }
+    selectCommunity(communityMatches[0].community.communityId);
+  };
 
   return <aside className="exposure-panel" aria-label="Historical cyclone proximity analysis">
     <header className="exposure-panel-header"><span>HISTORICAL ANALYSIS</span></header>
     {!data && !error && <p className="exposure-state" role="status">Loading historical proximity data…</p>}
     {error && <p className="exposure-state exposure-error" role="alert">{error} Check the data file and reload.</p>}
     {data && <>
+      <form className="map-search exposure-map-search" onSubmit={submitSearch}>
+        <label htmlFor="exposure-community-search">Search communities, sites or facilities</label>
+        <div>
+          <input id="exposure-community-search" onChange={(event) => { setCommunityQuery(event.target.value); setShowCommunitySuggestions(true); setSearchMessage(''); }} onFocus={() => { if (communityQuery.trim()) setShowCommunitySuggestions(true); }} placeholder="Search Galiwinku" type="search" value={communityQuery} />
+          <button aria-label="Search map" type="submit">→</button>
+        </div>
+        {showCommunitySuggestions && communityMatches.length > 0 && <div aria-label="Matching communities" className="exposure-community-suggestions" role="listbox">{communityMatches.map((item) => <button aria-selected={selectedCommunityId === item.community.communityId} key={item.community.communityId} onClick={() => selectCommunity(item.community.communityId)} role="option" type="button">{item.community.name}</button>)}</div>}
+        <p aria-live="polite" className="search-feedback">{searchMessage}</p>
+        <div className="exercise-focus"><span>Exercise focus</span><div className="exercise-focus-actions"><button onClick={() => selectExerciseCommunity('Galiwinku')} type="button">Galiwinku</button><button onClick={() => selectExerciseCommunity('Milingimbi')} type="button">Milingimbi</button></div></div>
+      </form>
       <div className="exposure-controls">
         <div className="exposure-year-controls">
           <label>From year<select aria-label="Proximity from year" value={filter.fromYear} onChange={(event) => onFilterChange({ ...filter, fromYear: Math.min(Number(event.target.value), filter.toYear) })}>{years.map((year) => <option key={year} value={year}>{year}</option>)}</select></label>

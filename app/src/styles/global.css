@@ -944,6 +944,10 @@ body, button, input, textarea, select, table { font-family: Arial, Helvetica, sa
 .exposure-year-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
 .exposure-controls label { display: grid; gap: 5px; color: #405d6b; font-size: 11px; font-weight: 800; }
 .exposure-controls select { width: 100%; min-height: 36px; border: 1px solid #9fb8c4; border-radius: 3px; padding: 4px 7px; background: #fff; color: #172d39; font: inherit; font-size: 13px; }
+.exposure-map-search { border-bottom: 1px solid #d5e0e5; }
+.exposure-community-suggestions { display: grid; max-height: 190px; overflow: auto; border: 1px solid #b9ccd4; background: #fff; }
+.exposure-community-suggestions button { min-height: 38px; border: 0; border-bottom: 1px solid #e1e9ec; padding: 6px 9px; background: #fff; color: #173b50; cursor: pointer; text-align: left; font: inherit; font-size: 13px; }
+.exposure-community-suggestions button:hover, .exposure-community-suggestions button:focus-visible, .exposure-community-suggestions button[aria-selected="true"] { background: #e6f2f7; }
 .exposure-filter-summary { margin: 0; color: #405d6b; font-size: 11px; line-height: 1.4; }
 .exposure-method-summary { margin: 0; color: #405d6b; font-size: 10px; line-height: 1.4; }
 .exposure-track-warning { margin: 0; padding: 9px 16px; background: #fff4da; color: #704312; font-size: 11px; line-height: 1.4; }

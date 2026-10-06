@@ -278,7 +278,7 @@ export function MapCanvas({ connectivity, facilities, historicalTrack, bomCyclon
           <Tooltip className="remote-node-tooltip" sticky>{track.properties.name || 'Unnamed cyclone'} · {track.properties.start.slice(0, 10)}–{track.properties.end.slice(0, 10)} · BoM historical database</Tooltip>
         </Polyline>
         {isSelected && visiblePoints.length > 1 && <Polyline pathOptions={{ color: '#b84b1f', weight: 8, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }} positions={visiblePoints} />}
-        {isSelected && !analysisMode && markerIndexes.map(({ day, pointIndex }) => <Marker icon={milestoneIcon(day)} key={`${track.properties.stormId}-day-${day}`} position={visiblePoints[pointIndex]}>
+        {isSelected && markerIndexes.map(({ day, pointIndex }) => <Marker icon={milestoneIcon(day)} key={`${track.properties.stormId}-day-${day}`} position={visiblePoints[pointIndex]}>
           <Tooltip className="remote-node-tooltip" direction="top" offset={[0, -10]} sticky>{track.properties.name || 'Unnamed cyclone'} · Day {day}</Tooltip>
         </Marker>)}
       </span>;
